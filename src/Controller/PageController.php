@@ -13,9 +13,14 @@ public function index(): Response
 {
     return $this->render('page/index.html.twig');
 }
-#[Route('/nav', name: 'page_index')]
+#[Route('/nav', name: 'ppage_index')]
 public function navindex(): Response
 {
     return $this->render('page/nav.html.twig');
+}
+#[Route('/back', name: 'pppage_index')]
+public function nabavindex(): Response
+{
+    return $this->render('page/back.html.twig');
 }
 }
