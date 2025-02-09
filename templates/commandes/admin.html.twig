@@ -1,0 +1,53 @@
+
+
+{% extends 'baseBack.html.twig' %}
+
+{% block nav %}
+    <!-- Le contenu de ton menu peut être ici, ou tu peux utiliser {{ parent() }} si tu veux garder le même menu -->
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Liste des commandes pour le terrain</h1>
+
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Client ID</th>
+                    <th>Statut</th>
+                    <th>Date</th>
+                    <th>Prix total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for commande in commandes %}
+                    <tr>
+                        <td>{{ commande.id }}</td>
+                        <td>{{ commande.nom }}</td> <!-- Display product name -->
+                        <td>{{ commande.quantite }}</td>
+                        <td>{{ commande.id_client }}</td>
+                        <td>
+                            {% if commande.statut == 'En cours' %}
+                                <span class="badge badge-warning">{{ commande.statut }}</span>
+                            {% elseif commande.statut == 'Complété' %}
+                                <span class="badge badge-success">{{ commande.statut }}</span>
+                            {% else %}
+                                <span class="badge badge-secondary">{{ commande.statut }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ commande.date|date('d-m-Y H:i') }}</td>
+                        <td>{{ commande.prix }} €</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center">Aucune commande trouvée pour ce terrain</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

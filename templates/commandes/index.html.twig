@@ -1,0 +1,61 @@
+{% extends 'baseFront.html.twig' %}
+
+{% block nav %}
+    {{ parent() }}
+    
+{% endblock %}
+
+{% block body %}
+{% for label, messages in app.flashes %}
+    <div class="alert alert-{{ label }} mt-2" role="alert">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endfor %}
+<div class="container mt-4">
+    <h3>Votre Panier</h3>
+    {% if cart|length > 0 %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix Unitaire</th>
+                    <th>Prix Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for id, item in cart %}
+                    <tr>
+                        <td>{{ item.nom }}</td>
+                        <td>
+                            <form action="{{ path('update_cart', { id: id }) }}" method="post" class="d-flex">
+                                <input type="number" name="quantity" value="{{ item.quantite }}" min="1"
+                                    class="form-control form-control-sm text-center" style="max-width: 70px;">
+                                <button type="submit" class="btn btn-sm btn-primary ms-2">Modifier</button>
+                            </form>
+                        </td>
+                        <td>{{ item.prix }} €</td>
+                        <td>{{ item.quantite * item.prix }} €</td>
+                        <td>
+                            <a href="{{ path('remove_from_cart', { id: id }) }}" class="btn btn-sm btn-danger">
+                                Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="text-end">
+            <p><strong>Total : </strong>{{ total }} €</p>
+            <form action="{{ path('checkout') }}" method="POST">
+                <button type="submit" class="btn btn-success">Payer</button>
+            </form>
+        </div>
+    {% else %}
+        <p class="text-muted">Votre panier est vide.</p>
+    {% endif %}
+</div>
+{% endblock %}

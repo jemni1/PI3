@@ -1,2 +1,9 @@
 {% extends 'baseBack.html.twig' %}
 
+{% block nav %}
+    <!-- Le contenu de ton menu peut être ici, ou tu peux utiliser {{ parent() }} si tu veux garder le même menu -->
+    {{ parent() }}
+{% endblock %}
+{% block body %}
+    {{ parent() }}
+{% endblock %}

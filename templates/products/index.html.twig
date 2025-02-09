@@ -1,0 +1,51 @@
+
+{% extends 'baseBack.html.twig' %}
+
+{% block nav %}
+    <!-- Le contenu de ton menu peut être ici, ou tu peux utiliser {{ parent() }} si tu veux garder le même menu -->
+    {{ parent() }}
+{% endblock %}
+
+
+{% block body %}
+    {{ parent() }}
+
+<br>
+<div class="col-md-6 grid-margin stretch-card">
+    <div class="card">
+        <div class="card-body">
+            <p class="card-description">
+                Ajoutez un produit
+            </p>
+
+            {{ form_start(form, {'attr': {'class': 'forms-sample'}}) }}
+
+            <div class="form-group">
+                {{ form_label(form.nom, 'Nom du produit') }}
+                {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom du produit'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.quantite, 'Quantité') }}
+                {{ form_widget(form.quantite, {'attr': {'class': 'form-control', 'placeholder': 'Quantité'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.prix, 'Prix') }}
+                {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Prix'}}) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.imageFile, 'Image du produit') }}
+                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+            </div>
+
+            
+            <button type="submit" class="btn btn-primary mr-2">Envoyer</button>
+            <button type="button" class="btn btn-light">Annuler</button>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
