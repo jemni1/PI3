@@ -222,7 +222,7 @@ public function checkout(SessionInterface $session, EntityManagerInterface $enti
         return $this->redirectToRoute('view_cart');
     }
 }
-#[Route('/admin/commandes/{terrainId}', name: 'admin_commandes_by_terrain', methods: ['GET'])]
+#[Route('/admin/commandes/{terrainId}', name: 'admin_commandes_by_terrain')]
 public function index(int $terrainId, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
 {
     // Fetch all products that belong to the specified terrain
@@ -240,7 +240,7 @@ public function index(int $terrainId, CommandesRepository $commandesRepository, 
         'commandes' => $commandes,
     ]);
 }
-#[Route('/user/commandes/{userId}', name: 'admin_commandes_by_terrain')]
+#[Route('/user/commandes/{userId}', name: 'user_commandes_by_terrain')]
 public function indexuser(int $userId, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
 {
  

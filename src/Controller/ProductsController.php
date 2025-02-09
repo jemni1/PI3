@@ -42,6 +42,7 @@ final class ProductsController extends AbstractController
                     $this->addFlash('error', 'Erreur lors de l’upload de l’image.');
                 }
                 $produit->setImage($newFilename);
+                // $produit->setIdTerrain($id);
             }
 
             $entityManager->persist($produit);
@@ -107,7 +108,8 @@ public function delete(int $id, ProduitsRepository $produitsRepository, EntityMa
 #[Route('/liste', name: 'listprod')]
 public function list(ProduitsRepository $productRepository): Response
 {
-    $products = $productRepository->findAll();
+    $products = $productRepository->findAvailableProducts();
+
 
     return $this->render('products/listuser.html.twig', [
         'products' => $products

@@ -50,7 +50,7 @@
         </table>
         <div class="text-end">
             <p><strong>Total : </strong>{{ total }} €</p>
-            <form action="{{ path('checkout') }}" method="POST">
+            <form action="{{ path('payment') }}" method="POST">
                 <button type="submit" class="btn btn-success">Payer</button>
             </form>
         </div>
