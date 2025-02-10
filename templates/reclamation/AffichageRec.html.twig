@@ -1,0 +1,59 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Gestion des Réclamations{% endblock %}
+
+{% block body %}
+<br>
+<br><br>
+<div class="container mt-4">
+    <h1 class="text-center">Liste des Réclamations</h1>
+
+    {% if rec is not empty %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sujet</th>
+                    <th>Description</th>
+                    <th>Statut</th>
+                    <th>Date de Réclamation</th>
+                    <th>Réponse</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reclamation in rec %}
+                    <tr>
+                        <td>{{ reclamation.sujet }}</td>
+                        <td>{{ reclamation.description }}</td>
+                        <td>{{ reclamation.status }}</td>
+                        <td>{{ reclamation.daterec|date('d-m-Y') }}</td>
+                        
+                        <td>
+                            {% if reclamation.response %}
+                                <p>{{ reclamation.response.message }}</p>
+                            {% else %}
+                                <p>Aucune réponse</p>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if not reclamation.response %}
+                                <!-- Afficher le bouton de suppression uniquement si la réclamation n'a pas de réponse -->
+                                <a class="btn btn-danger btn-sm" href="{{ path('rmRec', {'id': reclamation.id}) }}">Supprimer reclamation</a>
+                            {% endif %}
+                            
+                            {% if not reclamation.response %}
+                                <a class="btn btn-primary btn-sm" href="{{ path('ajouter_reponse', {'id': reclamation.id}) }}">Ajouter Réponse</a>
+                            {% else %}
+                                <a class="btn btn-warning btn-sm" href="{{ path('update_reponse', {'id': reclamation.response.idReponse}) }}">Mettre à jour Réponse</a>
+                            {% endif %}
+                        </td> 
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center text-muted">Aucune réclamation trouvée.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Ajouter une Réponse{% endblock %}
+
+{% block body %}
+    <h1>Ajouter une Réponse à la Réclamation: {{ reclamation.sujet }}</h1>
+
+    {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.message) }}
+            {{ form_widget(form.message, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        <button class="btn btn-primary">Ajouter la Réponse</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('afficherReclamation') }}">Retour à la liste des réclamations</a>
+{% endblock %}

@@ -1,0 +1,20 @@
+{# templates/reclamation/edit.html.twig #}
+
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Mise à jour de la réclamation{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1 class="text-center">Mise à jour de la réclamation</h1>
+
+       {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            {{ form_row(form.sujet) }}
+            {{ form_row(form.description) }}
+            <div class="form-group text-center">
+                <!-- Changez ici pour afficher le texte "Modifier" sur le bouton -->
+                <button class="btn btn-primary" type="submit">Modifier</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
