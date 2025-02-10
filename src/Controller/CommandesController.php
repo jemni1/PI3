@@ -227,9 +227,7 @@ public function index(int $terrainId, CommandesRepository $commandesRepository, 
 {
     // Fetch all products that belong to the specified terrain
     $produits = $produitsRepository->findBy(['id_terrain' => $terrainId]);
-    if (!$produits) {
-        throw $this->createNotFoundException("Aucun produit trouvé pour le terrain ID " . $terrainId);
-    }
+    
     // Get the IDs of the products associated with the terrain
     $productIds = array_map(fn($produit) => $produit->getId(), $produits);
 
