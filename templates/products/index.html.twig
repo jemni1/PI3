@@ -18,21 +18,23 @@
                 Ajoutez un produit
             </p>
 
-            {{ form_start(form, {'attr': {'class': 'forms-sample'}}) }}
-
+ {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
             <div class="form-group">
                 {{ form_label(form.nom, 'Nom du produit') }}
                 {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom du produit'}}) }}
+                {{ form_errors(form.nom) }}
             </div>
 
             <div class="form-group">
                 {{ form_label(form.quantite, 'Quantité') }}
                 {{ form_widget(form.quantite, {'attr': {'class': 'form-control', 'placeholder': 'Quantité'}}) }}
+                {{ form_errors(form.quantite) }}
             </div>
 
             <div class="form-group">
                 {{ form_label(form.prix, 'Prix') }}
                 {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Prix'}}) }}
+                {{ form_errors(form.prix) }}
             </div>
 
             <div class="form-group">

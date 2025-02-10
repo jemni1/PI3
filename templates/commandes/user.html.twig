@@ -16,7 +16,6 @@
                         <th>Produit</th>
                         <th>Quantité</th>
                         <th>Client ID</th>
-                        <th>Statut</th>
                         <th>Date</th>
                         <th>Prix total</th>
                     </tr>
@@ -28,21 +27,7 @@
                             <td>{{ commande.nom }}</td>
                             <td>{{ commande.quantite }}</td>
                             <td>{{ commande.id_client }}</td>
-                            <td>
-                                {% if commande.statut == 'En cours' %}
-                                    <span class="badge badge-warning p-2 font-weight-bold text-dark">
-                                        <i class="fas fa-spinner fa-spin"></i> {{ commande.statut }}
-                                    </span>
-                                {% elseif commande.statut == 'Complété' %}
-                                    <span class="badge badge-success p-2 font-weight-bold">
-                                        <i class="fas fa-check-circle"></i> {{ commande.statut }}
-                                    </span>
-                                {% else %}
-                                    <span class="badge badge-secondary p-2 font-weight-bold">
-                                        <i class="fas fa-pause-circle"></i> {{ commande.statut }}
-                                    </span>
-                                {% endif %}
-                            </td>
+                          
                             <td>{{ commande.date|date('d-m-Y H:i') }}</td>
                             <td>{{ commande.prix }} €</td>
                         </tr>
