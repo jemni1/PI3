@@ -1,0 +1,189 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block css %}
+{{ parent() }} 
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        margin-top: 30px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .products-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .product-card {
+        width: 250px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background-color: #fff;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-body h5 {
+        font-size: 18px;
+        font-weight: bold;
+        color: #444;
+    }
+
+    .card-body p {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .card-actions {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 6px 12px;
+        border-radius: 5px;
+    }
+
+    .btn-edit {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #218838;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+    /* Styles pour la modale */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 400px;
+        text-align: center;
+        position: relative;
+    }
+
+    .modal-content img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+        color: red;
+    }
+
+    .modal input {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .confirm-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .confirm-btn:hover {
+        background-color: #0056b3;
+    }
+
+</style>
+{% endblock %}
+
+{% block body %}
+{{ parent() }}
+
+<div class="container">
+    <h2>Liste des Produits</h2>
+
+    <div class="text-center mb-4">
+        <a href="{{ path('add_products') }}" class="btn btn-success">Ajouter un produit</a>
+    </div>
+
+    <div class="products-container">
+        {% for produit in produits %}
+            <div class="product-card">
+                {% if produit.image %}
+                    <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
+                {% else %}
+                    <img src="{{ asset('images/default.jpg') }}" alt="Image par défaut">
+                {% endif %}
+                <div class="card-body">
+                    <h5>{{ produit.nom }}</h5>
+                    <p>Quantité: {{ produit.quantite }}</p>
+                    <p>Prix: {{ produit.prix }} €</p>
+                    <div class="card-actions">
+                        <a href="{{ path('produit_edit', { id: produit.id }) }}" class="btn btn-edit">Modifier</a>
+                        <a href="{{ path('produit_delete', { id: produit.id }) }}" class="btn btn-delete">Supprimer</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

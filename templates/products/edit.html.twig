@@ -1,0 +1,62 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">Ajouter / Modifier un Produit</h2>
+
+        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+        
+        <div class="form-group">
+            {{ form_label(form.nom, 'Nom du Produit') }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom du produit'}}) }}
+            {{ form_errors(form.nom) }}
+            <div class="invalid-feedback">Veuillez entrer un nom valide.</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.quantite, 'Quantité') }}
+            {{ form_widget(form.quantite, {'attr': {'class': 'form-control', 'min': 1}}) }}
+            {{ form_errors(form.quantite) }}
+            <div class="invalid-feedback">Veuillez entrer une quantité valide.</div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.prix, 'Prix (€)') }}
+            {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'step': '0.01', 'placeholder': 'Entrez le prix'}}) }}
+            {{ form_errors(form.prix) }}
+            <div class="invalid-feedback">Veuillez entrer un prix valide.</div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{{ path('app_all_products') }}" class="btn btn-secondary">Retour à la liste</a>
+            <button class="btn btn-primary" type="submit">Enregistrer</button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<script>
+    // Bootstrap validation
+    (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}
