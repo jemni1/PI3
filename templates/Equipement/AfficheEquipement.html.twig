@@ -1,0 +1,50 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+
+
+ {{ parent() }}
+    <div class="container mt-4">
+        <h2 class="mb-4">Liste des Équipements</h2>
+
+        <!-- Table pour afficher les équipements -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Date d'achat</th>
+                    <th scope="col">État</th>
+                    <th scope="col">Dernier Entretien</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipement in equipements %}
+                    <tr>
+                        <td>{{ equipement.nom }}</td>
+                        <td>{{ equipement.type }}</td>
+                        <td>{{ equipement.dateAchat ? equipement.dateAchat|date('d/m/Y') : 'Non défini' }}</td>
+                        <td>{{ equipement.etat }}</td>
+                        <td>{{ equipement.dateDernierEntretien ? equipement.dateDernierEntretien|date('d/m/Y') : 'Non défini' }}</td>
+                        <td>
+                            <a href="{{ path('equipement_edit', {id: equipement.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                            <a href="{{ path('d', {id: equipement.id}) }}" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet équipement ?');">Supprimer</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun équipement trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ path('equipement_add') }}" class="btn btn-primary">Ajouter un Équipement</a>
+    </div>
+{% endblock %}
