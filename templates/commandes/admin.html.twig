@@ -15,23 +15,23 @@
             <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Produit</th>
-                    <th>Quantité</th>
-                    <th>Client ID</th>
-                    <th>Date</th>
+                    <th>email</th>
                     <th>Prix total</th>
+                    <th>Actions</th>
+
                 </tr>
             </thead>
             <tbody>
                 {% for commande in commandes %}
                     <tr>
                         <td>{{ commande.id }}</td>
-                        <td>{{ commande.nom }}</td> <!-- Display product name -->
-                        <td>{{ commande.quantite }}</td>
                         <td>{{ commande.id_client }}</td>
-                      
-                        <td>{{ commande.date|date('d-m-Y H:i') }}</td>
                         <td>{{ commande.prix }} €</td>
+                        <td>
+                            <a href="{{ path('facture_admin', {'id': commande.id}) }}" class="btn btn-info">
+                                Voir la facture
+                            </a>
+                        </td>
                     </tr>
                 {% else %}
                     <tr>

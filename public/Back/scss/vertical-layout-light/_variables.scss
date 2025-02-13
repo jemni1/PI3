@@ -6,9 +6,9 @@ $sidebar-width-icon: 70px;
 $sidebar-light-bg: #fff;
 $sidebar-light-menu-color: #6C7383;
 $sidebar-light-submenu-color: #fff;
-$sidebar-light-menu-active-bg: theme-color(primary);
+$sidebar-light-menu-active-bg: #28a745;  // Remplacé par du vert
 $sidebar-light-menu-active-color: #fff;
-$sidebar-light-menu-hover-bg: theme-color(primary);
+$sidebar-light-menu-hover-bg: #28a745;  // Remplacé par du vert
 $sidebar-light-menu-hover-color: #fff;
 $sidebar-light-submenu-hover-color: $white;
 $sidebar-light-submenu-active-color: $white;
@@ -19,9 +19,9 @@ $sidebar-light-profile-title-color: #8d9498;
 
 $sidebar-dark-bg: #232227;
 $sidebar-dark-menu-color: #FFFFFF;
-$sidebar-dark-menu-active-bg: #4B49AC;
+$sidebar-dark-menu-active-bg: #28a745;  // Vert (Bootstrap Success)
 $sidebar-dark-menu-active-color: $white;
-$sidebar-dark-menu-hover-bg: #4B49AC;
+$sidebar-dark-menu-hover-bg: #28a745;  // Vert (ou une autre nuance)
 $sidebar-dark-menu-hover-color: #fff;
 $sidebar-dark-submenu-color: $sidebar-dark-menu-color;
 $sidebar-dark-submenu-hover-bg: initial;

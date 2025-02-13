@@ -1,0 +1,88 @@
+{% extends 'baseFront.html.twig' %}
+  
+{% block title %}Nouvelle collecte{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header text-white text-center" style="background-color: #2E7D32;">
+                    <h2>🌱 Nouvelle collecte de déchets</h2>
+                </div>
+                <div class="card-body bg-light">
+                   {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    {{ form_errors(form) }}
+
+                        <div class="mb-3">
+                            {{ form_label(form.typeDechet, 'Type de déchet', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.typeDechet, {'attr': {'class': 'form-control border-success'}}) }}
+                            {{ form_errors(form.typeDechet) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.quantite, 'Quantité (kg)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.quantite, {'attr': {'class': 'form-control border-success'}}) }}
+                            {{ form_errors(form.quantite) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.dateCollecte, 'Date de collecte', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.dateCollecte, {'attr': {'class': 'form-control border-success'}}) }}
+                            {{ form_errors(form.dateCollecte) }}
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn text-white px-4" style="background-color: #4CAF50;">
+                                <i class="fas fa-check"></i> Ajouter
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des collectes enregistrées -->
+    <div class="mt-5">
+        <h3 class="text-center text-success">📋 Liste des collectes</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center">
+                <thead style="background-color: #2E7D32; color: white;">
+                    <tr>
+                        <th>Type de déchet</th>
+                        <th>Quantité (kg)</th>
+                        <th>Date de collecte</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for collecte in collectes %}
+                        <tr>
+                            <td class="fw-bold">{{ collecte.typeDechet }}</td>
+                            <td>{{ collecte.quantite }}</td>
+                            <td>{{ collecte.dateCollecte|date('d/m/Y') }}</td>
+                            <td>
+                                <a href="{{ path('collecte_edit', {'id': collecte.id}) }}" class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <form action="{{ path('collecte_delete', {'id': collecte.id}) }}" method="post" class="d-inline" >
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collecte.id) }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Aucune collecte enregistrée</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

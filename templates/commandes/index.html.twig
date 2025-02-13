@@ -2,60 +2,106 @@
 
 {% block nav %}
     {{ parent() }}
-    
 {% endblock %}
 
 {% block body %}
-{% for label, messages in app.flashes %}
-    <div class="alert alert-{{ label }} mt-2" role="alert">
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-    </div>
-{% endfor %}
-<div class="container mt-4">
-    <h3>Votre Panier</h3>
-    {% if cart|length > 0 %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Produit</th>
-                    <th>Quantité</th>
-                    <th>Prix Unitaire</th>
-                    <th>Prix Total</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for id, item in cart %}
-                    <tr>
-                        <td>{{ item.nom }}</td>
-                        <td>
-                            <form action="{{ path('update_cart', { id: id }) }}" method="post" class="d-flex">
-                                <input type="number" name="quantity" value="{{ item.quantite }}" min="1"
-                                    class="form-control form-control-sm text-center" style="max-width: 70px;">
-                                <button type="submit" class="btn btn-sm btn-primary ms-2">Modifier</button>
-                            </form>
-                        </td>
-                        <td>{{ item.prix }} €</td>
-                        <td>{{ item.quantite * item.prix }} €</td>
-                        <td>
-                            <a href="{{ path('remove_from_cart', { id: id }) }}" class="btn btn-sm btn-danger">
-                                Supprimer
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="text-end">
-            <p><strong>Total : </strong>{{ total }} €</p>
-            <form action="{{ path('payment') }}" method="POST">
-                <button type="submit" class="btn btn-success">Payer</button>
-            </form>
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }} mt-2" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
         </div>
-    {% else %}
-        <p class="text-muted">Votre panier est vide.</p>
-    {% endif %}
-</div>
+    {% endfor %}
+
+    <div class="container mt-5">
+        <h3 class="text-center text-success">🛒 Votre Panier</h3>
+        <div class="card shadow p-4">
+            {% if cart|length > 0 %}
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark bg-success text-white">
+                        <tr>
+                            <th>Produit</th>
+                            <th>Quantité</th>
+                            <th>Prix Unitaire</th>
+                            <th>Prix Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for id, item in cart %}
+                            <tr>
+                                <td>{{ item.nom }}</td>
+                                <td>
+                                    <form action="{{ path('update_cart', { id: id }) }}" method="post" class="d-flex align-items-center">
+                                        <input type="number" name="quantity" value="{{ item.quantite }}" min="1"
+                                            class="form-control form-control-sm text-center" style="max-width: 70px;">
+                                        <button type="submit" class="btn btn-sm btn-primary ms-2">
+                                            <i class="fas fa-edit"></i> 
+                                        </button>
+                                    </form>
+                                </td>
+                                <td>{{ item.prix }} €</td>
+                                <td><strong>{{ item.quantite * item.prix }} €</strong></td>
+                                <td>
+                                    <a href="{{ path('remove_from_cart', { id: id }) }}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="{{ path('listprod') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                    <h4 class="text-success">Total: <strong>{{ total }} €</strong></h4>
+                    <form action="{{ path('payment') }}" method="POST">
+                        <button type="submit" class="btn btn-lg btn-success">
+                            <i class="fas fa-credit-card"></i> Payer
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <p class="text-muted text-center">Votre panier est vide.</p>
+                <div class="text-center mt-4">
+                    <a href="{{ path('listprod') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .card {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .text-success {
+            font-weight: bold;
+        }
+
+        .btn-success, .btn-danger, .btn-primary, .btn-secondary {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-success:hover, .btn-danger:hover, .btn-primary:hover, .btn-secondary:hover {
+            opacity: 0.8;
+        }
+    </style>
+
+    <!-- FontAwesome pour les icônes -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 {% endblock %}

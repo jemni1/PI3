@@ -6,7 +6,7 @@ use App\Repository\ProduitsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: ProduitsRepository::class)]
 class Produits
 {
@@ -50,7 +50,7 @@ class Produits
         return $this->quantite;
     }
 
-    public function setQuantite(int $quantite): static
+    public function setQuantite(?int $quantite): static
     {
         $this->quantite = $quantite;
 

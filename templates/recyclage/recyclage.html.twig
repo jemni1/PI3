@@ -1,0 +1,62 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %} Nouvelle opération de recyclage {% endblock %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+ {{ parent() }}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header text-white text-center" style="background-color: #2E7D32;">
+                    <h2 class="fw-bold">🌿 Nouvelle opération de recyclage</h2>
+                </div>
+                <div class="card-body bg-light">
+                   {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    {{ form_errors(form) }}
+
+                    <div class="mb-3">
+                        {{ form_label(form.quantiteRecyclee, '♻️ Quantité recyclée (kg)', {'label_attr': {'class': 'form-label text-dark fw-bolder fs-7'}}) }}
+                        {{ form_widget(form.quantiteRecyclee, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.quantiteRecyclee) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.energieProduite, '⚡ Énergie produite (kWh)', {'label_attr': {'class': 'form-label text-dark fw-bolder fs-4'}}) }}
+                        {{ form_widget(form.energieProduite, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.energieProduite) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.dateRecyclage, '📅 Date de recyclage', {'label_attr': {'class': 'form-label text-dark fw-bolder fs-4'}}) }}
+                        {{ form_widget(form.dateRecyclage, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.dateRecyclage) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.utilisation, '🔄 Utilisation de l\'énergie', {'label_attr': {'class': 'form-label text-dark fw-bolder fs-4'}}) }}
+                        {{ form_widget(form.utilisation, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.utilisation) }}
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn text-white px-4 fs-5 fw-bold" style="background-color: #4CAF50;">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                        <a href="{{ path('admin_recyclage_list') }}" class="btn btn-outline-secondary px-4 fs-5 fw-bold">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
