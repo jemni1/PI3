@@ -17,24 +17,13 @@ class ProduiteditType extends AbstractType
     {
         $builder
         ->add('quantite', IntegerType::class, [
-            'constraints' => [
-                new Assert\NotBlank(['message' => 'La quantité ne peut pas être vide.']),
-                new Assert\Type(['type' => 'integer', 'message' => 'La quantité doit être un entier.']),
-                new Assert\GreaterThan(['value' => 0, 'message' => 'La quantité doit être supérieure à zéro.']),
-            ]
+            'label' => 'Quantité',
         ])
         ->add('nom', TextType::class, [
-            'constraints' => [
-                new Assert\NotBlank(['message' => 'Le nom du produit ne peut pas être vide.']),
-                new Assert\Length(['max' => 90, 'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères.']),
-            ]
+            'label' => 'Nom du produit',
         ])
         ->add('prix', IntegerType::class, [
-            'constraints' => [
-                new Assert\NotBlank(['message' => 'Le prix ne peut pas être vide.']),
-                new Assert\Type(['type' => 'integer', 'message' => 'Le prix doit être un entier.']),
-                new Assert\GreaterThan(['value' => 0, 'message' => 'Le prix doit être supérieur à zéro.']),
-            ]
+            'label' => 'Prix',
         ]);
     }
 

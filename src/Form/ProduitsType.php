@@ -21,59 +21,21 @@ class ProduitsType extends AbstractType
         $builder
         ->add('quantite', IntegerType::class, [
             'label' => 'Quantité',
-            'constraints' => [
-                new Assert\NotBlank([
-                    'message' => 'La quantité ne peut pas être vide.',
-                ]),
-                new Assert\Type([
-                    'type' => 'integer',
-                    'message' => 'La quantité doit être un nombre entier.',
-                ]),
-                new Assert\GreaterThan([
-                    'value' => 0,
-                    'message' => 'La quantité doit être supérieure à zéro.',
-                ])
-            ],
+        
         ])
         ->add('nom', TextType::class, [
             'label' => 'Nom du produit',
-            'constraints' => [
-                new Assert\NotBlank([
-                    'message' => 'Le nom du produit ne peut pas être vide.',
-                ]),
-                new Assert\Length([
-                    'max' => 90,
-                    'maxMessage' => 'Le nom du produit ne peut pas dépasser {{ limit }} caractères.',
-                ])
-            ],
+        
         ])
         ->add('prix', IntegerType::class, [
             'label' => 'Prix',
-            'constraints' => [
-                new Assert\NotBlank([
-                    'message' => 'Le prix ne peut pas être vide.',
-                ]),
-                new Assert\Type([
-                    'type' => 'integer',
-                    'message' => 'Le prix doit être un nombre entier.',
-                ]),
-                new Assert\GreaterThan([
-                    'value' => 0,
-                    'message' => 'Le prix doit être supérieur à zéro.',
-                ])
-            ],
+       
         ])
             ->add('imageFile', FileType::class, [
                 'label' => 'Image du produit',
                 'mapped' => false, // Important : Ne pas lier directement à l'entité
                 'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
-                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG, PNG, WebP)',
-                    ])
-                ],
+              
             ]);
         
     }

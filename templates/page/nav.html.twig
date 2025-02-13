@@ -1,8 +1,8 @@
-{% extends 'baseFront.html.twig' %}
-
-{% block nav %}
-    {{ parent() }}
-{% endblock %}
-{% block body %}
-zdaecf
-{% endblock %}
+<html>
+    <body>
+        <h1>Test de la génération PDF</h1>
+        <p>Commande ID: {{ commande.id }}</p>
+        <p>Nom du produit: {{ commande.nom }}</p>
+        <p>Prix: {{ commande.prix }} €</p>
+    </body>
+</html>

@@ -4,13 +4,15 @@ namespace App\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\CommandesRepository;
 use App\Repository\ProduitsRepository;
-
+use App\EventSubscriber\CartSubscriber;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use App\Entity\Commandes;
 use App\Entity\Produits;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Doctrine\ORM\EntityManagerInterface;
 final class CommandesController extends AbstractController
 {
@@ -69,22 +71,33 @@ final class CommandesController extends AbstractController
     }
     
 
-#[Route('/cart', name: 'view_cart')]
-public function viewCart(SessionInterface $session): Response
-{
-    // Récupérer le panier de la session
-    $cart = $session->get('cart', []);
-
-    // Calculer le total
-    $total = array_reduce($cart, function ($carry, $item) {
-        return $carry + ($item['prix'] * $item['quantite']);
-    }, 0);
-
-    return $this->render('commandes/index.html.twig', [
-        'cart' => $cart,
-        'total' => $total,
-    ]);
-}
+    #[Route('/cart', name: 'view_cart')]
+    public function viewCart(SessionInterface $session): Response
+    {
+        // Récupérer le panier
+        $cart = $session->get('cart', []);
+        
+        // Calculer le total en vérifiant que chaque élément est bien un tableau
+        $total = array_reduce($cart, function ($carry, $item) {
+            if (!is_array($item) || !isset($item['prix']) || !isset($item['quantite'])) {
+                return $carry; // Ignorer les éléments invalides
+            }
+            return $carry + ($item['prix'] * $item['quantite']);
+        }, 0);
+        
+        // Nettoyer le panier des éléments invalides
+        $cart = array_filter($cart, function($item) {
+            return is_array($item) && isset($item['prix']) && isset($item['quantite']);
+        });
+        
+        // Mettre à jour le panier nettoyé dans la session
+        $session->set('cart', $cart);
+        
+        return $this->render('commandes/index.html.twig', [
+            'cart' => $cart,
+            'total' => $total,
+        ]);
+    }
 
 #[Route('/cart/update/{id}', name: 'update_cart', methods: ['POST'])]
 public function updateCart(int $id, Request $request, SessionInterface $session, EntityManagerInterface $entityManager,): Response
@@ -252,4 +265,144 @@ public function indexuser(int $userId, CommandesRepository $commandesRepository,
     ]);
 }
 
+#[Route('/factureadmin/{id}', name:"facture_admin")]
+public function indexcommm(int $id, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
+{
+    // Récupérer la commande par son ID
+    $commande = $commandesRepository->find($id);
+    
+    if (!$commande) {
+        throw $this->createNotFoundException('La commande n\'existe pas.');
+    }
+    $idProduit = $commande->getId_produit();
+    $produit = $produitsRepository->find($idProduit);
+
+    $idTerrain = $produit->getIdTerrain()->getId();
+
+    // Récupérer les produits associés à la commande si nécessaire
+    // $produits = $produitsRepository->findByCommande($commande);
+
+    return $this->render('commandes/admincmd.html.twig', [
+        'commande' => $commande, 
+        'idTerrain' => $idTerrain,
+    ]);
 }
+#[Route('/facture/{id}', name:"facture_show")]
+public function indexcomm(int $id, CommandesRepository $commandesRepository): Response
+{
+    // Récupérer la commande par son ID
+    $commande = $commandesRepository->find($id);
+    
+    if (!$commande) {
+        throw $this->createNotFoundException('La commande n\'existe pas.');
+    }
+
+    // Récupérer les produits associés à la commande si nécessaire
+    // $produits = $produitsRepository->findByCommande($commande);
+
+    return $this->render('commandes/usercmd.html.twig', [
+        'commande' => $commande,  // Utiliser 'commande' ici au lieu de 'commandes'
+    ]);
+}
+#[Route('/facture/delete/{id}', name:"facture_delete")]
+public function indexdelete(int $id, CommandesRepository $commandesRepository,EntityManagerInterface $entityManager, Request $request): Response
+{
+    // Récupérer la commande par son ID
+    $commande = $commandesRepository->find($id);
+
+    if (!$commande) {
+        throw $this->createNotFoundException('La commande n\'existe pas.');
+    }
+    $clientId = $commande->getId_client();
+    $entityManager->remove($commande);
+    $entityManager->flush();
+    $this->addFlash('success', 'Commande supprimée avec succès.');
+
+    return $this->redirectToRoute('user_commandes_by_terrain', ['userId' => $clientId]);
+}
+
+
+
+  /**
+     * @Route("/commande/{commandeId}/facture", name="generate_invoice_pdf")
+     */
+    public function generateInvoicePdf($commandeId, EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer la commande depuis la base de données
+        $commande = $entityManager->getRepository(Commandes::class)->find($commandeId);
+
+        // Si la commande n'est pas trouvée, renvoyer une erreur
+        if (!$commande) {
+            throw $this->createNotFoundException('Commande non trouvée');
+        }
+
+        // Créer une instance de Dompdf
+        $dompdf = new Dompdf();
+
+        // Préparer le contenu HTML pour le PDF
+        $html = $this->renderView('commandes/pdf.html.twig', [
+            'commande' => $commande
+        ]);
+
+        // Charger le HTML dans Dompdf
+        $dompdf->loadHtml($html);
+
+        // (Optionnel) Définir la taille du papier
+        $dompdf->setPaper('A4', 'portrait');
+
+        // Rendre le PDF
+        $dompdf->render();
+
+        // Envoyer le fichier PDF comme réponse
+        return new Response(
+            $dompdf->output(),
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="facture_' . $commande->getId() . '.pdf"'
+            ]
+        );
+    }
+    /**
+     * @Route("/commandeAdmin/{commandeId}/facture", name="generate_invoice_pdf")
+     */
+    public function generateInvoicePdfAdmin($commandeId, EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer la commande depuis la base de données
+        $commande = $entityManager->getRepository(Commandes::class)->find($commandeId);
+
+        // Si la commande n'est pas trouvée, renvoyer une erreur
+        if (!$commande) {
+            throw $this->createNotFoundException('Commande non trouvée');
+        }
+
+        // Créer une instance de Dompdf
+        $dompdf = new Dompdf();
+
+        // Préparer le contenu HTML pour le PDF
+        $html = $this->renderView('commandes/pdfadmin.html.twig', [
+            'commande' => $commande
+        ]);
+
+        // Charger le HTML dans Dompdf
+        $dompdf->loadHtml($html);
+
+        // (Optionnel) Définir la taille du papier
+        $dompdf->setPaper('A4', 'portrait');
+
+        // Rendre le PDF
+        $dompdf->render();
+
+        // Envoyer le fichier PDF comme réponse
+        return new Response(
+            $dompdf->output(),
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="facture_' . $commande->getId() . '.pdf"'
+            ]
+        );
+    }
+}
+
+
