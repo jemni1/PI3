@@ -1,0 +1,44 @@
+{% extends 'baseFront.html.twig' %}
+
+{% block title %}Détails de la Collecte{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body bg-light text-center">
+
+                    <h2 class="card-title text-center text-success">🗑️ Détails de la Collecte</h2>
+
+                    <!-- Détails de la collecte sans image -->
+                    <ul class="list-group mt-4 text-start">
+                    {% if collecte.imageUrl %}
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="text-center">
+                                            <h5>Image de la collecte :</h5>
+                                            <img src="{{ asset('uploads/collecte/' ~ collecte.imageUrl) }}" 
+                                                 alt="Image de la collecte" 
+                                                 class="img-fluid" 
+                                                 style="max-width: 100%; height: auto;">
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        <li class="list-group-item"><strong>Type de Déchet :</strong> {{ collecte.typeDechet }}</li>
+                        <li class="list-group-item"><strong>Quantité :</strong> {{ collecte.quantite }} kg</li>
+                        <li class="list-group-item"><strong>Date de Début :</strong> {{ collecte.dateDebut|date('d/m/Y') }}</li>
+                        <li class="list-group-item"><strong>Date de Fin :</strong> {{ collecte.dateFin|date('d/m/Y') }}</li>
+                    </ul>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ path('collecte_new') }}" class="btn btn-secondary">Retour</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
