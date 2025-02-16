@@ -3,110 +3,147 @@
 {% block title %} Gestion du Recyclage et Collecte {% endblock %}
 
 {% block body %}
+{% set activeTab = app.request.query.get('tab', 'recyclage') %}
 {{ parent() }}
+
 <style>
-    /* Couleur verte douce pour le hover */
-    .table-hover tbody tr:hover {
-        background-color: #e8f5e9 !important; /* Vert clair apaisant */
+    .table-responsive {
+        overflow-x: hidden;
     }
 
-    /* Boutons uniformes sans effet violet */
-    .btn:hover {
-        filter: brightness(90%);
+    .table {
+        table-layout: auto;
+        width: 100%;
     }
 
-    /* Suppression du violet Bootstrap sur les liens */
-    a {
-        color: inherit;
-        text-decoration: none;
+    .table th, .table td {
+        white-space: nowrap;
+        vertical-align: middle;
+        padding: 10px;
     }
-    a:hover {
-        color: #2e7d32 !important; /* Vert foncé pour le survol */
+
+    .btn-sm {
+        font-size: 0.875rem;
+        padding: 5px 10px;
+    }
+
+    @media (max-width: 992px) {
+        .table th, .table td {
+            font-size: 0.9rem;
+        }
+        
+        .btn-sm {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+        }
     }
 </style>
 
 <div class="container mt-4">
-    <!-- Gestion du recyclage -->
-    <div class="card shadow-lg border-0" style="background-color: #e8f5e9;">
-        <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #388e3c;">
-            <h2 class="mb-0">♻️ Opérations de recyclage</h2>
-            <a href="{{ path('admin_recyclage_new') }}" class="btn btn-light text-success fw-bold">
-                <i class="fas fa-plus-circle"></i> Ajouter
-            </a>
-        </div>
-        <div class="card-body bg-white">  {# Fond blanc ici #}
-            <table class="table table-hover text-center bg-white">
-                <thead style="background-color: #66bb6a; color: white;">
-                    <tr>
-                        <th>ID</th>
-                        <th>Date</th>
-                        <th>Quantité (kg)</th>
-                        <th>Énergie (kWh)</th>
-                        <th>Utilisation</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for recyclage in recyclages %}
-                        <tr class="align-middle">
-                            <td>{{ recyclage.id }}</td>
-                            <td>{{ recyclage.dateRecyclage|date('d/m/Y') }}</td>
-                            <td class="fw-bold text-success">{{ recyclage.quantiteRecyclee }}</td>
-                            <td class="fw-bold text-primary">{{ recyclage.energieProduite }}</td>
-                            <td>{{ recyclage.utilisation }}</td>
-                            <td>
-                                <a href="{{ path('admin_recyclage_edit', {'id': recyclage.id}) }}" class="btn btn-outline-warning btn-sm">
-                                    <i class="fas fa-edit"></i> Modifier
-                                </a>
-                                <a href="{{ path('admin_recyclage_delete', {'id': recyclage.id}) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ?');">
-                                    <i class="fas fa-trash-alt"></i> Supprimer
-                                </a>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">Aucune opération de recyclage trouvée.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <!-- Onglets de navigation -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link {% if activeTab == 'recyclage' %}active{% endif %}" href="?tab=recyclage">♻️ Recyclage</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if activeTab == 'collecte' %}active{% endif %}" href="?tab=collecte">🗑 Collecte</a>
+        </li>
+    </ul>
 
-    <!-- Séparateur -->
-    <hr class="my-5 border-success">
-
-    <!-- Gestion des collectes -->
-    <div class="card shadow-lg border-0" style="background-color: #f0f7ec;">
-        <div class="card-header text-white" style="background-color: #558b2f;">
-            <h2 class="mb-0">🗑 Collectes de déchets</h2>
+    <div class="tab-content">
+        <!-- Section Recyclage -->
+        <div class="tab-pane fade {% if activeTab == 'recyclage' %}show active{% endif %}" id="recyclage">
+            <div class="card shadow-lg border-0 mt-3">
+                <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #388e3c;">
+                    <h2 class="mb-0">♻️ Opérations de recyclage</h2>
+                    <a href="{{ path('admin_recyclage_new') }}" class="btn btn-light text-success fw-bold">
+                        <i class="fas fa-plus-circle"></i> Ajouter
+                    </a>
+                </div>
+                <div class="card-body bg-white table-responsive">
+                    <table class="table table-hover text-center bg-white">
+                        <thead style="background-color: #66bb6a; color: white;">
+                            <tr>
+                                <th>ID</th>
+                                <th>Dates</th>
+                                <th>Quantité (kg)</th>
+                                <th>Énergie (kWh)</th>
+                                <th>Utilisation</th>
+                                
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for recyclage in recyclages %}
+                                <tr class="align-middle">
+                                    <td>{{ recyclage.id }}</td>
+                                    <td>Du {{ recyclage.dateDebut|date('d/m/Y') }} au {{ recyclage.dateFin|date('d/m/Y') }}</td>
+                                    <td class="fw-bold text-success">{{ recyclage.quantiteRecyclee }}</td>
+                                    <td class="fw-bold text-primary">{{ recyclage.energieProduite }}</td>
+                                    <td>{{ recyclage.utilisation }}</td>
+                                    
+                                    <td>
+                                      <a href="{{ path('admin_recyclage_show', {'id': recyclage.id}) }}" class="btn btn-outline-info btn-sm">
+                                                        <i class="fas fa-eye"></i> Détails
+                                                    </a>
+                                        <a href="{{ path('admin_recyclage_edit', {'id': recyclage.id}) }}" class="btn btn-outline-warning btn-sm">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <a href="{{ path('admin_recyclage_delete', {'id': recyclage.id}) }}" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Aucune opération de recyclage trouvée.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="card-body bg-white"> {# Fond blanc ici aussi #}
-            <table class="table table-hover text-center bg-white">
-                <thead style="background-color: #81c784; color: white;">
-                    <tr>
-                        <th>ID</th>
-                        <th>Type</th>
-                        <th>Quantité (kg)</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for collecte in collectes %}
-                        <tr class="align-middle">
-                            <td>{{ collecte.id }}</td>
-                            <td class="fw-bold text-success">{{ collecte.typeDechet }}</td>
-                            <td class="fw-bold text-primary">{{ collecte.quantite }}</td>
-                            <td>{{ collecte.dateCollecte|date('d/m/Y') }}</td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Aucune collecte de déchets trouvée.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+        <!-- Section Collecte -->
+        <div class="tab-pane fade {% if activeTab == 'collecte' %}show active{% endif %}" id="collecte">
+            <div class="card shadow-lg border-0 mt-3">
+                <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #558b2f;">
+                    <h2 class="mb-0">🗑 Collectes de déchets</h2>
+                  
+                </div>
+                <div class="card-body bg-white table-responsive">
+                    <table class="table table-hover text-center bg-white">
+                        <thead style="background-color: #81c784; color: white;">
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Quantité (kg)</th>
+                                <th>Date de début</th>
+                                <th>Date de fin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for collecte in collectes %}
+                                <tr class="align-middle">
+                                    <td>{{ collecte.id }}</td>
+                                    <td class="fw-bold text-success">{{ collecte.typeDechet }}</td>
+                                    <td class="fw-bold text-primary">{{ collecte.quantite }}</td>
+                                    <td>{{ collecte.dateDebut|date('d/m/Y') }}</td>
+                                    <td>{{ collecte.dateFin|date('d/m/Y') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Aucune collecte de déchets trouvée.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 {% endblock %}

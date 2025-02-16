@@ -1,182 +1,22 @@
 {# templates/admin/statistiques.html.twig #}
 {% extends 'baseBack.html.twig' %}
 
-{% block title %}Statistiques des ventes{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.css" rel="stylesheet">
+{% block nav %}
+{{parent()}}
 {% endblock %}
+
+{% extends 'base.html.twig' %}
+
+{% block title %} Nouvelle collecte {% endblock %}
 
 {% block body %}
-    <div class="container-fluid mt-4">
-        <h1 class="mb-4">Tableau de bord des ventes</h1>
+    <h1>Nouvelle collecte de déchets</h1>
 
-        {# Cartes de résumé #}
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Ventes du mois</h5>
-                        <h2 class="card-text">
-                            {% set currentMonthSales = 0 %}
-                            {% for vente in stats.ventesParMois|slice(0, 1) %}
-                                {% set currentMonthSales = vente.nombreVentes %}
-                            {% endfor %}
-                            {{ currentMonthSales }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Revenu total du mois</h5>
-                        <h2 class="card-text">
-                            {% set currentMonthRevenue = 0 %}
-                            {% for vente in stats.ventesParMois|slice(0, 1) %}
-                                {% set currentMonthRevenue = vente.revenuTotal %}
-                            {% endfor %}
-                            {{ currentMonthRevenue|number_format(2, ',', ' ') }} €
-                        </h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Commandes en cours</h5>
-                        <h2 class="card-text">
-                            {% set enCours = 0 %}
-                            {% for statut in stats.statutCommandes %}
-                                {% if statut.statut == 'en cours' %}
-                                    {% set enCours = statut.nombre %}
-                                {% endif %}
-                            {% endfor %}
-                            {{ enCours }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Commandes complétées</h5>
-                        <h2 class="card-text">
-                            {% set complete = 0 %}
-                            {% for statut in stats.statutCommandes %}
-                                {% if statut.statut == 'complété' %}
-                                    {% set complete = statut.nombre %}
-                                {% endif %}
-                            {% endfor %}
-                            {{ complete }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {# Graphiques #}
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Évolution des ventes</h5>
-                        <canvas id="salesChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Top 5 des produits</h5>
-                        <canvas id="productsChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {# Tableau des ventes récentes #}
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Ventes des 7 derniers jours</h5>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Nombre de ventes</th>
-                                <th>Revenu total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for vente in stats.ventesDerniersJours %}
-                                <tr>
-                                    <td>{{ vente.date|date('d/m/Y') }}</td>
-                                    <td>{{ vente.nombreVentes }}</td>
-                                    <td>{{ vente.revenuTotal|number_format(2, ',', ' ') }} €</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script>
-        // Données pour le graphique des ventes
-        const salesData = {{ stats.ventesParMois|json_encode|raw }};
-        const months = salesData.map(data => `${data.month}/${data.year}`);
-        const sales = salesData.map(data => data.nombreVentes);
-        const revenue = salesData.map(data => data.revenuTotal);
-
-        // Graphique des ventes
-        new Chart(document.getElementById('salesChart'), {
-            type: 'line',
-            data: {
-                labels: months.reverse(),
-                datasets: [{
-                    label: 'Nombre de ventes',
-                    data: sales.reverse(),
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }, {
-                    label: 'Revenu (€)',
-                    data: revenue.reverse(),
-                    borderColor: 'rgb(255, 99, 132)',
-                    tension: 0.1,
-                    yAxisID: 'revenue'
-                }]
-            },
-            options: {
-                scales: {
-                    revenue: {
-                        type: 'linear',
-                        position: 'right'
-                    }
-                }
-            }
-        });
-
-        // Données pour le graphique des produits
-        const productsData = {{ stats.topProduits|json_encode|raw }};
-        
-        // Graphique des produits
-        new Chart(document.getElementById('productsChart'), {
-            type: 'bar',
-            data: {
-                labels: productsData.map(product => product.nom),
-                datasets: [{
-                    label: 'Quantité vendue',
-                    data: productsData.map(product => product.totalVendus),
-                    backgroundColor: 'rgb(54, 162, 235)'
-                }]
-            }
-        });
-    </script>
+    {{ form_start(form) }}
+        {{ form_row(form.typeDechet) }}
+        {{ form_row(form.quantite) }}
+        {{ form_row(form.dateCollecte) }}
+        {{ form_row(form.terrains) }}
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+    {{ form_end(form) }}
 {% endblock %}

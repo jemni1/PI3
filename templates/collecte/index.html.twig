@@ -1,87 +1,126 @@
 {% extends 'baseFront.html.twig' %}
-  
-{% block title %}Nouvelle collecte{% endblock %}
+
+{% block title %}Gestion des Collectes{% endblock %}
 
 {% block body %}
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-10">
             <div class="card shadow-lg border-0">
                 <div class="card-header text-white text-center" style="background-color: #2E7D32;">
-                    <h2>🌱 Nouvelle collecte de déchets</h2>
+                    <h2>🌱 Gestion des collectes</h2>
                 </div>
                 <div class="card-body bg-light">
-                   {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    <!-- Onglets Bootstrap -->
+                    <ul class="nav nav-tabs" id="collecteTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="ajouter-tab" data-bs-toggle="tab" href="#ajouter">➕ Nouvelle collecte</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="liste-tab" data-bs-toggle="tab" href="#liste">📋 Liste des collectes</a>
+                        </li>
+                    </ul>
 
-                    {{ form_errors(form) }}
+                    <!-- Contenu des onglets -->
+                    <div class="tab-content mt-3">
+                        <!-- Onglet "Nouvelle collecte" -->
+                        <div class="tab-pane fade show active" id="ajouter">
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                                   
 
-                        <div class="mb-3">
-                            {{ form_label(form.typeDechet, 'Type de déchet', {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                            {{ form_widget(form.typeDechet, {'attr': {'class': 'form-control border-success'}}) }}
-                            {{ form_errors(form.typeDechet) }}
+                                    <div class="mb-3">
+                                        {{ form_label(form.typeDechet, 'Type de déchet', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.typeDechet, {'attr': {'class': 'form-control border-success'}}) }}
+                                        {{ form_errors(form.typeDechet) }}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        {{ form_label(form.quantite, 'Quantité (kg)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.quantite, {'attr': {'class': 'form-control border-success'}}) }}
+                                        {{ form_errors(form.quantite) }}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        {{ form_label(form.dateDebut, 'Date de début', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control border-success'}}) }}
+                                        {{ form_errors(form.dateDebut) }}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        {{ form_label(form.dateFin, 'Date de fin', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.dateFin, {'attr': {'class': 'form-control border-success'}}) }}
+                                        {{ form_errors(form.dateFin) }}
+                                    </div>
+                                    <div class="mb-3">
+                                      {{ form_label(form.image, 'Image (facultatif)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                      {{ form_widget(form.image, {'attr': {'class': 'form-control border-success'}}) }}
+                                       {{ form_errors(form.image) }}
+                                        
+                                         </div>
+
+                                    <div class="text-center">
+                                        <button type="submit" class="btn text-white px-4" style="background-color: #4CAF50;">
+                                            <i class="fas fa-check"></i> Ajouter
+                                        </button>
+                                    </div>
+                                    {{ form_end(form) }}
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            {{ form_label(form.quantite, 'Quantité (kg)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                            {{ form_widget(form.quantite, {'attr': {'class': 'form-control border-success'}}) }}
-                            {{ form_errors(form.quantite) }}
-                        </div>
+                        <!-- Onglet "Liste des collectes" -->
+                        <div class="tab-pane fade" id="liste">
+                            <h3 class="text-center text-success">📋 Liste des collectes</h3>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover text-center">
+                                    <thead style="background-color: #2E7D32; color: white;">
+                                        <tr>
+                                            <th>Type de déchet</th>
+                                            <th>Quantité (kg)</th>
+                                            <th>Date de début</th>
+                                            <th>Date de fin</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for collecte in collectes %}
+                                            <tr>
+                                                <td class="fw-bold">{{ collecte.typeDechet }}</td>
+                                                <td>{{ collecte.quantite }}</td>
+                                                <td>{{ collecte.dateDebut|date('d/m/Y') }}</td>
+                                                <td>{{ collecte.dateFin|date('d/m/Y') }}</td>
+                                               <td>
+                                                   <a href="{{ path('collecte_show', {'id': collecte.id}) }}" class="btn btn-outline-info btn-sm">
+                                                   <i class="fas fa-eye"></i> Détails
+                                                       </a>
 
-                        <div class="mb-3">
-                            {{ form_label(form.dateCollecte, 'Date de collecte', {'label_attr': {'class': 'form-label fw-bold'}}) }}
-                            {{ form_widget(form.dateCollecte, {'attr': {'class': 'form-control border-success'}}) }}
-                            {{ form_errors(form.dateCollecte) }}
-                        </div>
+                                                    <a href="{{ path('collecte_edit', {'id': collecte.id}) }}" class="btn btn-outline-warning btn-sm">
+                                                           <i class="fas fa-pen"></i>
+                                                       </a>
 
-                        <div class="text-center">
-                            <button type="submit" class="btn text-white px-4" style="background-color: #4CAF50;">
-                                <i class="fas fa-check"></i> Ajouter
-                            </button>
+    <form action="{{ path('collecte_delete', {'id': collecte.id}) }}" method="post" class="d-inline">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collecte.id) }}">
+        <button type="submit" class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-trash"></i>
+        </button>
+    </form>
+</td>
+
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">Aucune collecte enregistrée</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    {{ form_end(form) }}
+                    </div> <!-- Fin tab-content -->
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Liste des collectes enregistrées -->
-    <div class="mt-5">
-        <h3 class="text-center text-success">📋 Liste des collectes</h3>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover text-center">
-                <thead style="background-color: #2E7D32; color: white;">
-                    <tr>
-                        <th>Type de déchet</th>
-                        <th>Quantité (kg)</th>
-                        <th>Date de collecte</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for collecte in collectes %}
-                        <tr>
-                            <td class="fw-bold">{{ collecte.typeDechet }}</td>
-                            <td>{{ collecte.quantite }}</td>
-                            <td>{{ collecte.dateCollecte|date('d/m/Y') }}</td>
-                            <td>
-                                <a href="{{ path('collecte_edit', {'id': collecte.id}) }}" class="btn btn-outline-warning btn-sm">
-                                    <i class="fas fa-edit"></i> Modifier
-                                </a>
-                                <form action="{{ path('collecte_delete', {'id': collecte.id}) }}" method="post" class="d-inline" >
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ collecte.id) }}">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                                        <i class="fas fa-trash"></i> Supprimer
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Aucune collecte enregistrée</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </div>
     </div>
 </div>

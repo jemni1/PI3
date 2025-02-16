@@ -9,6 +9,9 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\CollecteDechet;
+use Symfony\Component\Form\Extension\Core\Type\FileType; // Ajouter l'importation de FileType
 
 class RecyclageDechetType extends AbstractType
 {
@@ -33,12 +36,31 @@ class RecyclageDechetType extends AbstractType
                     'Autre' => 'autre',
                 ],
                 'placeholder' => 'Sélectionner un type',
-                'attr' => ['class' => 'form-select'], // Style Bootstrap
-               
+                'attr' => ['class' => 'form-select'], 
             ])
-            ->add('dateRecyclage', DateType::class, [
+            ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date de recyclage',
+                'label' => 'Date de début',
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('dateFin', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date de fin',
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('collectes', EntityType::class, [
+                'class' => CollecteDechet::class,
+                'choice_label' => function ($collecte) {
+                    return $collecte->getTypeDechet() . ' - ' . $collecte->getQuantite() . 'kg (' . $collecte->getDateDebut()->format('d/m/Y') . ')';
+                },
+                'multiple' => true,
+                'expanded' => true, 
+                'by_reference' => false, 
+            ])
+            ->add('image', FileType::class, [
+                'label' => 'Image recyclage',
+                'required' => false,
+                'mapped' => false, // Ce champ n'est pas lié directement à la propriété de l'entité
                 'attr' => ['class' => 'form-control'],
             ]);
     }

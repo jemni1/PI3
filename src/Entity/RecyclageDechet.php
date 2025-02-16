@@ -17,8 +17,14 @@ class RecyclageDechet
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: "La date de recyclage est obligatoire.")]
-    private ?\DateTimeInterface $dateRecyclage = null;
+    #[Assert\NotNull(message: "La date de début est obligatoire.")]
+    #[Assert\GreaterThanOrEqual("today", message: "La date de début ne peut pas être antérieure à aujourd’hui.")]
+    private ?\DateTimeInterface $dateDebut = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\NotNull(message: "La date de fin est obligatoire.")]
+    #[Assert\GreaterThan(propertyPath: "dateDebut", message: "La date de fin doit être après la date de début.")]
+    private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\Column(type: "float")]
     #[Assert\NotNull(message: "Veuillez saisir une quantité recyclée.")]
@@ -33,16 +39,31 @@ class RecyclageDechet
     #[ORM\Column(length: 255)]
     #[Assert\NotNull(message: "Veuillez saisir l'utilisation de l'énergie.")]
     private ?string $utilisation = null;
-
+    
     /**
      * @var Collection<int, CollecteDechet>
      */
-    #[ORM\OneToMany(targetEntity: CollecteDechet::class, mappedBy: 'recyclageDechet')]
-    private Collection $collecte;
+    #[ORM\OneToMany(mappedBy: "recyclageDechet", targetEntity: CollecteDechet::class, cascade: ['remove'], orphanRemoval: true)]
+    private Collection $collectes;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $imageUrl = null;
+
+public function getImageUrl(): ?string
+{
+    return $this->imageUrl;
+}
+
+public function setImageUrl(?string $imageUrl): static
+{
+    $this->imageUrl = $imageUrl;
+    return $this;
+}
+
 
     public function __construct()
     {
-        $this->collecte = new ArrayCollection();
+        $this->collectes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -50,14 +71,25 @@ class RecyclageDechet
         return $this->id;
     }
 
-    public function getDateRecyclage(): ?\DateTimeInterface
+    public function getDateDebut(): ?\DateTimeInterface
     {
-        return $this->dateRecyclage;
+        return $this->dateDebut;
     }
 
-    public function setDateRecyclage(?\DateTimeInterface $dateRecyclage): static
+    public function setDateDebut(?\DateTimeInterface $dateDebut): static
     {
-        $this->dateRecyclage = $dateRecyclage;
+        $this->dateDebut = $dateDebut;
+        return $this;
+    }
+
+    public function getDateFin(): ?\DateTimeInterface
+    {
+        return $this->dateFin;
+    }
+
+    public function setDateFin(?\DateTimeInterface $dateFin): static
+    {
+        $this->dateFin = $dateFin;
         return $this;
     }
 
@@ -97,15 +129,15 @@ class RecyclageDechet
     /**
      * @return Collection<int, CollecteDechet>
      */
-    public function getCollecte(): Collection
+    public function getCollectes(): Collection
     {
-        return $this->collecte;
+        return $this->collectes;
     }
 
     public function addCollecte(CollecteDechet $collecte): static
     {
-        if (!$this->collecte->contains($collecte)) {
-            $this->collecte->add($collecte);
+        if (!$this->collectes->contains($collecte)) {
+            $this->collectes->add($collecte);
             $collecte->setRecyclageDechet($this);
         }
 
@@ -114,7 +146,7 @@ class RecyclageDechet
 
     public function removeCollecte(CollecteDechet $collecte): static
     {
-        if ($this->collecte->removeElement($collecte)) {
+        if ($this->collectes->removeElement($collecte)) {
             if ($collecte->getRecyclageDechet() === $this) {
                 $collecte->setRecyclageDechet(null);
             }

@@ -28,16 +28,32 @@ class CollecteDechet
     )]
     private ?float $quantite = null;
     
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\NotNull(message: "La date de collecte ne peut pas être vide.")]
-    private ?\DateTimeInterface $dateCollecte = null;
-    
-    
-    private ?Terrains $id_terrain = null;
+    #[Assert\NotNull(message: "La date de début est obligatoire.")]
+    #[Assert\GreaterThanOrEqual("today", message: "La date de début ne peut pas être antérieure à aujourd’hui.")]
+    private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\ManyToOne(inversedBy: 'collecte')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Assert\NotNull(message: "La date de fin est obligatoire.")]
+    #[Assert\GreaterThan(propertyPath: "dateDebut", message: "La date de fin doit être postérieure à la date de début.")]
+    private ?\DateTimeInterface $dateFin = null;
+
+    #[ORM\ManyToOne(targetEntity: RecyclageDechet::class, inversedBy: "collectes")]
     private ?RecyclageDechet $recyclageDechet = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $imageUrl = null;
+
+public function getImageUrl(): ?string
+{
+    return $this->imageUrl;
+}
+
+public function setImageUrl(?string $imageUrl): static
+{
+    $this->imageUrl = $imageUrl;
+    return $this;
+}
 
     public function getId(): ?int
     {
@@ -66,25 +82,25 @@ class CollecteDechet
         return $this;
     }
 
-    public function getDateCollecte(): ?\DateTimeInterface
+    public function getDateDebut(): ?\DateTimeInterface
     {
-        return $this->dateCollecte;
+        return $this->dateDebut;
     }
 
-    public function setDateCollecte(?\DateTimeInterface $dateCollecte): static
+    public function setDateDebut(?\DateTimeInterface $dateDebut): static
     {
-        $this->dateCollecte = $dateCollecte; 
+        $this->dateDebut = $dateDebut;
         return $this;
     }
 
-    public function getIdTerrain(): ?Terrains
+    public function getDateFin(): ?\DateTimeInterface
     {
-        return $this->id_terrain;
+        return $this->dateFin;
     }
 
-    public function setIdTerrain(?Terrains $id_terrain): static
+    public function setDateFin(?\DateTimeInterface $dateFin): static
     {
-        $this->id_terrain = $id_terrain;
+        $this->dateFin = $dateFin;
         return $this;
     }
 

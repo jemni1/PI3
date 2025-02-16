@@ -1,13 +1,15 @@
 <?php
 namespace App\Form;
 
-use App\Entity\CollecteDechet;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType; 
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType; // Ajouter l'importation de FileType
+use App\Entity\CollecteDechet;
 
 class CollecteDechetType extends AbstractType
 {
@@ -28,13 +30,19 @@ class CollecteDechetType extends AbstractType
             ])
             ->add('quantite', NumberType::class, [
                 'label' => 'Quantité (kg)',
-                'required' => false,
-                'scale' => 2, 
             ])
-            ->add('dateCollecte', DateType::class, [
+            ->add('dateDebut', DateTimeType::class, [
+                'label' => 'Date de début',
                 'widget' => 'single_text',
-                'label' => 'Date de collecte',
-                'required' => true,
+            ])
+            ->add('dateFin', DateTimeType::class, [
+                'label' => 'Date de fin',
+                'widget' => 'single_text',
+            ])
+            ->add('image', FileType::class, [
+                'label' => 'Image de la collecte',
+                'mapped' => false, // Ce champ n'est pas lié directement à la propriété de l'entité
+                'attr' => ['class' => 'form-control'],
             ]);
     }
 
