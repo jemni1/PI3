@@ -12,7 +12,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class ProduitsType extends AbstractType
 {
@@ -21,7 +20,7 @@ class ProduitsType extends AbstractType
         $builder
         ->add('quantite', IntegerType::class, [
             'label' => 'Quantité',
-        
+            
         ])
         ->add('nom', TextType::class, [
             'label' => 'Nom du produit',
@@ -34,7 +33,7 @@ class ProduitsType extends AbstractType
             ->add('imageFile', FileType::class, [
                 'label' => 'Image du produit',
                 'mapped' => false, // Important : Ne pas lier directement à l'entité
-                'required' => false,
+                'required' => true,
               
             ]);
         

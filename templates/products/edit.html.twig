@@ -20,7 +20,7 @@
 
         <div class="form-group">
             {{ form_label(form.quantite, 'Quantité') }}
-            {{ form_widget(form.quantite, {'attr': {'class': 'form-control', 'min': 1}}) }}
+            {{ form_widget(form.quantite, {'attr': {'class': 'form-control', 'min': 1, 'placeholder': 'Entrez la quantite du produit'}}) }}
             {{ form_errors(form.quantite) }}
             <div class="invalid-feedback">Veuillez entrer une quantité valide.</div>
         </div>

@@ -16,10 +16,12 @@ class Produits
     private ?int $id = null;
 
     #[ORM\Column]
+    
     #[Assert\NotBlank(message: "La quantité ne peut pas être vide.")]
     #[Assert\Type(type: "integer", message: "La quantité doit être un nombre entier.")]
-    #[Assert\GreaterThan(value: 0, message: "La quantité doit être supérieure à zéro.")]
-    private ?int $quantite = null;
+    #[Assert\Positive(message: "La quantité doit être un nombre positif.")]
+    private ?int $quantite = null;  // Valeur par défaut
+    
 
     #[ORM\Column(length: 90)]
     #[Assert\NotBlank(message: "Le nom du produit ne peut pas être vide.")]
@@ -37,6 +39,8 @@ class Produits
     private ?int $prix = null;
     
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "L'image' ne peut pas être vide.")]
+    #[Assert\Length(max: 255, maxMessage: "erreur.")]
     private ?string $image = null;
 
 
@@ -50,7 +54,7 @@ class Produits
         return $this->quantite;
     }
 
-    public function setQuantite(?int $quantite): static
+    public function setQuantite(int $quantite): static
     {
         $this->quantite = $quantite;
 
@@ -62,7 +66,7 @@ class Produits
         return $this->nom;
     }
 
-    public function setNom(string $nom): static
+    public function setNom(?string $nom): static
     {
         $this->nom = $nom;
 
@@ -90,7 +94,7 @@ class Produits
         return $this->prix;
     }
 
-    public function setPrix(int $prix): static
+    public function setPrix(?int $prix): static
     {
         $this->prix = $prix;
 

@@ -18,36 +18,61 @@
                 Ajoutez un produit
             </p>
 
- {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-            <div class="form-group">
-                {{ form_label(form.nom, 'Nom du produit') }}
-                {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom du produit'}}) }}
-                {{ form_errors(form.nom) }}
-            </div>
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+        
+        <div class="form-group">
+            {{ form_label(form.nom, 'Nom du Produit') }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le nom du produit'}}) }}
+            {{ form_errors(form.nom) }}
+            <div class="invalid-feedback">Veuillez entrer un nom valide.</div>
+        </div>
 
-            <div class="form-group">
-                {{ form_label(form.quantite, 'Quantité') }}
-                {{ form_widget(form.quantite, {'attr': {'class': 'form-control', 'placeholder': 'Quantité'}}) }}
-                {{ form_errors(form.quantite) }}
-            </div>
+        <div class="form-group">
+            {{ form_label(form.quantite, 'Quantité') }}
+            {{ form_widget(form.quantite, {'attr': {'class': 'form-control', 'min': 1, 'placeholder': 'Entrez la quantite du produit'}}) }}
+            {{ form_errors(form.quantite) }}
+            <div class="invalid-feedback">Veuillez entrer une quantité valide.</div>
+        </div>
 
-            <div class="form-group">
-                {{ form_label(form.prix, 'Prix') }}
-                {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'placeholder': 'Prix'}}) }}
-                {{ form_errors(form.prix) }}
-            </div>
+        <div class="form-group">
+            {{ form_label(form.prix, 'Prix (€)') }}
+            {{ form_widget(form.prix, {'attr': {'class': 'form-control', 'step': '0.01', 'placeholder': 'Entrez le prix'}}) }}
+            {{ form_errors(form.prix) }}
+            <div class="invalid-feedback">Veuillez entrer un prix valide.</div>
+        </div>
+        <div class="form-group">
+            {{ form_label(form.imageFile, 'Image du produit') }}
+            {{ form_widget(form.imageFile, {'attr': {'class': 'form-control','placeholder': 'Entrez image du produit'}}) }}
+            {{ form_errors(form.imageFile) }}
+            <div class="invalid-feedback">Veuillez entrer une image valide.</div>
+        </div>
 
-            <div class="form-group">
-                {{ form_label(form.imageFile, 'Image du produit') }}
-                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
-            </div>
+   
 
-            
-            <button type="submit" class="btn btn-primary mr-2">Envoyer</button>
-            <button type="button" class="btn btn-light">Annuler</button>
+    <button type="submit" class="btn btn-primary mr-2">Envoyer</button>
+    <button type="button" class="btn btn-light">Annuler</button>
 
-            {{ form_end(form) }}
+{{ form_end(form) }}
+
         </div>
     </div>
 </div>
+<script>
+    // Bootstrap validation
+    (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
 {% endblock %}
