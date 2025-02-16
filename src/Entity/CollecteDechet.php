@@ -42,8 +42,6 @@ class CollecteDechet
     private ?RecyclageDechet $recyclageDechet = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'Veuillez ajouter une image.')]
-   
     private ?string $imageUrl = null;
 
 public function getImageUrl(): ?string

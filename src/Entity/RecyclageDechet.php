@@ -39,17 +39,14 @@ class RecyclageDechet
     #[ORM\Column(length: 255)]
     #[Assert\NotNull(message: "Veuillez saisir l'utilisation de l'énergie.")]
     private ?string $utilisation = null;
-
-
-
+    
     /**
      * @var Collection<int, CollecteDechet>
      */
-    #[ORM\OneToMany(mappedBy: "recyclageDechet", targetEntity: CollecteDechet::class, cascade: ["persist", "remove"])]
+    #[ORM\OneToMany(mappedBy: "recyclageDechet", targetEntity: CollecteDechet::class, cascade: ['remove'], orphanRemoval: true)]
     private Collection $collectes;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\NotBlank(message: 'Veuillez ajouter une image.')]
     private ?string $imageUrl = null;
 
 public function getImageUrl(): ?string

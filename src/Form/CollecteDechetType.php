@@ -41,7 +41,6 @@ class CollecteDechetType extends AbstractType
             ])
             ->add('image', FileType::class, [
                 'label' => 'Image de la collecte',
-                'required' => false,
                 'mapped' => false, // Ce champ n'est pas lié directement à la propriété de l'entité
                 'attr' => ['class' => 'form-control'],
             ]);
