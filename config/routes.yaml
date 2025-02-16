@@ -3,3 +3,12 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+# config/routes.yaml
+generate_invoice_pdf:
+  path: /commande/{commandeId}/facture
+  controller: App\Controller\CommandesController::generateInvoicePdf
+
+generate_invoice_pdf_admin:
+  path: /commandeAdmin/{commandeId}/facture
+  controller: App\Controller\CommandesController::generateInvoicePdfAdmin
+

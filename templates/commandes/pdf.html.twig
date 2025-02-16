@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        .invoice-header, .invoice-details {
+            margin-bottom: 20px;
+        }
+
+        .invoice-header p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
+        .invoice-header strong {
+            color: #555;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .date {
+            font-size: 14px;
+            color: #777;
+            text-align: right;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            text-decoration: none;
+            color: #4CAF50;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="invoice-header">
+            <h1>Facture - Commande #{{ commande.id }}</h1>
+            <p><strong>Produit:</strong> {{ commande.nom }}</p>
+            <p><strong>Quantité:</strong> {{ commande.quantite }}</p>
+            <p><strong>Prix unitaire:</strong> {{ commande.prix / commande.quantite }} €</p>
+            <div class="total">
+                <strong>Total:</strong> {{ commande.prix }} €
+            </div>
+        </div>
+
+        <div class="invoice-details">
+            <p><strong>Date de commande:</strong> {{ commande.date|date('d-m-Y H:i') }}</p>
+        </div>
+
+        <div class="footer">
+            <p>Merci de votre achat !</p>
+            <p><a href="https://www.votre-site.com">Visitez notre site pour plus de produits.</a></p>
+        </div>
+    </div>
+</body>
+</html>
