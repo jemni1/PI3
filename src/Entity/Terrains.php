@@ -14,8 +14,8 @@ class Terrains
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: "id_terrain")]
-    private ?int $id_terrain = null;
+    #[ORM\Column(name: "id")]
+    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le nom du terrain ne peut pas être vide.")]
@@ -61,7 +61,7 @@ class Terrains
      */
     #[ORM\ManyToMany(targetEntity: Culture::class, inversedBy: 'terrains')]
 #[ORM\JoinTable(name: "terrain_culture")]
-#[ORM\JoinColumn(name: "terrain_id", referencedColumnName: "id_terrain")]
+#[ORM\JoinColumn(name: "terrain_id", referencedColumnName: "id")]
 #[ORM\InverseJoinColumn(name: "culture_id", referencedColumnName: "id_culture")]
 private Collection $cultures;
 
@@ -79,9 +79,9 @@ private Collection $cultures;
 
    
 
-    public function getId_Terrain(): ?int
+    public function getId(): ?int
     {
-        return $this->id_terrain;
+        return $this->id;
     }
 
     public function getNom(): ?string

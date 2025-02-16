@@ -20,17 +20,17 @@
                             <span style="font-weight: bold;">{{ terrain.nom }}</span>
                             <div>
                                 <!-- Lien vers la page de détails -->
-                                <a href="{{ path('terrain_new', {'id': terrain.id_terrain}) }}" class="btn btn-sm btn-outline-primary me-1" title="Voir les détails">
+                                <a href="{{ path('terrain_new', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-primary me-1" title="Voir les détails">
                                     <i class="ti-eye"></i>
                                 </a>
                                 
                                 <!-- Lien vers la page d'édition -->
-                                <a href="{{ path('app_terrain_update', {'id': terrain.id_terrain}) }}" class="btn btn-sm btn-outline-secondary me-1" title="Éditer">
+                                <a href="{{ path('app_terrain_update', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-secondary me-1" title="Éditer">
                                     <i class="ti-pencil"></i>
                                 </a>
                                 
                                 <!-- Lien vers la suppression -->
-                                <a href="{{ path('app_terrain_delete', {'id': terrain.id_terrain}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce terrain ?');" title="Supprimer">
+                                <a href="{{ path('app_terrain_delete', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce terrain ?');" title="Supprimer">
                                     <i class="ti-trash"></i>
                                 </a>
                             </div>
