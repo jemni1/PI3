@@ -1,0 +1,44 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Ajouter Une Culture{% endblock %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block side %}
+    {{ parent() }}
+
+    <div class="container mt-4">
+        <br>
+        <h1 class="mb-5">Ajouter une nouveau culture</h1>
+
+        <div class="card p-4 shadow-sm">
+            {{ form_start(form_culture, {'attr': {'class': 'form'}}) }}
+
+                <div class="mb-3">
+                    {{ form_label(form_culture.nom, 'Nom du culture', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form_culture.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom'}}) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form_culture.periodePlantation, 'Période de Plantaion', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form_culture.periodePlantation, {'attr': {'class': 'form-control', 'placeholder': 'periodePlantation'}}) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form_culture.periodeRecolte, 'Période de Recloltation', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form_culture.periodeRecolte, {'attr': {'class': 'form-control', 'placeholder': 'periodeRecolte'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form_culture.besoinEau, 'Besoin en Eau', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form_culture.besoinEau, {'attr': {'class': 'form-control', 'placeholder': 'besoinEau'}}) }}
+                </div>
+                
+
+                <button class="btn btn-primary w-100">Enregistrer</button>
+
+            {{ form_end(form_culture) }}
+        </div>
+    </div>
+{% endblock %}

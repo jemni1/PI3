@@ -1,0 +1,232 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Créer un terrain{% endblock %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block side %}
+    {{ parent() }}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+
+    <div class="container mt-4">
+        <br>
+        <h1 class="mb-5">Ajouter un nouveau terrain</h1>
+
+        <div class="card p-4 shadow-sm">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="mb-3">
+                    {{ form_label(form.nom, 'Nom du terrain', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom'}}) }}
+                    {{ form_errors(form.nom) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.adresse, {'attr': {'class': 'form-control', 'placeholder': 'Adresse'}}) }}
+                    {{ form_errors(form.adresse) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.superficie, 'Superficie (m²)', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.superficie, {'attr': {'class': 'form-control', 'placeholder': 'Superficie'}}) }}
+                    {{ form_errors(form.superficie) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.image, 'Image du terrain', {'label_attr': {'class': 'form-label'}}) }}
+                    <div class="custom-file-upload">
+                        <div class="preview-zone hidden">
+                            <div class="box box-solid">
+                                <div class="box-header">
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-danger btn-sm remove-preview">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <img id="preview-image" src="" alt="" class="img-fluid" style="max-height: 200px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropzone-wrapper">
+                            <div class="dropzone-desc">
+                                <i class="fas fa-upload"></i>
+                                <p>Déposez votre image ici ou cliquez pour sélectionner</p>
+                            </div>
+                            {{ form_widget(form.image, {
+                                'attr': {
+                                    'class': 'dropzone',
+                                    'style': 'display: none;'
+                                }
+                            }) }}
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Formats acceptés : JPG, PNG. Taille maximale : 5 Mo</small>
+                    {{ form_errors(form.image) }}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form_label(form.cultures, 'Cultures associées') }}
+                    {{ form_widget(form.cultures, {
+                        'attr': {
+                            'class': 'select2-cultures form-control',
+                            'data-placeholder': 'Rechercher des cultures...'
+                        }
+                    }) }}
+                    {{ form_errors(form.cultures) }}
+                </div>
+                <div class="mb-3">
+                <button class="btn btn-primary w-100">Enregistrer</button>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+    <style>
+        .custom-file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-file-upload:hover {
+            border-color: #2196f3;
+            background-color: #f8f9fa;
+        }
+        
+        .dropzone-wrapper {
+            border: 2px dashed #91b0b3;
+            border-radius: 4px;
+            color: #92b0b3;
+            position: relative;
+            height: 150px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .dropzone-desc {
+            text-align: center;
+        }
+        
+        .dropzone-desc i {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .preview-zone {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .preview-zone.hidden {
+            display: none;
+        }
+        
+        .box {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        </style>
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropzoneWrapper = document.querySelector('.dropzone-wrapper');
+            const fileInput = document.querySelector('.dropzone');
+            const previewZone = document.querySelector('.preview-zone');
+            const previewImage = document.getElementById('preview-image');
+            const removePreviewButton = document.querySelector('.remove-preview');
+        
+            dropzoneWrapper.addEventListener('click', function() {
+                fileInput.click();
+            });
+        
+            dropzoneWrapper.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.backgroundColor = '#f8f9fa';
+            });
+        
+            dropzoneWrapper.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.style.backgroundColor = '';
+            });
+        
+            dropzoneWrapper.addEventListener('drop', function(e) {
+                e.preventDefault();
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            });
+        
+            fileInput.addEventListener('change', handleFileSelect);
+        
+            function handleFileSelect() {
+                const file = fileInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewZone.classList.remove('hidden');
+                        dropzoneWrapper.style.display = 'none';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        
+            removePreviewButton.addEventListener('click', function() {
+                fileInput.value = '';
+                previewZone.classList.add('hidden');
+                dropzoneWrapper.style.display = 'flex';
+                previewImage.src = '';
+            });
+        });
+        </script>
+        <style>
+            .select2-container--classic .select2-selection--multiple {
+                border: 1px solid #ced4da;
+                border-radius: 0.25rem;
+                min-height: 38px;
+            }
+            
+            .select2-container--classic .select2-selection--multiple .select2-selection__choice {
+                background-color: #e9ecef;
+                border: 1px solid #ced4da;
+                border-radius: 0.25rem;
+                padding: 2px 8px;
+                margin: 4px;
+            }
+            
+            .select2-container--classic .select2-search--inline .select2-search__field {
+                margin-top: 4px;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2-cultures').select2({
+                theme: 'classic',
+                width: '100%',
+                placeholder: 'Rechercher des cultures...',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "Aucune culture trouvée";
+                    },
+                    searching: function() {
+                        return "Recherche en cours...";
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

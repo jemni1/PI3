@@ -1,0 +1,49 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Ajouter Une Culture{% endblock %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block side %}
+    {{ parent() }}
+
+    <div class="container mt-4">
+        <br>
+        <h1 class="mb-5">Ajouter une nouveau culture</h1>
+
+        <div class="card p-4 shadow-sm">
+            {{ form_start(form, {'attr': {'class': 'form'}}) }}
+
+                <div class="mb-3">
+                    {{ form_label(form.nom, 'Nom du culture', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom'}}) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.periodePlantation, 'Période de Plantaion', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.periodePlantation, {'attr': {'class': 'form-control', 'placeholder': 'periodePlantation'}}) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.periodeRecolte, 'Période de Recloltation', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.periodeRecolte, {'attr': {'class': 'form-control', 'placeholder': 'periodeRecolte'}}) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.besoinEau, 'Besoin en Eau', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.besoinEau, {'attr': {'class': 'form-control', 'placeholder': 'besoinEau'}}) }}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary w-100 mb-2">Enregistrer</button>
+                    <a href="{{ path('app_culture') }}" class="btn btn-light w-100">
+                        <i class="ti-close"></i>
+                        Annuler
+                    </a>
+                </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
