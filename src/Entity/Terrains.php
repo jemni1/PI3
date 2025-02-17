@@ -64,11 +64,19 @@ class Terrains
 #[ORM\JoinColumn(name: "terrain_id", referencedColumnName: "id")]
 #[ORM\InverseJoinColumn(name: "culture_id", referencedColumnName: "id_culture")]
 private Collection $cultures;
+    /**
+     * @var Collection<int, CollecteDechet>
+     */
+    #[ORM\OneToMany(targetEntity: CollecteDechet::class, mappedBy: 'id_terrain')]
+    private Collection $collecteDechets;
+
 
 
     public function __construct()
     {
         $this->cultures = new ArrayCollection();
+        $this->collecteDechets = new ArrayCollection();
+
     }
 
     
@@ -160,6 +168,35 @@ private Collection $cultures;
     }
 
    
+    /**
+     * @return Collection<int, CollecteDechet>
+     */
+    public function getCollecteDechets(): Collection
+    {
+        return $this->collecteDechets;
+    }
+
+    public function addCollecteDechet(CollecteDechet $collecteDechet): static
+    {
+        if (!$this->collecteDechets->contains($collecteDechet)) {
+            $this->collecteDechets->add($collecteDechet);
+            $collecteDechet->setIdTerrain($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCollecteDechet(CollecteDechet $collecteDechet): static
+    {
+        if ($this->collecteDechets->removeElement($collecteDechet)) {
+            // set the owning side to null (unless already changed)
+            if ($collecteDechet->getIdTerrain() === $this) {
+                $collecteDechet->setIdTerrain(null);
+            }
+        }
+
+        return $this;
+    }
 
    
    
