@@ -36,7 +36,7 @@ final class ProductsController extends AbstractController
 
                 try {
                     $imageFile->move(
-                        $this->getParameter('images_directory'), // Paramètre de dossier
+                        $this->getParameter('imagess_directory'), // Paramètre de dossier
                         $newFilename
                     );
                     $produit->setImage($newFilename);
