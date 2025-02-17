@@ -3,11 +3,13 @@
 namespace App\Controller;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 use App\Entity\Produits;
 use App\Form\ProduitsType;
 use App\Form\ProduiteditType;
 use App\Repository\ProduitsRepository;
+use App\Repository\TerrainsRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,8 +23,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class ProductsController extends AbstractController
 {
     #[Route('/products', name: 'add_products')]
-    public function index(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function index(RequestStack $requestStack,Request $request, EntityManagerInterface $entityManager,TerrainsRepository $terrainsRepository): Response
+    {   $session = $requestStack->getSession();
+        $terrainId = $session->get('terrain_id', null);
+        $terrain = $terrainsRepository->find($terrainId);
+
         $produit = new Produits();
         $form = $this->createForm(ProduitsType::class, $produit);
         $form->handleRequest($request);
@@ -44,6 +49,7 @@ final class ProductsController extends AbstractController
                     $this->addFlash('error', 'Erreur lors de l’upload de l’image.');
                 }
                 $produit->setImage($newFilename);
+                $produit->setIdTerrain($terrain);
                 
                 // $produit->setIdTerrain($id);
             }
@@ -63,29 +69,50 @@ final class ProductsController extends AbstractController
     }
 
     #[Route('/all', name: 'app_all_products')]
-public function allProducts(EntityManagerInterface $entityManager, Request $request): Response
+public function allProducts(RequestStack $requestStack,EntityManagerInterface $entityManager, Request $request,TerrainsRepository $terrainsRepository): Response
 {
-    $page = $request->query->getInt('page', 1); // Page actuelle, par défaut la page 1
-    $limit = 8; // Nombre d'éléments par page
+    $session = $requestStack->getSession();
+    $terrainId = $session->get('terrain_id', null);
+    $terrain = $terrainsRepository->find($terrainId);
+        if (!$terrain) {
+            return $this->json(['error' => 'Terrain non trouvé'], Response::HTTP_NOT_FOUND);
+        }
 
-    // Récupérer les produits paginés
-    $produitsRepository = $entityManager->getRepository(Produits::class);
-    $produitsQuery = $produitsRepository->createQueryBuilder('p')
-        ->setFirstResult(($page - 1) * $limit) // Offset
-        ->setMaxResults($limit); // Limite
+        // Définir la page actuelle et la limite d'éléments par page
+        $page = $request->query->getInt('page', 1);
+        $limit = 8;
+        $offset = ($page - 1) * $limit;
 
-    $produits = $produitsQuery->getQuery()->getResult(); // Exécute la requête
+        // Récupérer le repository des produits
+        $produitsRepository = $entityManager->getRepository(Produits::class);
 
-    // Récupérer le nombre total de produits pour calculer le nombre de pages
-    $totalProduits = $produitsRepository->count([]);
-    $totalPages = ceil($totalProduits / $limit); // Calculer le nombre total de pages
+        // Récupérer les produits filtrés par terrain avec pagination
+        $produitsQuery = $produitsRepository->createQueryBuilder('p')
+            ->where('p.id_terrain = :terrainId')
+            ->setParameter('terrainId', $terrain)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
 
-    return $this->render('products/list.html.twig', [
-        'produits' => $produits,
-        'current_page' => $page,
-        'total_pages' => $totalPages,
-    ]);
-}
+        $produits = $produitsQuery->getResult();
+
+        // Calculer le nombre total de produits avec ce terrain_id
+        $totalProduits = $produitsRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.id_terrain = :terrainId')
+            ->setParameter('terrainId', $terrain)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Calculer le nombre total de pages
+        $totalPages = ceil($totalProduits / $limit);
+
+        return $this->render('products/list.html.twig', [
+            'produits' => $produits,
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+        ]);
+    }
 #[Route('/view/{id}', name: 'produit_view')]
 public function view(int $id, ProduitsRepository $produitsRepository): Response
 {
@@ -143,7 +170,7 @@ public function list(ProduitsRepository $productRepository, SessionInterface $se
     $pagination = $paginator->paginate(
         $query, // La requête
         $request->query->getInt('page', 1), 
-        12 
+        6
     );
 
     return $this->render('products/listuser.html.twig', [

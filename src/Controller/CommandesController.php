@@ -5,6 +5,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\CommandesRepository;
 use App\Repository\ProduitsRepository;
 use App\EventSubscriber\CartSubscriber;
+use Symfony\Component\HttpFoundation\RequestStack;
+use App\Repository\TerrainsRepository;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -235,11 +238,17 @@ public function checkout(SessionInterface $session, EntityManagerInterface $enti
         return $this->redirectToRoute('view_cart');
     }
 }
-#[Route('/admin/commandes/{terrainId}', name: 'admin_commandes_by_terrain')]
-public function index(int $terrainId, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
+#[Route('/admin/commandes', name: 'admin_commandes_by_terrain')]
+public function index(TerrainsRepository $terrainsRepository, RequestStack $requestStack,CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
 {
+    $session = $requestStack->getSession();
+    $terrainId = $session->get('terrain_id', null);
+    $terrain = $terrainsRepository->find($terrainId);
+        if (!$terrain) {
+            return $this->json(['error' => 'Terrain non trouvé'], Response::HTTP_NOT_FOUND);
+        }
     // Fetch all products that belong to the specified terrain
-    $produits = $produitsRepository->findBy(['id_terrain' => $terrainId]);
+    $produits = $produitsRepository->findBy(['id_terrain' => $terrain]);
     
     // Get the IDs of the products associated with the terrain
     $productIds = array_map(fn($produit) => $produit->getId(), $produits);
