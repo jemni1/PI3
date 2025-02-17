@@ -30,7 +30,7 @@ class CollecteDechetController extends AbstractController
     
                 // Déplacer le fichier dans le répertoire public/uploads/collecte_img
                 $imageFile->move(
-                    $this->getParameter('images_directory'),
+                    $this->getParameter('imgs_directory'),
                     $newFilename
                 );
     
@@ -69,13 +69,13 @@ class CollecteDechetController extends AbstractController
 
                 // Déplacer le fichier dans le répertoire public/uploads/collecte_img
                 $imageFile->move(
-                    $this->getParameter('images_directory'),
+                    $this->getParameter('imgs_directory'),
                     $newFilename
                 );
 
                 // Supprimer l'ancienne image si elle existe
                 if ($currentImage) {
-                    $oldImagePath = $this->getParameter('images_directory') . '/' . $currentImage;
+                    $oldImagePath = $this->getParameter('imgs_directory') . '/' . $currentImage;
                     if (file_exists($oldImagePath)) {
                         unlink($oldImagePath);
                     }

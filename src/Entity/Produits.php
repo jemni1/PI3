@@ -29,7 +29,6 @@ class Produits
     private ?string $nom = null;
 
     #[ORM\ManyToOne(inversedBy: 'produits')]
-    #[Assert\NotNull(message: "Le terrain associé ne peut pas être vide.")]
     private ?Terrains $id_terrain = null;
 
     #[ORM\Column]
@@ -39,8 +38,7 @@ class Produits
     private ?int $prix = null;
     
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "L'image' ne peut pas être vide.")]
-    #[Assert\Length(max: 255, maxMessage: "erreur.")]
+ 
     private ?string $image = null;
 
 

@@ -36,6 +36,7 @@ class ProduitsType extends AbstractType
                 'required' => true,
               
             ]);
+            
         
     }
 
