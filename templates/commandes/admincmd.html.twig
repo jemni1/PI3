@@ -4,25 +4,172 @@
     {{ parent() }}
 {% endblock %}
 
+{% block css %}
+{{ parent() }}
+<style>
+    .invoice-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+    }
+
+    .invoice-title {
+        color: #166534;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .invoice-title i {
+        color: #16a34a;
+    }
+
+    .invoice-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 150, 0, 0.1);
+        padding: 2rem;
+        border-top: 5px solid #16a34a;
+    }
+
+    .section-title {
+        color: #166534;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #dcfce7;
+    }
+
+    .details-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .detail-item {
+        display: flex;
+        padding: 1rem;
+        margin-bottom: 0.8rem;
+        background: #f0fdf4;
+        border-radius: 12px;
+        transition: all 0.2s;
+    }
+
+    .detail-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 150, 0, 0.1);
+    }
+
+    .detail-label {
+        flex: 1;
+        font-weight: 600;
+        color: #166534;
+    }
+
+    .detail-value {
+        flex: 2;
+        color: #374151;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        font-size: 1rem;
+        border: none;
+    }
+
+    .btn-download {
+        background: #16a34a;
+        color: white;
+    }
+
+    .btn-download:hover {
+        background: #15803d;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-return {
+        background: #e5e7eb;
+        color: #374151;
+    }
+
+    .btn-return:hover {
+        background: #d1d5db;
+        transform: translateY(-2px);
+        color: #374151;
+        text-decoration: none;
+    }
+
+    .price-value {
+        color: #16a34a;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="text-center mb-4 text-primary">Facture de la commande #{{ commande.id }}</h1>
+<div class="invoice-container">
+    <h1 class="invoice-title">
+        <i class="fas fa-file-invoice"></i>
+        Facture de la commande #{{ commande.id }}
+    </h1>
 
-        <div class="card shadow-lg p-4">
-            <h4 class="mb-3">Détails de la commande :</h4>
-            <ul class="list-group">
-                <li class="list-group-item"><strong>ID :</strong> {{ commande.id }}</li>
-                <li class="list-group-item"><strong>Produit :</strong> {{ commande.nom }}</li>
-                <li class="list-group-item"><strong>Quantité :</strong> {{ commande.quantite }}</li>
-                <li class="list-group-item"><strong>Date :</strong> {{ commande.date|date('d-m-Y H:i') }}</li>
-                <li class="list-group-item"><strong>Prix total :</strong> {{ commande.prix }} €</li>
-            </ul>
+    <div class="invoice-card">
+        <h4 class="section-title">Détails de la commande</h4>
+        
+        <ul class="details-list">
+            <li class="detail-item">
+                <span class="detail-label">ID :</span>
+                <span class="detail-value">#{{ commande.id }}</span>
+            </li>
+            <li class="detail-item">
+                <span class="detail-label">Produit :</span>
+                <span class="detail-value">{{ commande.nom }}</span>
+            </li>
+            <li class="detail-item">
+                <span class="detail-label">Quantité :</span>
+                <span class="detail-value">{{ commande.quantite }}</span>
+            </li>
+            <li class="detail-item">
+                <span class="detail-label">Date :</span>
+                <span class="detail-value">{{ commande.date|date('d-m-Y H:i') }}</span>
+            </li>
+            <li class="detail-item">
+                <span class="detail-label">Prix total :</span>
+                <span class="detail-value price-value">{{ commande.prix }} €</span>
+            </li>
+        </ul>
 
-            <div class="mt-4 text-center">
-        <a href="{{ path('generate_invoice_pdf_admin', { 'commandeId': commande.id }) }}" class="btn btn-success">Télécharger la facture</a>
-
-                <a href="{{ path('admin_commandes_by_terrain' , { 'terrainId': idTerrain }) }}" class="btn btn-secondary">Retour</a>
-            </div>
+        <div class="actions">
+            <a href="{{ path('generate_invoice_pdf_admin', { 'commandeId': commande.id }) }}" class="btn btn-download">
+                <i class="fas fa-download"></i>
+                Télécharger la facture
+            </a>
+            <a href="{{ path('admin_commandes_by_terrain' , { 'terrainId': idTerrain }) }}" class="btn btn-return">
+                <i class="fas fa-arrow-left"></i>
+                Retour
+            </a>
         </div>
     </div>
+</div>
 {% endblock %}

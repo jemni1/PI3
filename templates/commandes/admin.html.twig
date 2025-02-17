@@ -1,44 +1,169 @@
-
-
 {% extends 'baseBack.html.twig' %}
 
 {% block nav %}
-    <!-- Le contenu de ton menu peut être ici, ou tu peux utiliser {{ parent() }} si tu veux garder le même menu -->
     {{ parent() }}
 {% endblock %}
 
+{% block css %}
+{{ parent() }}
+<style>
+    .orders-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #f0fdf4;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0, 150, 0, 0.1);
+    }
+
+    .page-title {
+        color: #166534;
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .page-title i {
+        font-size: 1.8rem;
+        color: #16a34a;
+    }
+
+    .orders-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin-top: 1rem;
+    }
+
+    .orders-table th {
+        background: #16a34a;
+        color: white;
+        padding: 1rem;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .orders-table th:first-child {
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    .orders-table th:last-child {
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    .orders-table tr {
+        transition: all 0.2s;
+    }
+
+    .orders-table tbody tr {
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .orders-table tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .orders-table td {
+        padding: 1rem;
+        border-top: 2px solid #f0fdf4;
+    }
+
+    .orders-table td:first-child {
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
+
+    .orders-table td:last-child {
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    .btn-invoice {
+        background: #22c55e;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+
+    .btn-invoice:hover {
+        background: #16a34a;
+        transform: translateY(-1px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-style: italic;
+        background: white;
+        border-radius: 12px;
+    }
+
+    .price-column {
+        color: #16a34a;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">Liste des commandes pour le terrain</h1>
+{{ parent() }}
+<div class="orders-container">
+    <h1 class="page-title">
+        <i class="fas fa-clipboard-list"></i>
+        Liste des commandes pour le terrain
+    </h1>
 
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Prix total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for commande in commandes %}
                 <tr>
-                    <th>ID</th>
-                    <th>email</th>
-                    <th>Prix total</th>
-                    <th>Actions</th>
-
+                    <td>#{{ commande.id }}</td>
+                    <td>{{ commande.id_client }}</td>
+                    <td class="price-column">{{ commande.prix }} €</td>
+                    <td>
+                        <a href="{{ path('facture_admin', {'id': commande.id}) }}" class="btn-invoice">
+                            <i class="fas fa-file-invoice"></i>
+                            Voir la facture
+                        </a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for commande in commandes %}
-                    <tr>
-                        <td>{{ commande.id }}</td>
-                        <td>{{ commande.id_client }}</td>
-                        <td>{{ commande.prix }} €</td>
-                        <td>
-                            <a href="{{ path('facture_admin', {'id': commande.id}) }}" class="btn btn-info">
-                                Voir la facture
-                            </a>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td colspan="7" class="text-center">Aucune commande trouvée pour ce terrain</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            {% else %}
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-message">
+                            <i class="fas fa-info-circle"></i>
+                            Aucune commande trouvée pour ce terrain
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

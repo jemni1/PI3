@@ -69,29 +69,50 @@ final class ProductsController extends AbstractController
     }
 
     #[Route('/all', name: 'app_all_products')]
-public function allProducts(EntityManagerInterface $entityManager, Request $request): Response
+public function allProducts(RequestStack $requestStack,EntityManagerInterface $entityManager, Request $request,TerrainsRepository $terrainsRepository): Response
 {
-    $page = $request->query->getInt('page', 1); // Page actuelle, par défaut la page 1
-    $limit = 8; // Nombre d'éléments par page
+    $session = $requestStack->getSession();
+    $terrainId = $session->get('terrain_id', null);
+    $terrain = $terrainsRepository->find($terrainId);
+        if (!$terrain) {
+            return $this->json(['error' => 'Terrain non trouvé'], Response::HTTP_NOT_FOUND);
+        }
 
-    // Récupérer les produits paginés
-    $produitsRepository = $entityManager->getRepository(Produits::class);
-    $produitsQuery = $produitsRepository->createQueryBuilder('p')
-        ->setFirstResult(($page - 1) * $limit) // Offset
-        ->setMaxResults($limit); // Limite
+        // Définir la page actuelle et la limite d'éléments par page
+        $page = $request->query->getInt('page', 1);
+        $limit = 8;
+        $offset = ($page - 1) * $limit;
 
-    $produits = $produitsQuery->getQuery()->getResult(); // Exécute la requête
+        // Récupérer le repository des produits
+        $produitsRepository = $entityManager->getRepository(Produits::class);
 
-    // Récupérer le nombre total de produits pour calculer le nombre de pages
-    $totalProduits = $produitsRepository->count([]);
-    $totalPages = ceil($totalProduits / $limit); // Calculer le nombre total de pages
+        // Récupérer les produits filtrés par terrain avec pagination
+        $produitsQuery = $produitsRepository->createQueryBuilder('p')
+            ->where('p.id_terrain = :terrainId')
+            ->setParameter('terrainId', $terrain)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery();
 
-    return $this->render('products/list.html.twig', [
-        'produits' => $produits,
-        'current_page' => $page,
-        'total_pages' => $totalPages,
-    ]);
-}
+        $produits = $produitsQuery->getResult();
+
+        // Calculer le nombre total de produits avec ce terrain_id
+        $totalProduits = $produitsRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.id_terrain = :terrainId')
+            ->setParameter('terrainId', $terrain)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Calculer le nombre total de pages
+        $totalPages = ceil($totalProduits / $limit);
+
+        return $this->render('products/list.html.twig', [
+            'produits' => $produits,
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+        ]);
+    }
 #[Route('/view/{id}', name: 'produit_view')]
 public function view(int $id, ProduitsRepository $produitsRepository): Response
 {
@@ -149,7 +170,7 @@ public function list(ProduitsRepository $productRepository, SessionInterface $se
     $pagination = $paginator->paginate(
         $query, // La requête
         $request->query->getInt('page', 1), 
-        12 
+        6
     );
 
     return $this->render('products/listuser.html.twig', [
