@@ -1,0 +1,51 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Modifier un Terrain{% endblock %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block side %}
+    {{ parent() }}
+
+    <div class="container mt-4">
+        <h1 class="mb-5">Modifier un Terrain</h1>
+
+        <div class="card p-4 shadow-sm">
+            {{ form_start(forme, {'attr': {'class': 'form'}}) }}
+
+                <div class="mb-3">
+                    {{ form_label(forme.nom, 'Nom du Terrain', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(forme.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom du terrain'}}) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(forme.superficie, 'Superficie (en ha)', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(forme.superficie, {'attr': {'class': 'form-control', 'placeholder': 'Superficie en hectares'}}) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(forme.adresse, 'adresse', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(forme.adresse, {'attr': {'class': 'form-control', 'placeholder': 'Localisation du terrain'}}) }}
+                </div>
+
+            
+
+                <div class="mb-3">
+                    {{ form_label(forme.image, 'Image du Terrain', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(forme.image, {'attr': {'class': 'form-control'}}) }}
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary w-100 mb-2">Enregistrer</button>
+                    <a href="{{ path('app_terrain') }}" class="btn btn-light w-100">
+                        <i class="ti-close"></i>
+                        Annuler
+                    </a>
+                </div>
+
+            {{ form_end(forme) }}
+        </div>
+    </div>
+{% endblock %}
