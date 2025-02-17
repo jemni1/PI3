@@ -1,42 +1,26 @@
 <?php
 
-// src/Controller/StatistiquesController.php
 namespace App\Controller;
 
-use App\Repository\CommandesRepository;
-use App\Repository\ProduitsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
-class PageController extends AbstractController
+final class PageController extends AbstractController
 {
-    #[Route('/admin/statistiques', name: 'admin_statistiques')]
-    public function index(CommandesRepository $commandesRepo): Response
-    {
-        $stats = [
-            'ventesParMois' => $commandesRepo->getMonthlySales(),
-            'topProduits' => $commandesRepo->getTopProducts(),
-            'ventesDerniersJours' => $commandesRepo->getDailySales(),
-            'statutCommandes' => $commandesRepo->getStatutStats(),
-        ];
-
-        return $this->render('page/back.html.twig', [
-            'stats' => $stats
-        ]);
-    }
-
-    #[Route('/api/statistiques', name: 'api_statistiques')]
-    public function apiStats(CommandesRepository $commandesRepo): JsonResponse
-    {
-        $stats = [
-            'ventesParMois' => $commandesRepo->getMonthlySales(),
-            'topProduits' => $commandesRepo->getTopProducts(),
-            'ventesDerniersJours' => $commandesRepo->getDailySales(),
-            'statutCommandes' => $commandesRepo->getStatutStats(),
-        ];
-
-        return $this->json($stats);
-    }
+    #[Route('/page', name: 'page_index')]
+public function index(): Response
+{
+    return $this->render('page/index.html.twig');
+}
+#[Route('/nav', name: 'ppage_index')]
+public function navindex(): Response
+{
+    return $this->render('page/nav.html.twig');
+}
+#[Route('/back', name: 'pppage_index')]
+public function nabavindex(): Response
+{
+    return $this->render('page/back.html.twig');
+}
 }
