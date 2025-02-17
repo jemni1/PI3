@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Entity;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final class TerrainController extends AbstractController
 {
@@ -90,6 +91,14 @@ final class TerrainController extends AbstractController
             'forme' => $forme->createView(),
             'terrain' => $terrain
         ]);
+    }
+    #[Route('/terrain/edit/{id}', name: 'app_terrain_edit')]
+    public function edit(int $id, Terrains $terrain, EntityManagerInterface $entityManager,RequestStack $requestStack): Response
+    {
+        $session = $requestStack->getSession();
+        $session->set('terrain_id', $id);
+        
+        return $this->redirectToRoute('app_all_products');
     }
 
 }

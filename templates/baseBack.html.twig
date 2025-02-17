@@ -313,37 +313,24 @@
       {% block side %}
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">
-              <i class="icon-grid menu-icon"></i>
-              <span class="menu-title">Employés</span>
-            </a>
-          </li>
+          
           <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
               <i class="icon-layout menu-icon"></i>
               <span class="menu-title">Equipements</span>
               <i class="menu-arrow"></i>
             </a>
-            <div class="collapse" id="ui-basic">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="{{asset('Back/pages/ui-features/buttons.html')}}">Buttons</a></li>
-                <li class="nav-item"> <a class="nav-link" href="{{asset('Back/pages/ui-features/dropdowns.html')}}">Dropdowns</a></li>
-                <li class="nav-item"> <a class="nav-link" href="{{asset('Back/pages/ui-features/typography.html')}}">Typography</a></li>
-              </ul>
-            </div>
+           
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#form-elements" aria-expanded="false" aria-controls="form-elements">
-              <i class="icon-columns menu-icon"></i>
-              <span class="menu-title">Produits</span>
-              <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="form-elements">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"><a class="nav-link" href="{{asset('Back/pages/forms/basic_elements.html')}}">Basic Elements</a></li>
-              </ul>
-            </div>
+           
+            <form action="{{ path('app_all_products') }}" method="get">
+        <button type="submit" class="btn btn-link nav-link">
+            <i class="icon-grid-2 menu-icon"></i>
+            <span class="menu-title">Produits</span>
+            <i class="menu-arrow"></i>
+        </button>
+    </form>
           </li>
           <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#charts" aria-expanded="false" aria-controls="charts">
@@ -351,23 +338,19 @@
               <span class="menu-title">Commandes</span>
               <i class="menu-arrow"></i>
             </a>
-            <div class="collapse" id="charts">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="{{asset('Back/pages/charts/chartjs.html')}}">ChartJs</a></li>
-              </ul>
-            </div>
+      
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#tables" aria-expanded="false" aria-controls="tables">
-              <i class="icon-grid-2 menu-icon"></i>
-              <span class="menu-title">Recyclage</span>
-              <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="tables">
-              <ul class="nav flex-column sub-menu">
-                <li class="nav-item"> <a class="nav-link" href="{{asset('Back/pages/tables/basic-table.html')}}">Basic table</a></li>
-              </ul>
-            </div>
+    <form action="{{ path('admin_recyclage_list') }}" method="get">
+        <button type="submit" class="btn btn-link nav-link">
+            <i class="icon-grid-2 menu-icon"></i>
+            <span class="menu-title">Recyclage</span>
+            <i class="menu-arrow"></i>
+        </button>
+    </form>
+
+
+            
           </li>
           <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">

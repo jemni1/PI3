@@ -3,11 +3,13 @@
 namespace App\Controller;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 use App\Entity\Produits;
 use App\Form\ProduitsType;
 use App\Form\ProduiteditType;
 use App\Repository\ProduitsRepository;
+use App\Repository\TerrainsRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,8 +23,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class ProductsController extends AbstractController
 {
     #[Route('/products', name: 'add_products')]
-    public function index(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function index(RequestStack $requestStack,Request $request, EntityManagerInterface $entityManager,TerrainsRepository $terrainsRepository): Response
+    {   $session = $requestStack->getSession();
+        $terrainId = $session->get('terrain_id', null);
+        $terrain = $terrainsRepository->find($terrainId);
+
         $produit = new Produits();
         $form = $this->createForm(ProduitsType::class, $produit);
         $form->handleRequest($request);
@@ -44,6 +49,7 @@ final class ProductsController extends AbstractController
                     $this->addFlash('error', 'Erreur lors de l’upload de l’image.');
                 }
                 $produit->setImage($newFilename);
+                $produit->setIdTerrain($terrain);
                 
                 // $produit->setIdTerrain($id);
             }
