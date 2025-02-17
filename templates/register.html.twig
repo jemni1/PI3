@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ asset('Back/css/vertical-layout-light/style.css') }}">
+</head>
+<body>
+    <div class="container-scroller">
+        <div class="container-fluid page-body-wrapper full-page-wrapper">
+            <div class="content-wrapper d-flex align-items-center auth px-0">
+                <div class="row w-100 mx-0">
+                    <div class="col-lg-4 mx-auto">
+                        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+                            <div class="brand-logo">
+                                <img src="{{ asset('images/logo.svg') }}" alt="logo">
+                            </div>
+                            <h4>New here?</h4>
+                            <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
+
+                            {# Ensure multipart/form-data for file uploads #}
+                            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                                <div class="form-group">
+                                    {{ form_row(form.username, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form_row(form.email, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form_row(form.role, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form_row(form.profilePictureFile, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form_row(form.password.first, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form_row(form.password.second, {'attr': {'class': 'form-control'}}) }}
+                                </div>
+                                <div class="form-check form-check-flat form-check-primary">
+                                    {{ form_widget(form.agreeTerms) }}
+                                    <label>
+                                        I agree to the <a href="{{ path('app_terms') }}" target="_blank">terms and conditions</a>.
+                                    </label>
+                                </div>
+                                <div class="mt-3">
+                                    {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+                                </div>
+                            {{ form_end(form) }}
+
+                            <div class="text-center mt-4 font-weight-light">
+                                Already have an account?
+                                <a href="{{ path('app_login') }}" class="text-primary">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ asset('js/vendor.bundle.base.js') }}"></script>
+    <script src="{{ asset('js/off-canvas.js') }}"></script>
+    <script src="{{ asset('js/hoverable-collapse.js') }}"></script>
+    <script src="{{ asset('js/template.js') }}"></script>
+    <script src="{{ asset('js/settings.js') }}"></script>
+    <script src="{{ asset('js/todolist.js') }}"></script>
+</body>
+</html>

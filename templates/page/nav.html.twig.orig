@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+<html>
+    <body>
+        <h1>Test de la génération PDF</h1>
+        <p>Commande ID: {{ commande.id }}</p>
+        <p>Nom du produit: {{ commande.nom }}</p>
+        <p>Prix: {{ commande.prix }} €</p>
+    </body>
+</html>
+=======
 {% extends 'baseFront.html.twig' %}
 
 {% block nav %}
@@ -86,3 +96,4 @@
 {% block body %}
     <!-- Ici, le contenu spécifique à cette page -->
 {% endblock %}
+>>>>>>> 35ba2c2 (KFKF)

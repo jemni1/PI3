@@ -1,5 +1,9 @@
 twig:
     file_name_pattern: '*.twig'
+<<<<<<< HEAD
+    
+=======
+>>>>>>> 35ba2c2 (KFKF)
 
 when@test:
     twig:
