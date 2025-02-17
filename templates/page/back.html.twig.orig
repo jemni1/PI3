@@ -1,0 +1,27 @@
+<<<<<<< HEAD
+{# templates/admin/statistiques.html.twig #}
+{% extends 'baseBack.html.twig' %}
+
+{% block nav %}
+{{parent()}}
+{% endblock %}
+
+{% extends 'base.html.twig' %}
+
+{% block title %} Nouvelle collecte {% endblock %}
+
+{% block body %}
+    <h1>Nouvelle collecte de déchets</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.typeDechet) }}
+        {{ form_row(form.quantite) }}
+        {{ form_row(form.dateCollecte) }}
+        {{ form_row(form.terrains) }}
+        <button type="submit" class="btn btn-success">Enregistrer</button>
+    {{ form_end(form) }}
+{% endblock %}
+=======
+{% extends 'baseBack.html.twig' %}
+
+>>>>>>> 35ba2c2 (KFKF)
