@@ -1,0 +1,65 @@
+{% extends 'baseFront.html.twig' %}
+
+{% block title %}Modifier une collecte{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header text-white text-center" style="background-color: #388E3C;">
+                    <h2>✏️ Modifier la collecte</h2>
+                </div>
+                <div class="card-body bg-light">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+
+                    <div class="mb-3">
+                        {{ form_label(form.typeDechet, 'Type de déchet', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                        {{ form_widget(form.typeDechet, {'attr': {'class': 'form-select border-success'}}) }}
+                        {{ form_errors(form.typeDechet) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.quantite, 'Quantité (kg)', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                        {{ form_widget(form.quantite, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.quantite) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.dateDebut, 'Date de début', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                        {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.dateDebut) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.dateFin, 'Date de fin', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                        {{ form_widget(form.dateFin, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.dateFin) }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="image" class="form-label fw-bold">Image de la collecte</label>
+                        <div class="mb-2">
+                            {% if collecte.imageUrl %}
+                                <img src="{{ asset('uploads/collecte/' ~ collecte.imageUrl) }}" alt="Image de la collecte" class="img-fluid" style="max-width: 100%; height: auto;">
+                            {% else %}
+                                <p>Aucune image pour cette collecte.</p>
+                            {% endif %}
+                        </div>
+                        {{ form_widget(form.image, {'attr': {'class': 'form-control border-success'}}) }}
+                        {{ form_errors(form.image) }}
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn text-white px-4" style="background-color: #4CAF50;">
+                            <i class="fas fa-save"></i> Enregistrer les modifications
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

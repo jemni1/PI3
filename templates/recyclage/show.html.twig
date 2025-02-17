@@ -1,0 +1,68 @@
+{% extends 'baseback.html.twig' %}
+
+{% block title %}Détails du Recyclage{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header text-white text-center" style="background-color: #2E7D32;">
+            <h2>♻️ Détails du recyclage</h2>
+        </div>
+        <div class="card-body bg-light">
+           <!-- Affichage de l'image de recyclage avec taille ajustée -->
+            {% if recyclage.imageUrl %}
+                <div class="text-center mt-4">
+                    <h5>Image de recyclage :</h5>
+                    <img src="{{ asset('uploads/recyclage_img/' ~ recyclage.imageUrl) }}" 
+                         alt="Image de recyclage" 
+                         class="img-fluid" 
+                         style="max-width: 50%; height: auto;"> <!-- Ajustez max-width ici -->
+                </div>
+            {% endif %}
+
+            <h4 class="text-success">Informations générales :</h4>
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Période de recyclage :</strong> 
+                    {{ recyclage.dateDebut|date('d/m/Y') }} - {{ recyclage.dateFin|date('d/m/Y') }}
+                </li>
+                <li class="list-group-item"><strong>Quantité recyclée (kg) :</strong> {{ recyclage.quantiteRecyclee }}</li>
+                <li class="list-group-item"><strong>Énergie produite (kWh) :</strong> {{ recyclage.energieProduite }}</li>
+                <li class="list-group-item"><strong>Utilisation de l'énergie :</strong> {{ recyclage.utilisation }}</li>
+            </ul>
+
+         
+            <h4 class="text-success mt-4">Collectes associées :</h4>
+            {% if recyclage.collectes|length > 0 %}
+                <table class="table table-bordered table-hover text-center">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Type de déchet</th>
+                            <th>Quantité (kg)</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for collecte in recyclage.collectes %}
+                            <tr>
+                                <td>{{ collecte.typeDechet }}</td>
+                                <td>{{ collecte.quantite }}</td>
+                                <td>{{ collecte.dateDebut|date('d/m/Y') }}</td>
+                                <td>{{ collecte.dateFin|date('d/m/Y') }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">Aucune collecte associée.</p>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="{{ path('admin_recyclage_list') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

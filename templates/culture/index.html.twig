@@ -1,0 +1,57 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Gestion des Cultures{% endblock %}
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block side %}
+  
+{{ parent() }}
+<div class="card-body">
+    <h4 class="card-title">Liste des Cultures</h4>
+    <p class="card-description">
+        <a href="{{ path('new_culture') }}" class="btn btn-primary">
+            <i class="ti-plus"></i>
+            Ajouter une Culture
+        </a>
+     
+    </p>
+<div class="table-responsive pt-3">
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nom</th>
+            <th>Période de Plantation</th>
+            <th>Période de Récolte</th>
+            <th>Besoin en Eau</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for culture in cultures %}
+            <tr>
+                <td>{{ culture.id}}</td>
+                <td>{{ culture.nom }}</td>
+                <td>{{ culture.periodePlantation }}</td>
+                <td>{{ culture.periodeRecolte }}</td>
+                <td>
+                    {{ culture.besoinEau}}
+                </td>
+                <td>
+                    <a href="{{ path('app_culture_update', {'id': culture.id}) }}" class="btn btn-warning btn-sm">
+                        <i class="ti-pencil"></i>
+                    </a>
+                    <a href="{{ path('app_culture_delete', {'id': culture.id}) }}" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette culture?');">
+                        <i class="ti-trash"></i>
+                    </a>
+                </td>
+                
+            </tr>
+
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,298 @@
+
+    <style>
+        .payment-wrapper {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%);
+            padding: 2rem;
+        }
+
+        .payment-container {
+            max-width: 550px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            padding: 2rem;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .payment-header h3 {
+            color: #1a1f36;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .amount-display {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .amount-display p {
+            font-size: 1.25rem;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .amount-display strong {
+            color: #0f172a;
+            font-size: 1.5rem;
+        }
+
+        #payment-form {
+            margin-top: 1.5rem;
+        }
+
+        #card-element {
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        #card-element:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        #card-element.StripeElement--focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        #card-errors {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            min-height: 20px;
+        }
+
+        .submit-button {
+            display: block;
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .submit-button:active {
+            transform: translateY(1px);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .secure-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Animation de chargement */
+        .submit-button.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+
+        .submit-button.loading.processing::after {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Style pour la notification de succès */
+        .success-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .success-notification.show {
+            transform: translateX(0);
+        }
+
+        .success-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkmark {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            margin-right: 10px;
+        }
+    </style>
+
+<div class="payment-wrapper">
+    <!-- Notification de succès -->
+    <div id="success-notification" class="success-notification">
+        <span class="success-icon">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <path fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+        </span>
+        Paiement réussi ! Redirection...
+    </div>
+
+    <div class="payment-container">
+        <div class="payment-header">
+            <h3>Finaliser votre commande</h3>
+        </div>
+
+        <div class="amount-display">
+            <p>Total à payer : <strong>{{ totalAmount }} €</strong></p>
+        </div>
+
+        <form id="payment-form">
+            <div id="card-element"></div>
+            <div id="card-errors" role="alert"></div>
+            <button type="submit" id="submit" class="submit-button">
+                Payer {{ totalAmount }} €
+            </button>
+        </form>
+
+        <div class="secure-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd" />
+            </svg>
+            Paiement sécurisé par Stripe
+        </div>
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    var stripe = Stripe('{{ stripePublicKey }}');
+    var elements = stripe.elements();
+    
+    var card = elements.create('card', {
+        hidePostalCode: true,
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#1e293b',
+                '::placeholder': {
+                    color: '#64748b',
+                },
+            },
+        },
+    });
+    
+    card.mount('#card-element');
+
+    var form = document.getElementById('payment-form');
+    var submitButton = document.getElementById('submit');
+    
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        submitButton.disabled = true;
+        submitButton.classList.add('loading', 'processing');
+        
+        try {
+            const result = await stripe.confirmCardPayment('{{ clientSecret }}', {
+                payment_method: {
+                    card: card,
+                }
+            });
+            
+            if (result.error) {
+                document.getElementById('card-errors').textContent = result.error.message;
+                submitButton.disabled = false;
+                submitButton.classList.remove('loading', 'processing');
+            } else {
+                if (result.paymentIntent.status === 'succeeded') {
+                    const response = await fetch('{{ path('process_payment') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            payment_intent_id: result.paymentIntent.id
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        // Afficher la notification de succès
+                        const notification = document.getElementById('success-notification');
+                        notification.classList.add('show');
+                        
+                        // Attendre 2 secondes avant la redirection
+                        setTimeout(() => {
+                            window.location.href = '{{ path('listprod') }}';
+                        }, 2000);
+                    } else {
+                        throw new Error(data.message);
+                    }
+                }
+            }
+        } catch (error) {
+            document.getElementById('card-errors').textContent = error.message;
+            submitButton.disabled = false;
+            submitButton.classList.remove('loading', 'processing');
+        }
+    });
+</script>

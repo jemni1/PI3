@@ -1,0 +1,77 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Gestion des Terrains{% endblock %}
+
+{% block side %}
+<div class="card-body">
+    <div class="container-fluid">
+        <div class="row">
+            {% for terrain in terrains %}
+                <div class="col-md-3 mb-4">
+                    <div class="card border-secondary">
+                        {% if terrain.image %}
+                            <img src="{{ asset('uploads/terrains/' ~ terrain.image) }}" class="card-img-top" alt="{{ terrain.nom }}" style="object-fit: cover; height: 200px; width: 100%; border-radius: 10px;">
+                        {% else %}
+                            <div class="card-img-top bg-light text-center py-5" style="height: 200px; border-radius: 10px;">
+                                <i class="ti-agenda" style="font-size: 3rem;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <span style="font-weight: bold;">{{ terrain.nom }}</span>
+                            <div>
+                                <!-- Lien vers la page de détails -->
+                                <a href="{{ path('terrain_new', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-primary me-1" title="Voir les détails">
+                                    <i class="ti-eye"></i>
+                                </a>
+                                
+                                <!-- Lien vers la page d'édition -->
+                                <a href="{{ path('app_terrain_update', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-secondary me-1" title="Éditer">
+                                    <i class="ti-pencil"></i>
+                                </a>
+                                
+                                <!-- Lien vers la suppression -->
+                                <a href="{{ path('app_terrain_delete', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce terrain ?');" title="Supprimer">
+                                    <i class="ti-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Bouton pour ajouter un terrain -->
+            <div class="col-md-3 mb-4">
+                <a href="{{ path('terrain_new') }}" class="card bg-light text-dark d-flex justify-content-center align-items-center" style="height: 300px; border-radius: 10px; transition: transform 0.3s;">
+                    <i class="ti-plus" style="font-size: 3rem;"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <style>
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+    </style>
+{% endblock %}
