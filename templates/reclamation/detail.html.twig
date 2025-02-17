@@ -1,0 +1,43 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Détail Réclamation{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+<br>
+<br><br>
+    <h1 class="text-center">Détails de la Réclamation</h1>
+    
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Sujet : {{ reclamation.sujet }}</h5>
+            <p class="card-text"><strong>Description :</strong> {{ reclamation.description }}</p>
+            <p class="card-text"><strong>Date :</strong> {{ reclamation.daterec|date('d-m-Y') }}</p>
+            <p class="card-text">
+                <strong>Statut :</strong>
+                {% if reclamation.status == 'Répondu' %}
+                    <span class="badge badge-success">Répondu</span>
+                {% elseif reclamation.status == 'En attente' %}
+                    <span class="badge badge-warning">En attente</span>
+                {% elseif reclamation.status == 'Refusé' %}
+                    <span class="badge badge-danger">Refusé</span>
+                {% else %}
+                    <span class="badge badge-secondary">{{ reclamation.status }}</span>
+                {% endif %}
+            </p>
+
+            {% if reponse %}
+                <p class="card-text"><strong>Réponse :</strong> {{ reponse.message }}</p>
+                <a class="btn btn-warning" href="{{ path('update_reponse', {'id': reponse.idReponse}) }}">Mettre à Jour la Réponse</a>
+            {% else %}
+                <p class="text-muted">Aucune réponse pour cette réclamation.</p>
+                <a class="btn btn-primary" href="{{ path('ajouter_reponse', {'id': reclamation.id}) }}">Ajouter une Réponse</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <br>
+    <a class="btn btn-secondary" href="{{ path('afficherReclamation') }}">Retour</a>
+</div>
+{% endblock %}

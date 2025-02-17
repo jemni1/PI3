@@ -3,57 +3,140 @@
 {% block title %}Gestion des Réclamations{% endblock %}
 
 {% block body %}
-<br>
-<br><br>
-<div class="container mt-4">
-    <h1 class="text-center">Liste des Réclamations</h1>
+<div class="d-flex">
+    <!-- ✅ Sidebar bien positionnée -->
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">
+                    <i class="icon-grid menu-icon"></i>
+                    <span class="menu-title">Employés</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#equipements" aria-expanded="false">
+                    <i class="icon-layout menu-icon"></i>
+                    <span class="menu-title">Équipements</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="equipements">
+                    <ul class="nav flex-column sub-menu">
+                        <li class="nav-item"> <a class="nav-link" href="#">Liste</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="#">Ajouter</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#produits" aria-expanded="false">
+                    <i class="icon-columns menu-icon"></i>
+                    <span class="menu-title">Produits</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="produits">
+                    <ul class="nav flex-column sub-menu">
+                        <li class="nav-item"><a class="nav-link" href="#">Voir Produits</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Ajouter Produit</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#commandes" aria-expanded="false">
+                    <i class="icon-bar-graph menu-icon"></i>
+                    <span class="menu-title">Commandes</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="commandes">
+                    <ul class="nav flex-column sub-menu">
+                        <li class="nav-item"> <a class="nav-link" href="#">Liste Commandes</a></li>
+                        <li class="nav-item"> <a class="nav-link" href="#">Nouvelle Commande</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#recyclage" aria-expanded="false">
+                    <i class="icon-grid-2 menu-icon"></i>
+                    <span class="menu-title">Recyclage</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="recyclage">
+                    <ul class="nav flex-column sub-menu">
+                        <li class="nav-item"> <a class="nav-link" href="#">Recycler</a></li>
+                    </ul>
+                </div>
+            </li>
+            <!-- ✅ Réclamation bien visible -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ asset('/afficherReclamation') }}">
+                    <i class="icon-contract menu-icon"></i>
+                    <span class="menu-title">Réclamations</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="icon-paper menu-icon"></i>
+                    <span class="menu-title">Documentation</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-    {% if rec is not empty %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Sujet</th>
-                    <th>Description</th>
-                    <th>Statut</th>
-                    <th>Date de Réclamation</th>
-                    <th>Réponse</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for reclamation in rec %}
+    <!-- ✅ Contenu principal bien aligné -->
+    <div class="container mt-4 flex-grow-1">
+    <br> <br>
+        <h1 class="text-center">Liste des Réclamations</h1>
+
+        {% if rec is not empty %}
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>{{ reclamation.sujet }}</td>
-                        <td>{{ reclamation.description }}</td>
-                        <td>{{ reclamation.status }}</td>
-                        <td>{{ reclamation.daterec|date('d-m-Y') }}</td>
-                        
-                        <td>
-                            {% if reclamation.response %}
-                                <p>{{ reclamation.response.message }}</p>
-                            {% else %}
-                                <p>Aucune réponse</p>
-                            {% endif %}
-                        </td>
-
-                        <td>
-                            {% if not reclamation.response %}
-                                <!-- Afficher le bouton de suppression uniquement si la réclamation n'a pas de réponse -->
-                                <a class="btn btn-danger btn-sm" href="{{ path('rmRec', {'id': reclamation.id}) }}">Supprimer reclamation</a>
-                            {% endif %}
-                            
-                            {% if not reclamation.response %}
-                                <a class="btn btn-primary btn-sm" href="{{ path('ajouter_reponse', {'id': reclamation.id}) }}">Ajouter Réponse</a>
-                            {% else %}
-                                <a class="btn btn-warning btn-sm" href="{{ path('update_reponse', {'id': reclamation.response.idReponse}) }}">Mettre à jour Réponse</a>
-                            {% endif %}
-                        </td> 
+                        <th>Sujet</th>
+                        <th>Description</th>
+                        <th>Statut</th>
+                        <th>Date de Réclamation</th>
+                        <th>Réponse</th>
+                        <th>Actions</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="text-center text-muted">Aucune réclamation trouvée.</p>
-    {% endif %}
+                </thead>
+                <tbody>
+                    {% for reclamation in rec %}
+                        <tr>
+                            <td>{{ reclamation.sujet }}</td>
+                            <td>{{ reclamation.description }}</td>
+                            <td>
+                                {% if reclamation.status == 'Répondu' %}
+                                    <span class="badge badge-success">Répondu</span>
+                                {% elseif reclamation.status == 'En attente' %}
+                                    <span class="badge badge-warning">En attente</span>
+                                {% elseif reclamation.status == 'Refusé' %}
+                                    <span class="badge badge-danger">Refusé</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ reclamation.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ reclamation.daterec|date('d-m-Y') }}</td>
+                            <td>
+                                {% if reclamation.response %}
+                                    <p>{{ reclamation.response.message }}</p>
+                                {% else %}
+                                    <p>Aucune réponse</p>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not reclamation.response %}
+                                    <a class="btn btn-danger btn-sm" href="{{ path('rmRec', {'id': reclamation.id}) }}">Supprimer</a>
+                                    <a class="btn btn-primary btn-sm" href="{{ path('ajouter_reponse', {'id': reclamation.id}) }}">Répondre</a>
+                                {% else %}
+                                    <a class="btn btn-warning btn-sm" href="{{ path('update_reponse', {'id': reclamation.response.idReponse}) }}">Modifier Réponse</a>
+                                {% endif %}
+                                <a class="btn btn-info btn-sm" href="{{ path('detail_reclamation', {'id': reclamation.id}) }}">Détails</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-center text-muted">Aucune réclamation trouvée.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

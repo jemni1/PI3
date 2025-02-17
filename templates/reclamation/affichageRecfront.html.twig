@@ -29,7 +29,17 @@
                     <tr>
                         <td>{{ reclamation.sujet }}</td>
                         <td>{{ reclamation.description }}</td>
-                        <td>{{ reclamation.status }}</td>
+                        <td>
+                            {% if reclamation.status == 'Répondu' %}
+                                <span class="badge bg-success">Répondu</span>
+                            {% elseif reclamation.status == 'En attente' %}
+                                <span class="badge bg-warning text-dark">En attente</span>
+                            {% elseif reclamation.status == 'Refusé' %}
+                                <span class="badge bg-danger">Refusé</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ reclamation.status }}</span>
+                            {% endif %}
+                        </td>
                         <td>{{ reclamation.daterec|date('d-m-Y') }}</td>
                         <td>
                             {% if reclamation.response %}

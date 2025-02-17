@@ -35,7 +35,7 @@ final class ReclamationController extends AbstractController
     public function afficherReclamation(ReclamationRepository $repo, ReponseRepository $reponseRepo): Response
     {
         // Fetch all reclamations
-        $reclamations = $repo->findAll();
+        $reclamations = $repo->findBy([], ['daterec' => 'DESC']);
     
         // Fetch the responses for each reclamation
         foreach ($reclamations as $reclamation) {
@@ -257,6 +257,25 @@ public function supprimerReclamation(
             'reclamation' => $reclamation,
         ]);
     }
+    
+    #[Route('/reclamation/detail/{id}', name: 'detail_reclamation')]
+public function detailReclamation($id, ReclamationRepository $repo, ReponseRepository $reponseRepo): Response
+{
+    // Trouver la réclamation par ID
+    $reclamation = $repo->find($id);
+    
+    if (!$reclamation) {
+        throw $this->createNotFoundException('Réclamation non trouvée.');
+    }
+
+    // Récupérer la réponse associée (s'il y en a une)
+    $reponse = $reponseRepo->findOneBy(['idreclamation' => $reclamation]);
+
+    return $this->render('reclamation/detail.html.twig', [
+        'reclamation' => $reclamation,
+        'reponse' => $reponse,
+    ]);
+}
 
 
 }
