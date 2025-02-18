@@ -1,0 +1,52 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block nav %}
+    {{ parent() }}
+{% endblock %}
+
+{% block sidebar %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+{{ parent() }}
+    <div class="container mt-4">
+        <h2 class="mb-4">Modifier un Équipement</h2>
+
+        {{ form_start(EquipementForm) }}
+        
+        <div class="mb-3">
+            {{ form_label(EquipementForm.nom) }}
+            {{ form_widget(EquipementForm.nom, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(EquipementForm.nom) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(EquipementForm.type) }}
+            {{ form_widget(EquipementForm.type, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(EquipementForm.type) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(EquipementForm.dateAchat) }}
+            {{ form_widget(EquipementForm.dateAchat, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(EquipementForm.dateAchat) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(EquipementForm.etat) }}
+            {{ form_widget(EquipementForm.etat, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(EquipementForm.etat) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(EquipementForm.dateDernierEntretien) }}
+            {{ form_widget(EquipementForm.dateDernierEntretien, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(EquipementForm.dateDernierEntretien) }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Modifier</button>
+        
+        {{ form_end(EquipementForm) }}
+    </div>
+{% endblock %}
