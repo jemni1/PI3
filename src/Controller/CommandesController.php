@@ -260,17 +260,29 @@ public function index(TerrainsRepository $terrainsRepository, RequestStack $requ
         'commandes' => $commandes,
     ]);
 }
-#[Route('/user/commandes/{userId}', name: 'user_commandes_by_terrain')]
-public function indexuser(int $userId, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
+#[Route('/user/commandes', name: 'user_commandes_by_terrain')]
+public function indexuser( CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
 {
  
     // Fetch orders that have products related to the selected terrain
-    $commandes = $commandesRepository->findBy(['id_client' => $userId]);
+    // $commandes = $commandesRepository->findBy(['id_client' => $userId]);
+    $commandes = $commandesRepository->findAll();
 
     return $this->render('commandes/user.html.twig', [
         'commandes' => $commandes,
     ]);
 }
+// #[Route('/user/commandes/{userId}', name: 'user_commandes_by_terrain')]
+// public function indexuser(int $userId, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
+// {
+ 
+//     // Fetch orders that have products related to the selected terrain
+//     $commandes = $commandesRepository->findBy(['id_client' => $userId]);
+
+//     return $this->render('commandes/user.html.twig', [
+//         'commandes' => $commandes,
+//     ]);
+// }
 
 #[Route('/factureadmin/{id}', name:"facture_admin")]
 public function indexcommm(int $id, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response

@@ -3,82 +3,11 @@
 {% block title %}Gestion des Réclamations{% endblock %}
 
 {% block body %}
+    {{ parent() }}
+
 <div class="d-flex">
     <!-- ✅ Sidebar bien positionnée -->
-    <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <ul class="nav">
-            <li class="nav-item">
-                <a class="nav-link" href="index.html">
-                    <i class="icon-grid menu-icon"></i>
-                    <span class="menu-title">Employés</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#equipements" aria-expanded="false">
-                    <i class="icon-layout menu-icon"></i>
-                    <span class="menu-title">Équipements</span>
-                    <i class="menu-arrow"></i>
-                </a>
-                <div class="collapse" id="equipements">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"> <a class="nav-link" href="#">Liste</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="#">Ajouter</a></li>
-                    </ul>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#produits" aria-expanded="false">
-                    <i class="icon-columns menu-icon"></i>
-                    <span class="menu-title">Produits</span>
-                    <i class="menu-arrow"></i>
-                </a>
-                <div class="collapse" id="produits">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"><a class="nav-link" href="#">Voir Produits</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Ajouter Produit</a></li>
-                    </ul>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#commandes" aria-expanded="false">
-                    <i class="icon-bar-graph menu-icon"></i>
-                    <span class="menu-title">Commandes</span>
-                    <i class="menu-arrow"></i>
-                </a>
-                <div class="collapse" id="commandes">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"> <a class="nav-link" href="#">Liste Commandes</a></li>
-                        <li class="nav-item"> <a class="nav-link" href="#">Nouvelle Commande</a></li>
-                    </ul>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="collapse" href="#recyclage" aria-expanded="false">
-                    <i class="icon-grid-2 menu-icon"></i>
-                    <span class="menu-title">Recyclage</span>
-                    <i class="menu-arrow"></i>
-                </a>
-                <div class="collapse" id="recyclage">
-                    <ul class="nav flex-column sub-menu">
-                        <li class="nav-item"> <a class="nav-link" href="#">Recycler</a></li>
-                    </ul>
-                </div>
-            </li>
-            <!-- ✅ Réclamation bien visible -->
-            <li class="nav-item">
-                <a class="nav-link" href="{{ asset('/afficherReclamation') }}">
-                    <i class="icon-contract menu-icon"></i>
-                    <span class="menu-title">Réclamations</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="icon-paper menu-icon"></i>
-                    <span class="menu-title">Documentation</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+    
 
     <!-- ✅ Contenu principal bien aligné -->
     <div class="container mt-4 flex-grow-1">
