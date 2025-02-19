@@ -3,6 +3,8 @@
 {% block title %}Ajouter une Réponse{% endblock %}
 
 {% block body %}
+ {{ parent() }}
+
     <br><br><br>
     <div class="container mt-4">
         <h1 class="text-center">Ajouter une Réponse à la Réclamation: {{ reclamation.sujet }}</h1>

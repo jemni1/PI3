@@ -30,7 +30,6 @@ class PaymentController extends AbstractController
             $totalAmount += $item['quantite'] * $item['prix'];
         }
         
-        // Créer un PaymentIntent
         Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
         
         $paymentIntent = PaymentIntent::create([

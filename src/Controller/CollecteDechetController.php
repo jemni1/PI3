@@ -15,9 +15,10 @@ use App\Repository\TerrainsRepository;
 
 class CollecteDechetController extends AbstractController
 {
-    #[Route('/collecte', name: 'collecte_new', methods: ['GET', 'POST'])]
+    #[Route('/collecte', name: 'collecte_new')]
     public function new(Request $request, EntityManagerInterface $entityManager, CollecteDechetRepository $collecteRepo): Response
     {
+        
         $collecte = new CollecteDechet();
         $form = $this->createForm(CollecteDechetType::class, $collecte);
         $form->handleRequest($request);
