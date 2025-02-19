@@ -41,7 +41,7 @@ final class ProductsController extends AbstractController
 
                 try {
                     $imageFile->move(
-                        $this->getParameter('imagess_directory'), // Paramètre de dossier
+                        $this->getParameter('imagess_directory'), 
                         $newFilename
                     );
                     $produit->setImage($newFilename);
@@ -51,7 +51,7 @@ final class ProductsController extends AbstractController
                 $produit->setImage($newFilename);
                 $produit->setIdTerrain($terrain);
                 
-                // $produit->setIdTerrain($id);
+                
             }
 
             $entityManager->persist($produit);
@@ -59,7 +59,6 @@ final class ProductsController extends AbstractController
 
             $this->addFlash('success', 'Produit ajouté avec succès!');
 
-            // Réinitialiser le formulaire en créant un nouvel objet Produits
             return $this->redirectToRoute('app_all_products');
         }
 
@@ -78,15 +77,12 @@ public function allProducts(RequestStack $requestStack,EntityManagerInterface $e
             return $this->json(['error' => 'Terrain non trouvé'], Response::HTTP_NOT_FOUND);
         }
 
-        // Définir la page actuelle et la limite d'éléments par page
         $page = $request->query->getInt('page', 1);
         $limit = 8;
         $offset = ($page - 1) * $limit;
 
-        // Récupérer le repository des produits
         $produitsRepository = $entityManager->getRepository(Produits::class);
 
-        // Récupérer les produits filtrés par terrain avec pagination
         $produitsQuery = $produitsRepository->createQueryBuilder('p')
             ->where('p.id_terrain = :terrainId')
             ->setParameter('terrainId', $terrain)
@@ -96,7 +92,6 @@ public function allProducts(RequestStack $requestStack,EntityManagerInterface $e
 
         $produits = $produitsQuery->getResult();
 
-        // Calculer le nombre total de produits avec ce terrain_id
         $totalProduits = $produitsRepository->createQueryBuilder('p')
             ->select('COUNT(p.id)')
             ->where('p.id_terrain = :terrainId')
@@ -104,7 +99,6 @@ public function allProducts(RequestStack $requestStack,EntityManagerInterface $e
             ->getQuery()
             ->getSingleScalarResult();
 
-        // Calculer le nombre total de pages
         $totalPages = ceil($totalProduits / $limit);
 
         return $this->render('products/list.html.twig', [
@@ -151,24 +145,23 @@ public function delete(int $id, ProduitsRepository $produitsRepository, EntityMa
     $produit = $produitsRepository->find($id);
 
     if ($produit) {
-        // Suppression du produit
-        $entityManager->remove($produit); // Utilisation de l'EntityManager pour supprimer l'entité
-        $entityManager->flush(); // Sauvegarde de la suppression en base de données
+        $entityManager->remove($produit); 
+        $entityManager->flush(); 
 
         $this->addFlash('success', 'Produit supprimé avec succès!');
     }
 
-    return $this->redirectToRoute('app_all_products'); // Remplacez 'produit_list' par le nom de la route de la liste des produits
+    return $this->redirectToRoute('app_all_products'); 
 }
 
 
 #[Route('/liste', name: 'listprod')]
 public function list(ProduitsRepository $productRepository, SessionInterface $session, PaginatorInterface $paginator, Request $request): Response
 {
-    $query = $productRepository->findAvailableProducts(); // Utilise une requête pour la pagination
+    $query = $productRepository->findAvailableProducts();
 
     $pagination = $paginator->paginate(
-        $query, // La requête
+        $query, 
         $request->query->getInt('page', 1), 
         6
     );
