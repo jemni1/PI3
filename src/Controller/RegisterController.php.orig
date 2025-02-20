@@ -1,7 +1,10 @@
 <?php
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
 namespace App\Controller;
 
-(??)
 use App\Entity\User;
 use App\Form\RegisterFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,21 +13,31 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+<<<<<<< HEAD
+use Symfony\Component\Form\FormError;
+=======
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
 
 class RegisterController extends AbstractController
 {
     #[Route('/register', name: 'register')]
+<<<<<<< HEAD
     public function register(
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager
     ): Response {
+=======
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    {
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
         $user = new User();
         $form = $this->createForm(RegisterFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+<<<<<<< HEAD
             // Additional CIN validation
             $cin = $user->getCin();
             if (!preg_match('/^[0-9]{8}$/', $cin)) {
@@ -66,6 +79,8 @@ class RegisterController extends AbstractController
             }
 
             // Hash password
+=======
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
             $user->setPassword(
                 $passwordHasher->hashPassword(
                     $user,
@@ -73,7 +88,17 @@ class RegisterController extends AbstractController
                 )
             );
 
-(??)
+<<<<<<< HEAD
+            // Set roles
+            $selectedRole = $form->get('role')->getData();
+            $user->setRoles([$selectedRole]);
+
+            // Persist and flush
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            // Redirect to login
+=======
             $selectedRole = $form->get('role')->getData();
             $user->setRoles([$selectedRole, 'ROLE_USER']);
 
@@ -91,7 +116,7 @@ class RegisterController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-(??)
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
             return $this->redirectToRoute('app_login');
         }
 
@@ -99,4 +124,8 @@ class RegisterController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f

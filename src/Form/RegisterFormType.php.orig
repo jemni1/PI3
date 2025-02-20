@@ -1,7 +1,10 @@
 <?php
-(??)
+<<<<<<< HEAD
+// src/Form/RegisterFormType.php
+=======
+
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
 namespace App\Form;
-(??)
 
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
@@ -15,14 +18,19 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+<<<<<<< HEAD
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Exception\TransformationFailedException;
+=======
+use Symfony\Component\Validator\Constraints\File;
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
 
 class RegisterFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+<<<<<<< HEAD
             ->add('name', TextType::class, [
                 'label' => 'Name',
                 'attr' => [
@@ -58,6 +66,11 @@ class RegisterFormType extends AbstractType
                     'inputmode' => 'numeric'
                 ],
                 'required' => true
+=======
+            ->add('username', TextType::class, [
+                'label' => 'Username',
+                'attr' => ['class' => 'form-control']
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
@@ -76,7 +89,19 @@ class RegisterFormType extends AbstractType
             ])
             ->add('profilePictureFile', FileType::class, [
                 'label' => 'Profile Picture',
+<<<<<<< HEAD
                 'required' => false,
+=======
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif'],
+                        'mimeTypesMessage' => 'Please upload a valid image file (JPEG, PNG, GIF)',
+                    ])
+                ],
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
                 'attr' => ['class' => 'form-control']
             ])
             ->add('password', RepeatedType::class, [
@@ -90,6 +115,10 @@ class RegisterFormType extends AbstractType
                     'attr' => ['class' => 'form-control']
                 ],
                 'invalid_message' => 'The password fields must match.',
+<<<<<<< HEAD
+=======
+                'mapped' => false
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
             ])
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'I agree to the terms and conditions',
@@ -97,6 +126,7 @@ class RegisterFormType extends AbstractType
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Register',
+<<<<<<< HEAD
                 'attr' => ['class' => 'btn btn-primary mt-3']
             ]);
 
@@ -118,6 +148,10 @@ class RegisterFormType extends AbstractType
                 return $cinFromView;
             }
         ));
+=======
+                'attr' => ['class' => 'btn btn-primary']
+            ]);
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -128,4 +162,7 @@ class RegisterFormType extends AbstractType
     }
 }
 
+<<<<<<< HEAD
 // src/Controller/RegisterController.php
+=======
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f

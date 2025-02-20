@@ -18,11 +18,12 @@ security:
             provider: app_user_provider
             form_login:
                 login_path: app_login
-                check_path: app_login  # Should match your form action route
+                check_path: app_login
                 enable_csrf: true
-                username_parameter: username  # Must match entity property
+                username_parameter: username
                 password_parameter: password
                 default_target_path: page_index
+                always_use_default_target_path: false
             logout:
                 path: app_logout
                 target: app_login
