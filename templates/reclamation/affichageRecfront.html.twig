@@ -1,0 +1,71 @@
+{% extends 'baseFront.html.twig' %}
+
+{% block title %}Gestion des Réclamations{% endblock %}
+
+{% block body %}
+<br><br><br>
+<div class="container mt-4">
+    <h1 class="text-center">Liste des Réclamations</h1>
+
+    <!-- Bouton pour ajouter une réclamation -->
+    <div class="mb-3 text-end">
+        <a class="btn btn-success" href="{{ path('ajouter_reclamation') }}">Ajouter une Réclamation</a>
+    </div>
+
+    {% if rec is not empty %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sujet</th>
+                    <th>Description</th>
+                    <th>Statut</th>
+                    <th>Date de Réclamation</th>
+                    <th>Réponse</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reclamation in rec %}
+                    <tr>
+                        <td>{{ reclamation.sujet }}</td>
+                        <td>{{ reclamation.description }}</td>
+                        <td>
+                            {% if reclamation.status == 'Répondu' %}
+                                <span class="badge bg-success">Répondu</span>
+                            {% elseif reclamation.status == 'En attente' %}
+                                <span class="badge bg-warning text-dark">En attente</span>
+                            {% elseif reclamation.status == 'Refusé' %}
+                                <span class="badge bg-danger">Refusé</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ reclamation.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ reclamation.daterec|date('d-m-Y') }}</td>
+                        <td>
+                            {% if reclamation.response %}
+                                <p>{{ reclamation.response.message }}</p>
+                            {% else %}
+                                <p class="text-muted">Aucune réponse</p>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Afficher le bouton "Modifier" seulement si aucune réponse n'existe -->
+                            {% if not reclamation.response %}
+                                <a class="btn btn-warning btn-sm" href="{{ path('edit_reclamation', {'id': reclamation.id}) }}">Modifier</a>
+                            {% endif %}
+
+                            <!-- Afficher le bouton "Supprimer" seulement si aucune réponse n'existe -->
+                            {% if not reclamation.response %}
+                                <a class="btn btn-danger btn-sm" href="{{ path('supprimer_reclamation', {'id': reclamation.id}) }}">Supprimer</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center text-muted">Aucune réclamation trouvée.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

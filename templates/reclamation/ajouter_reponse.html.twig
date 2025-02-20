@@ -1,0 +1,54 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Ajouter une Réponse{% endblock %}
+
+{% block body %}
+ {{ parent() }}
+
+    <br><br><br>
+    <div class="container mt-4">
+        <h1 class="text-center">Ajouter une Réponse à la Réclamation: {{ reclamation.sujet }}</h1>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Sujet</th>
+                        <th>Description</th>
+                        <th>Date de Réclamation</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ reclamation.sujet }}</td>
+                        <td>{{ reclamation.description }}</td>
+                        <td>{{ reclamation.daterec|date('d-m-Y') }}</td>
+                        <td>
+                            {% if reclamation.status == 'Répondu' %}
+                                <span class="badge badge-success">Répondu</span>
+                            {% elseif reclamation.status == 'En attente' %}
+                                <span class="badge badge-warning">En attente</span>
+                            {% elseif reclamation.status == 'Refusé' %}
+                                <span class="badge badge-danger">Refusé</span>
+                            {% else %}
+                                <span class="badge badge-secondary">{{ reclamation.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Formulaire de Réponse</h2>
+        {{ form_start(form) }}
+            <div class="form-group">
+                {{ form_label(form.message) }}
+                {{ form_widget(form.message, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <button class="btn btn-primary">Ajouter la Réponse</button>
+        {{ form_end(form) }}
+
+        <a class="btn btn-secondary mt-3" href="{{ path('afficherReclamation') }}">Retour à la liste des réclamations</a>
+    </div>
+{% endblock %}

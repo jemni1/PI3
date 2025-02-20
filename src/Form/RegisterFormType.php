@@ -1,0 +1,130 @@
+<?php
+// src/Form/RegisterFormType.php
+namespace App\Form;
+
+use App\Entity\User;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Exception\TransformationFailedException;
+
+class RegisterFormType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('name', TextType::class, [
+                'label' => 'Name',
+                'attr' => [
+                    'class' => 'form-control',
+                    'minlength' => 2,
+                    'placeholder' => 'Name',
+                ]
+            ])
+            ->add('surname', TextType::class, [
+                'label' => 'Surname',
+                'attr' => [
+                    'class' => 'form-control',
+                    'minlength' => 2,
+                    'placeholder' => 'Surname',
+                ]
+            ])
+            ->add('username', TextType::class, [
+                'label' => 'Username (must contain at least one number)',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Username',
+                    'pattern' => '^(?=.*\d)[a-zA-Z0-9_-]+$',
+                ]
+            ])
+            ->add('cin', TextType::class, [
+                'label' => 'CIN (8 digits)',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'CIN',
+                    'pattern' => '[0-9]{8}',
+                    'maxlength' => '8',
+                    'minlength' => '8',
+                    'inputmode' => 'numeric'
+                ],
+                'required' => true
+            ])
+            ->add('email', EmailType::class, [
+                'label' => 'Email',
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('role', ChoiceType::class, [
+                'label' => 'Role',
+                'choices' => [
+                    'Agriculture' => 'ROLE_AGRICULTURE',
+                    'Worker' => 'ROLE_WORKER',
+                    'Client' => 'ROLE_CLIENT',
+                ],
+                'mapped' => false,
+                'required' => true,
+                'attr' => ['class' => 'form-control'],
+            ])
+            ->add('profilePictureFile', FileType::class, [
+                'label' => 'Profile Picture',
+                'required' => false,
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => [
+                    'label' => 'Password',
+                    'attr' => ['class' => 'form-control']
+                ],
+                'second_options' => [
+                    'label' => 'Repeat Password',
+                    'attr' => ['class' => 'form-control']
+                ],
+                'invalid_message' => 'The password fields must match.',
+            ])
+            ->add('agreeTerms', CheckboxType::class, [
+                'label' => 'I agree to the terms and conditions',
+                'mapped' => false
+            ])
+            ->add('submit', SubmitType::class, [
+                'label' => 'Register',
+                'attr' => ['class' => 'btn btn-primary mt-3']
+            ]);
+
+        // Add CIN transformer
+        $builder->get('cin')->addModelTransformer(new CallbackTransformer(
+            function ($cinFromModel) {
+                return $cinFromModel;
+            },
+            function ($cinFromView) {
+                if (!$cinFromView) {
+                    return null;
+                }
+                
+                $cinFromView = trim($cinFromView);
+                if (!preg_match('/^[0-9]{8}$/', $cinFromView)) {
+                    throw new TransformationFailedException('CIN must be exactly 8 digits');
+                }
+                
+                return $cinFromView;
+            }
+        ));
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => User::class,
+        ]);
+    }
+}
+
+// src/Controller/RegisterController.php

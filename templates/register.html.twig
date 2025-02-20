@@ -1,0 +1,165 @@
+{# templates/register.html.twig #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ asset('Back/css/vertical-layout-light/style.css') }}">
+</head>
+<body>
+    <div class="container-scroller">
+        <div class="container-fluid page-body-wrapper full-page-wrapper">
+            <div class="content-wrapper d-flex align-items-center auth px-0">
+                <div class="row w-100 mx-0">
+                    <div class="col-lg-4 mx-auto">
+                        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+                            <div class="brand-logo">
+                                <img src="{{ asset('images/logo.svg') }}" alt="logo">
+                            </div>
+                            <h4>New here?</h4>
+                            <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
+
+                            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'pt-3', 'id': 'registration-form'}}) }}
+                                <div class="form-group">
+                                    {{ form_row(form.name, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'Name',
+                                            'minlength': 2
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_row(form.surname, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'Surname',
+                                            'minlength': 2
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_row(form.username, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'Username',
+                                            'pattern': '^(?=.*\d)[a-zA-Z0-9_-]+$',
+                                            'title': 'Must contain at least one number'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_row(form.cin, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'CIN (8 digits)',
+                                            'pattern': '[0-9]{8}',
+                                            'maxlength': '8',
+                                            'minlength': '8',
+                                            'inputmode': 'numeric',
+                                            'title': 'Must be exactly 8 digits'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_row(form.email, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'Email'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Role</label>
+                                    {{ form_row(form.role, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Profile Picture</label>
+                                    {{ form_widget(form.profilePictureFile, {
+                                        'attr': {
+                                            'class': 'form-control-file'
+                                        }
+                                    }) }}
+                                    <small class="form-text text-muted">
+                                        Max size 2MB (JPEG, PNG, GIF)
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_row(form.password.first, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'Password'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_row(form.password.second, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'Confirm Password'
+                                        }
+                                    }) }}
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ form_widget(form.agreeTerms, {
+                                            'attr': {'class': 'form-check-input'}
+                                        }) }}
+                                        <label class="form-check-label">
+                                            I agree to the <a href="{{ path('app_terms') }}" target="_blank">terms</a>
+                                        </label>
+                                    </div>
+                                    {{ form_errors(form.agreeTerms) }}
+                                </div>
+
+                                <div class="mt-3">
+                                    {{ form_widget(form.submit, {
+                                        'attr': {
+                                            'class': 'btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn'
+                                        }
+                                    }) }}
+                                </div>
+                            {{ form_end(form) }}
+
+                            <div class="text-center mt-4 font-weight-light">
+                                Already have an account? 
+                                <a href="{{ path('app_login') }}" class="text-primary">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ asset('js/vendor.bundle.base.js') }}"></script>
+    <script src="{{ asset('js/off-canvas.js') }}"></script>
+    <script src="{{ asset('js/hoverable-collapse.js') }}"></script>
+    <script src="{{ asset('js/template.js') }}"></script>
+    <script src="{{ asset('js/settings.js') }}"></script>
+    <script src="{{ asset('js/todolist.js') }}"></script>
+
+    <script>
+    document.getElementById('registration-form').addEventListener('submit', function(e) {
+        const cinInput = document.querySelector('[name="register_form[cin]"]');
+        const cinValue = cinInput.value.trim();
+        const cinPattern = /^[0-9]{8}$/;
+        
+        if (!cinPattern.test(cinValue)) {
+            e.preventDefault();
+            cinInput.setCustomValidity('CIN must be exactly 8 digits');
+            cinInput.reportValidity();

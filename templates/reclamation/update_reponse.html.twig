@@ -1,0 +1,19 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %}Mise à jour de la Réponse{% endblock %}
+
+
+{% block body %}
+ {{ parent() }}
+
+<br><br><br>
+    <div class="container mt-4">
+        <h1 class="text-center">Mise à jour de la Réponse</h1>
+
+        {{ form_start(form) }}
+            {{ form_row(form.message) }}
+
+            <button type="submit" class="btn btn-success">Mettre à jour</button>
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

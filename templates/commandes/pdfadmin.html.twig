@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background: #f9f9f9;
+            padding: 20px;
+        }
+
+        .invoice {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2, h4 {
+            color: #16a34a;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        .detail-box {
+            background: #f0fdf4;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .price-info {
+            font-size: 18px;
+            font-weight: bold;
+            color: #15803d;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: #ddd;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        <h2>Facture</h2>
+        <div class="detail-box">
+            <p><strong>Commande:</strong> #{{ commande.id }}</p>
+            <p><strong>Date:</strong> {{ commande.date|date('d-m-Y H:i') }}</p>
+        </div>
+
+        <h4>Détails de la commande</h4>
+        <div class="detail-box">
+            <p><strong>Produit:</strong> {{ commande.nom }}</p>
+            <p><strong>Quantité:</strong> {{ commande.quantite }}</p>
+            <p class="price-info"><strong>Total:</strong> {{ commande.prix }} €</p>
+        </div>
+
+        <h4>Client</h4>
+        <div class="detail-box">
+            <p><strong>Nom:</strong> {{ commande.nom }}</p>
+        </div>
+    </div>
+</body>
+</html>

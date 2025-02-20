@@ -1,0 +1,178 @@
+{% extends 'baseBack.html.twig' %}
+{% block title %}Liste des produits{% endblock %}
+
+{% block css %}
+{{ parent() }} 
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        margin-top: 30px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .products-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .product-card {
+        width: 250px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        background-color: #fff;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .product-card img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-body h5 {
+        font-size: 18px;
+        font-weight: bold;
+        color: #444;
+    }
+
+    .card-body p {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .card-actions {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn {
+        font-size: 14px;
+        padding: 6px 12px;
+        border-radius: 5px;
+    }
+
+    .btn-edit {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #218838;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+    /* Styles pour la pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        padding: 8px 12px;
+        margin: 0 5px;
+        background-color: #f1f1f1;
+        color: #333;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+    .pagination a:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .pagination .active {
+        background-color: #007bff;
+        color: white;
+    }
+
+</style>
+{% endblock %}
+
+{% block body %}
+{{ parent() }}
+
+<div class="container">
+    <h2>Liste des Produits</h2>
+
+    <div class="text-center mb-4">
+        <a href="{{ path('add_products') }}" class="btn btn-success">Ajouter un produit</a>
+    </div>
+
+    <div class="products-container">
+        {% for produit in produits %}
+            <div class="product-card">
+                {% if produit.image %}
+                    <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
+                {% else %}
+                    <img src="{{ asset('images/default.jpg') }}" alt="Image par défaut">
+                {% endif %}
+                <div class="card-body">
+                    <h5>{{ produit.nom }}</h5>
+                    <p>Quantité: {{ produit.quantite }}</p>
+                    <p>Prix: {{ produit.prix }} €</p>
+                    <div class="card-actions">
+                        <a href="{{ path('produit_edit', { id: produit.id }) }}" class="btn btn-edit">
+                            <i class="fas fa-edit"></i> 
+                        </a>
+                        <a href="{{ path('produit_view', { id: produit.id }) }}" class="btn btn-view">
+                            <i class="fas fa-eye"></i> 
+                        </a>
+                        <a href="{{ path('produit_delete', { id: produit.id }) }}" class="btn btn-delete">
+                            <i class="fas fa-trash-alt"></i> 
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if current_page > 1 %}
+            <a href="{{ path('app_all_products', { 'page': current_page - 1 }) }}">&laquo; Précédent</a>
+        {% endif %}
+
+        {% for i in 1..total_pages %}
+            <a href="{{ path('app_all_products', { 'page': i }) }}" class="{{ i == current_page ? 'active' : '' }}">{{ i }}</a>
+        {% endfor %}
+
+        {% if current_page < total_pages %}
+            <a href="{{ path('app_all_products', { 'page': current_page + 1 }) }}">Suivant &raquo;</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

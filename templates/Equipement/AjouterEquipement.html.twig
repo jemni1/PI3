@@ -1,0 +1,44 @@
+{% extends 'baseBack.html.twig' %}
+ 
+{% block nav %}
+{{ parent() }}
+{% endblock %}
+
+{% block body %}
+
+  {{ parent() }}
+
+  <div class="container mt-4">
+    <h2 class="mb-4">Ajouter un Équipement</h2>
+    <div class="card p-4 shadow-sm">
+        {{ form_start(EquipementForm) }}
+        
+        <div class="mb-3">
+            {{ form_label(EquipementForm.nom, 'Nom', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(EquipementForm.nom, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form_label(EquipementForm.type, 'Type', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(EquipementForm.type, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form_label(EquipementForm.dateAchat, "Date d'achat", {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(EquipementForm.dateAchat, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form_label(EquipementForm.etat, 'État', {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(EquipementForm.etat, {'attr': {'class': 'form-control'}}) }}
+        </div>
+        
+        <div class="d-flex align-items-center mb-3">
+            <button type="submit" class="btn btn-primary me-2">Créer</button>
+            <a href="{{ path('equipement_list') }}" class="btn btn-light">Annuler</a>
+        </div>
+        
+        {{ form_end(EquipementForm) }}
+    </div>
+  </div>
+{% endblock %}

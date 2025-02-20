@@ -1,0 +1,29 @@
+{# templates/pdf/facture.html.twig #}
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            h1 {
+                text-align: center;
+            }
+            .details {
+                margin-top: 20px;
+            }
+            .details p {
+                font-size: 14px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Facture de la commande #{{ commande.id }}</h1>
+
+        <div class="details">
+            <p><strong>Produit :</strong> {{ commande.nom }}</p>
+            <p><strong>Quantité :</strong> {{ commande.quantite }}</p>
+            <p><strong>Date :</strong> {{ commande.date|date('d-m-Y H:i') }}</p>
+            <p><strong>Prix total :</strong> {{ commande.prix }} €</p>
+        </div>
+    </body>
+</html>
