@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Form\FormError;
 
 class RegisterController extends AbstractController
 {
@@ -72,20 +72,11 @@ class RegisterController extends AbstractController
                 )
             );
 
+            // Set roles
             $selectedRole = $form->get('role')->getData();
-            $user->setRoles([$selectedRole, 'ROLE_USER']);
+            $user->setRoles([$selectedRole]);
 
-            $file = $form->get('profilePictureFile')->getData();
-            if ($file) {
-                $newFilename = uniqid() . '.' . $file->guessExtension();
-                try {
-                    $file->move($this->getParameter('profile_pictures_directory'), $newFilename);
-                    $user->setProfilePicture($newFilename);
-                } catch (FileException $e) {
-                    // Handle file upload error
-                }
-            }
-
+            // Persist and flush
             $entityManager->persist($user);
             $entityManager->flush();
 
