@@ -120,6 +120,19 @@ public function view(int $id, ProduitsRepository $produitsRepository): Response
         'produit' => $produit,
     ]);
 }
+#[Route('/viewuser/{id}', name: 'produit_viewuser')]
+public function viewuser(int $id, ProduitsRepository $produitsRepository): Response
+{
+    $produit = $produitsRepository->find($id);
+
+    if (!$produit) {
+        throw $this->createNotFoundException('Le produit n\'existe pas.');
+    }
+
+    return $this->render('products/viewuser.html.twig', [
+        'produit' => $produit,
+    ]);
+}
 #[Route('/produit/edit/{id}', name: 'produit_edit')]
 public function edit(Produits $produit, Request $request, EntityManagerInterface $entityManager): Response
 {

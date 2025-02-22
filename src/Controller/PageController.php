@@ -1,26 +1,41 @@
 <?php
-
+// src/Controller/PageController.php
 namespace App\Controller;
 
+use App\Service\OpenAIService;
+use App\Form\QuestionFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
-final class PageController extends AbstractController
+class PageController extends AbstractController
 {
-    #[Route('/page', name: 'page_index')]
-public function index(): Response
-{
-    return $this->render('page/index.html.twig');
-}
-#[Route('/nav', name: 'ppage_index')]
-public function navindex(): Response
-{
-    return $this->render('page/nav.html.twig');
-}
-#[Route('/back', name: 'pppage_index')]
-public function nabavindex(): Response
-{
-    return $this->render('page/back.html.twig');
-}
+    private OpenAIService $aiService;
+
+    public function __construct(OpenAIService $aiService)
+    {
+        $this->aiService = $aiService;
+    }
+
+    #[Route('/chatbot', name: 'chatbot')]
+    public function chatbot(Request $request): Response
+    {
+        // Créer le formulaire
+        $form = $this->createForm(QuestionFormType::class);
+        $form->handleRequest($request);
+
+        $response = null;
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $question = $form->get('question')->getData();
+            $response = $this->aiService->askAI($question);
+        }
+
+        return $this->render('chatbot/chatbot.html.twig', [
+            'form' => $form->createView(),
+            'response' => $response,
+            'question' => $question ?? null,
+        ]);
+    }
 }
