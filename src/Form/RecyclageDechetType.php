@@ -12,6 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use App\Entity\CollecteDechet;
 use Symfony\Component\Form\Extension\Core\Type\FileType; // Ajouter l'importation de FileType
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 
 class RecyclageDechetType extends AbstractType
 {
@@ -48,6 +50,7 @@ class RecyclageDechetType extends AbstractType
                 'label' => 'Date de fin',
                 'attr' => ['class' => 'form-control'],
             ])
+
             ->add('collectes', EntityType::class, [
                 'class' => CollecteDechet::class,
                 'choice_label' => function ($collecte) {
@@ -56,6 +59,7 @@ class RecyclageDechetType extends AbstractType
                 'multiple' => true,
                 'expanded' => true, 
                 'by_reference' => false, 
+                'attr' => ['class' => 'collectes-list'], // Ajout de cette classe pour cibler les collectes
             ])
             ->add('image', FileType::class, [
                 'label' => 'Image recyclage',

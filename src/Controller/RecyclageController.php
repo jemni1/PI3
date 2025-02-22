@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\RecyclageDechet;
 use App\Entity\CollecteDechet;
 use App\Form\RecyclageDechetType;
+use App\Service\UnsplashService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +16,14 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class RecyclageController extends AbstractController
 {
+    private UnsplashService $unsplashService;
+
+    // Inject UnsplashService in the constructor
+    public function __construct(UnsplashService $unsplashService)
+    {
+        $this->unsplashService = $unsplashService;
+    }
+
     #[Route('/admin/recyclage', name: 'admin_recyclage_list')]
     public function index(EntityManagerInterface $entityManager): Response
     {
@@ -40,11 +49,9 @@ class RecyclageController extends AbstractController
             $imageFile = $form->get('image')->getData();
 
             if ($imageFile) {
-                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $newFilename = uniqid().'.'.$imageFile->guessExtension();
 
                 try {
-                    // Déplace le fichier dans le répertoire public/uploads/recyclage_img
                     $imageFile->move(
                         $this->getParameter('image_directory'),
                         $newFilename
@@ -54,8 +61,12 @@ class RecyclageController extends AbstractController
                     return $this->redirectToRoute('admin_recyclage_list');
                 }
 
-                // Définir le nom du fichier dans l'entité
                 $recyclageDechet->setImageUrl($newFilename);
+            } else {
+                // Si aucune image n'est fournie, générer une image aléatoire via Unsplash
+                $randomImage = $this->unsplashService->getRandomImage('recyclage');
+                $recyclageDechet->setImageUrl($randomImage);  // Assurez-vous que $randomImage contient une URL complète
+
             }
 
             // Associer les collectes au recyclage

@@ -12,6 +12,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\TerrainsRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Entity\Notification;
+
 
 class CollecteDechetController extends AbstractController
 {
@@ -43,6 +46,14 @@ class CollecteDechetController extends AbstractController
     
             $entityManager->persist($collecte);
             $entityManager->flush();
+                       // Création de la notification
+                       $notification = new Notification();
+                       $notification->setMessage('Une nouvelle collecte a été ajoutée.');
+                       $notification->setCreatedAt(new \DateTime());
+                       $notification->setIsRead(false);
+                       $entityManager->persist($notification);
+                       $entityManager->flush();
+            
 
             $this->addFlash('success', 'Collecte enregistrée avec succès !');
             return $this->redirectToRoute('collecte_new');
@@ -121,4 +132,27 @@ class CollecteDechetController extends AbstractController
             'collecte' => $collecte,
         ]);
     }
+
+    #[Route('/recherche-collecte', name: 'search_collecte', methods: ['GET'])]
+public function searchCollecte(Request $request, CollecteDechetRepository $collecteRepo): JsonResponse
+{
+    $searchTerm = $request->query->get('term', '');
+
+    $collectes = $collecteRepo->createQueryBuilder('c')
+        ->where('c.typeDechet LIKE :term') // Remplace "nom" par le champ que tu veux rechercher
+        ->setParameter('term', '%' . $searchTerm . '%')
+        ->setMaxResults(10)
+        ->getQuery()
+        ->getResult();
+
+    $results = [];
+    foreach ($collectes as $collecte) {
+        $results[] = [
+            'id' => $collecte->getId(),
+            'text' => $collecte->getTypeDechet(), // Remplace "nom" par le champ affiché
+        ];
+    }
+
+    return new JsonResponse($results);
+}
 }

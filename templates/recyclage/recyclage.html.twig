@@ -15,58 +15,67 @@
                 <div class="card-body bg-light">
                     {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
+                    <!-- Quantité recyclée -->
                     <div class="mb-3">
                         {{ form_label(form.quantiteRecyclee, '♻️ Quantité recyclée (kg)', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
                         {{ form_widget(form.quantiteRecyclee, {'attr': {'class': 'form-control border-success', 'placeholder': 'Ex: 150'}}) }}
                         {{ form_errors(form.quantiteRecyclee) }}
                     </div>
 
+                    <!-- Énergie produite -->
                     <div class="mb-3">
                         {{ form_label(form.energieProduite, '⚡ Énergie produite (kWh)', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
                         {{ form_widget(form.energieProduite, {'attr': {'class': 'form-control border-success', 'placeholder': 'Ex: 75'}}) }}
                         {{ form_errors(form.energieProduite) }}
                     </div>
 
+                    <!-- Dates -->
                     <div class="mb-3">
                         {{ form_label(form.dateDebut, '📅 Date de début', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
                         {{ form_widget(form.dateDebut, {'attr': {'class': 'form-control border-success'}}) }}
                         {{ form_errors(form.dateDebut) }}
                     </div>
-
                     <div class="mb-3">
                         {{ form_label(form.dateFin, '📅 Date de fin', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
                         {{ form_widget(form.dateFin, {'attr': {'class': 'form-control border-success'}}) }}
                         {{ form_errors(form.dateFin) }}
                     </div>
 
+                    <!-- Barre de recherche pour les collectes -->
+                    <div class="mb-3">
+                        <label for="searchCollecte" class="form-label text-dark fw-bold fs-5">🔍 Rechercher une collecte</label>
+                        <input type="text" id="searchCollecte" class="form-control border-success" placeholder="Tapez pour filtrer les collectes..." />
+                    </div>
+
+                    <!-- Collectes associées -->
                     <div class="mb-3">
                         {{ form_label(form.collectes, '🗑 Collectes associées', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
-                        {{ form_widget(form.collectes, {'attr': {'class': 'form-select border-success'}}) }}
+                        <div class="collectes-container " id="collectesContainer">
+                            {% for collecte in form.collectes %}
+                                   <div class="form-check ">
+                                    {{ form_widget(collecte, {'attr': {'class': 'form-check-input'}}) }}
+                                    {{ form_label(collecte, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                </div>
+                            {% endfor %}
+                        </div>
                         {{ form_errors(form.collectes) }}
                     </div>
 
+                    <!-- Utilisation de l'énergie -->
                     <div class="mb-3">
                         {{ form_label(form.utilisation, '🔄 Utilisation de l\'énergie', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
                         {{ form_widget(form.utilisation, {'attr': {'class': 'form-control border-success', 'placeholder': 'Ex: Chauffage, Électricité...'}}) }}
                         {{ form_errors(form.utilisation) }}
                     </div>
 
-                    <!-- Afficher l'image actuelle, si elle existe -->
-                    {% if form.vars.value.imageUrl is not empty %}
-                        <div class="mb-3">
-                            <h5>🖼️ Image actuelle :</h5>
-                            <img src="{{ asset('uploads/recyclage_img/' ~ form.vars.value.imageUrl) }}" alt="Image de recyclage" class="img-fluid" style="max-width: 150px;">
-                        </div>
-                    {% endif %}
-
-                    <!-- Ajouter le champ d'upload d'image -->
+                    <!-- Image recyclage -->
                     <div class="mb-3">
-                        {{ form_label(form.image, '🖼️ Ajouter une nouvelle image', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
-                        {{ form_widget(form.image, {'attr': {'class': 'form-control border-success', 'accept': 'image/*'}}) }}
+                        {{ form_label(form.image, '🖼 Image recyclage', {'label_attr': {'class': 'form-label text-dark fw-bold fs-5'}}) }}
+                        {{ form_widget(form.image, {'attr': {'class': 'form-control border-success'}}) }}
                         {{ form_errors(form.image) }}
-                         
                     </div>
 
+                    <!-- Boutons -->
                     <div class="text-center">
                         <button type="submit" class="btn text-white px-4 fs-5 fw-bold" style="background-color: #4CAF50;">
                             <i class="fas fa-save"></i> Enregistrer
@@ -75,12 +84,14 @@
                             <i class="fas fa-arrow-left"></i> Retour
                         </a>
                     </div>
-                    
+
                     {{ form_end(form) }}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="{{ asset('back/js/searchCollecte.js') }}"></script>
 
 {% endblock %}

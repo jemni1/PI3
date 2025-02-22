@@ -9,14 +9,21 @@
             <h2>♻️ Détails du recyclage</h2>
         </div>
         <div class="card-body bg-light">
-           <!-- Affichage de l'image de recyclage avec taille ajustée -->
+            <!-- Affichage de l'image de recyclage avec taille ajustée -->
             {% if recyclage.imageUrl %}
                 <div class="text-center mt-4">
                     <h5>Image de recyclage :</h5>
-                    <img src="{{ asset('uploads/recyclage_img/' ~ recyclage.imageUrl) }}" 
-                         alt="Image de recyclage" 
-                         class="img-fluid" 
-                         style="max-width: 50%; height: auto;"> <!-- Ajustez max-width ici -->
+                    {% if recyclage.imageUrl starts with 'http' %}
+                        <img src="{{ recyclage.imageUrl }}" 
+                             alt="Image de recyclage" 
+                             class="img-fluid" 
+                             style="max-width: 50%; height: auto;"> <!-- Ajustez max-width ici -->
+                    {% else %}
+                        <img src="{{ asset('uploads/recyclage_img/' ~ recyclage.imageUrl) }}" 
+                             alt="Image de recyclage" 
+                             class="img-fluid" 
+                             style="max-width: 50%; height: auto;">
+                    {% endif %}
                 </div>
             {% endif %}
 
@@ -30,7 +37,6 @@
                 <li class="list-group-item"><strong>Utilisation de l'énergie :</strong> {{ recyclage.utilisation }}</li>
             </ul>
 
-         
             <h4 class="text-success mt-4">Collectes associées :</h4>
             {% if recyclage.collectes|length > 0 %}
                 <table class="table table-bordered table-hover text-center">
