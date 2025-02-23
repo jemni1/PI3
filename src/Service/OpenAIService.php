@@ -17,6 +17,9 @@ class OpenAIService
             'timeout'  => 30.0,
         ]);
         $this->apiKey = $apiKey; // API Key récupérée de .env
+        $this->apiKey = $_ENV['OPENAI_API_KEY'];
+        var_dump($this->apiKey); // Pour vérifier si la clé est correctement récupérée
+
     }
     public function askAI(string $question): ?string
     {

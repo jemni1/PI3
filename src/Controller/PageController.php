@@ -1,7 +1,7 @@
 <?php
 // src/Controller/PageController.php
 namespace App\Controller;
-
+use App\Repository\CommandesRepository;
 use App\Service\OpenAIService;
 use App\Form\QuestionFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,6 +36,24 @@ class PageController extends AbstractController
             'form' => $form->createView(),
             'response' => $response,
             'question' => $question ?? null,
+        ]);
+    }
+    #[Route('/stats', name: 'app_stats')]
+    public function stats(CommandesRepository $commandesRepository): Response
+    {
+        // Récupérer les produits les plus vendus
+        $topProducts = $commandesRepository->getTopSellingProducts();
+        $labelsProducts = [];
+        $dataProducts = [];
+    
+        foreach ($topProducts as $product) {
+            $labelsProducts[] = $product['nom']; // Nom du produit
+            $dataProducts[] = $product['total_vendus']; // Total vendu pour ce produit
+        }
+    
+        return $this->render('page/back.html.twig', [
+            'labelsProducts' => $labelsProducts,
+            'dataProducts' => $dataProducts,
         ]);
     }
 }

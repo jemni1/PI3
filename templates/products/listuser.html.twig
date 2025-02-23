@@ -14,7 +14,22 @@
         {% endfor %}
     </div>
 {% endfor %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+           <form id="search-form" method="GET" action="{{ path('search_products') }}" class="d-flex gap-2 mb-4">
+    <input type="text" id="search-input" name="q" class="form-control" placeholder="Rechercher un produit..." autocomplete="off"/>
+    <button type="submit" id="search-btn" class="btn btn-primary"><i class="fas fa-search"></i></button>
+</form>
+<div id="search-results" class="list-group" style="display: none;"></div>
 
+<div class="mt-3">
+    <a href="{{ path('listprod') }}" class="btn btn-secondary">                    <i class="fas fa-arrow-left"></i>
+</a>
+</div>
+        </div>
+    </div>
+</div>
 <div class="container mt-4">
     <div class="row g-4">
         {% for product in pagination %}
@@ -77,6 +92,49 @@
 </div>
 
 <style>
+    #search-results {
+    max-height: 300px; /* Limite la hauteur de la liste des suggestions */
+    overflow-y: auto; /* Ajoute un défilement vertical si la liste dépasse */
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1000; /* S'assure que la liste s'affiche au-dessus des autres éléments */
+}
+
+#search-results .list-group-item {
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Transition pour le survol */
+}
+
+#search-results .list-group-item:hover {
+    background-color: #f0f0f0; /* Effet de survol */
+    color:rgb(84, 199, 107); /* Changer la couleur du texte au survol */
+    cursor: pointer;
+}
+
+#search-results .list-group-item:active {
+    background-color: #e6e6e6; /* Effet au clic */
+}
+
+#search-results .list-group-item:focus {
+    outline: none; /* Supprime la bordure de focus */
+    box-shadow: 0 0 5px rgba(84, 199, 107, 0.5); /* Ajoute une ombre subtile pour l'effet de focus */
+}
+
+#search-results .list-group-item a {
+    color: inherit; /* Hérite de la couleur du texte */
+    text-decoration: none;
+}
+
+#search-results .list-group-item a:hover {
+    color: inherit;
+    text-decoration: underline; /* Souligne au survol */
+}
+
     .product-card {
         box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         background: white;
@@ -152,5 +210,47 @@
 <div class="pagination">
     {{ knp_pagination_render(pagination) }}
 </div>
+<script>
+   document.getElementById('search-input').addEventListener('input', function() {
+    const searchTerm = document.getElementById('search-input').value;
+    console.log("Recherche en cours :", searchTerm); // Ajout de ce log pour vérifier la valeur du terme
 
+    // Si le terme est vide, cacher les résultats
+    if (searchTerm.length < 2) {
+        document.getElementById('search-results').style.display = 'none';
+        return;
+    }
+
+    // Requête AJAX pour récupérer les suggestions de produits
+    fetch(`/rechercher/ajax?q=${searchTerm}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Réponse reçue :", data); // Ajouter ce log pour vérifier la réponse du serveur
+            const resultsContainer = document.getElementById('search-results');
+            resultsContainer.innerHTML = ''; // Vider les résultats précédents
+
+            if (data.length > 0) {
+                resultsContainer.style.display = 'block';
+                data.forEach(product => {
+                    const productElement = document.createElement('a');
+                    productElement.href = `/produit/${product.id}`; // Lien vers la page du produit
+                    productElement.classList.add('list-group-item', 'list-group-item-action');
+                    productElement.innerText = product.nom;
+
+                    // Ajouter un événement de clic pour injecter le nom du produit dans le champ de recherche
+                    productElement.addEventListener('click', function(event) {
+                        event.preventDefault();  // Empêcher la redirection immédiate
+                        document.getElementById('search-input').value = product.nom;  // Injecte le nom dans le champ
+                    });
+
+                    resultsContainer.appendChild(productElement);
+                });
+            } else {
+                resultsContainer.style.display = 'none'; // Aucun résultat
+            }
+        })
+        .catch(error => console.error('Erreur:', error));
+});
+
+</script>
 {% endblock %}

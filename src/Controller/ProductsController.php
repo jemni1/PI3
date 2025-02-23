@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 final class ProductsController extends AbstractController
 {
@@ -184,6 +185,60 @@ public function list(ProduitsRepository $productRepository, SessionInterface $se
     ]);
 }
 
+
+#[Route('/rechercher', name: 'search_products')]
+
+public function search(ProduitsRepository $productRepository, Request $request, PaginatorInterface $paginator): Response
+{
+    $searchTerm = $request->query->get('q'); // Récupère le terme de recherche
+
+    // Si le terme de recherche est vide, on retourne à la liste complète des produits
+    if (!$searchTerm) {
+        return $this->redirectToRoute('listprod');
+    }
+
+    // Filtrer les produits selon le terme de recherche
+    $query = $productRepository->findAvailableProductsss($searchTerm);
+
+    $pagination = $paginator->paginate(
+        $query,
+        $request->query->getInt('page', 1),
+        12
+    );
+
+    return $this->render('products/listuser.html.twig', [
+        'pagination' => $pagination,
+    ]);
+}
+
+
+
+
+#[Route('/rechercher/ajax', name: 'search_ajax_products')]
+public function searchAjax(ProduitsRepository $productRepository, Request $request): JsonResponse
+{
+    $searchTerm = $request->query->get('q');
+
+    // Si le terme est vide, retourner un tableau vide
+    if (!$searchTerm) {
+        return new JsonResponse([]);
+    }
+
+    // Filtrer les produits selon le terme de recherche
+    $products = $productRepository->findByName($searchTerm);
+
+    // Créer un tableau avec les données des produits pour la réponse JSON
+    $result = [];
+    foreach ($products as $product) {
+        $result[] = [
+            'id' => $product->getId(),
+            'nom' => $product->getNom(),
+        ];
+    }
+
+    // Retourner les produits en JSON
+    return new JsonResponse($result);
+}
 
 
 }
