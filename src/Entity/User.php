@@ -1,6 +1,4 @@
 <?php
-(??)
-
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -10,11 +8,13 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-(??)
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[Vich\Uploadable]
-(??)
+#[UniqueEntity(fields: ['email'], message: 'This email is already used')]
+#[UniqueEntity(fields: ['username'], message: 'This username is already taken')]
+#[UniqueEntity(fields: ['cin'], message: 'This CIN is already used')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -22,37 +22,87 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
-    #[Assert\NotBlank(message: 'Username cannot be empty.')]
-    #[Assert\Length(min: 3, max: 255, minMessage: 'Username must be at least 3 characters long.')]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank(message: 'Le nom d\'utilisateur ne peut pas être vide')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le nom d\'utilisateur doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom d\'utilisateur ne peut pas dépasser {{ limit }} caractères'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?=.*\d)[a-zA-Z0-9_-]+$/',
+        message: 'Le nom d\'utilisateur doit contenir au moins un chiffre et ne peut contenir que des lettres, chiffres, tirets et underscores'
+    )]
     private ?string $username = null;
 
-    #[ORM\Column(type: 'string', length: 180, unique: true)]
-    #[Assert\NotBlank(message: 'Email cannot be empty.')]
-    #[Assert\Email(message: 'Please enter a valid email address.')]
+    #[ORM\Column(length: 180, unique: true)]
+    #[Assert\NotBlank(message: 'L\'email ne peut pas être vide')]
+    #[Assert\Email(message: 'L\'email {{ value }} n\'est pas un email valide')]
     private ?string $email = null;
 
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column]
     private array $roles = [];
 
-    #[ORM\Column(type: 'string')]
-    #[Assert\NotBlank(message: 'Password cannot be empty.')]
-    #[Assert\Length(min: 6, minMessage: 'Password must be at least 6 characters long.')]
+    #[ORM\Column]
+    #[Assert\NotBlank(message: 'Le mot de passe ne peut pas être vide')]
+    #[Assert\Length(min: 8, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères')]
+    #[Assert\Regex(
+        pattern: '/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/',
+        message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial'
+    )]
     private ?string $password = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom ne peut pas être vide')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères'
+    )]
+    private ?string $name = null;
+
+    #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le prénom ne peut pas être vide')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le prénom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères'
+    )]
+    private ?string $surname = null;
+
+    #[ORM\Column(length: 8, unique: true)]
+    #[Assert\NotBlank(message: 'Le CIN ne peut pas être vide')]
+    #[Assert\Length(exactly: 8, exactMessage: 'Le CIN doit contenir exactement {{ limit }} chiffres')]
+    #[Assert\Regex(pattern: '/^[0-9]{8}$/', message: 'Le CIN doit être composé uniquement de 8 chiffres')]
+    #[Assert\Type(type: 'numeric', message: 'Le CIN doit être composé uniquement de chiffres')]
+    private ?string $cin = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $profilePicture = null;
 
     #[Vich\UploadableField(mapping: 'profile_pictures', fileNameProperty: 'profilePicture')]
-    #[Assert\Image(maxSize: '2M', maxSizeMessage: 'Profile picture must not exceed 2MB.')]
+    #[Assert\Image(
+        maxSize: '2M',
+        maxSizeMessage: 'L\'image ne doit pas dépasser 2MB',
+        mimeTypes: ['image/jpeg', 'image/png'],
+        mimeTypesMessage: 'Veuillez télécharger une image valide (JPG ou PNG)'
+    )]
     private ?File $profilePictureFile = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetCode = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $resetCodeExpiresAt = null;
+
     public function __construct()
     {
-        // Set default role
         $this->roles = ['ROLE_USER'];
     }
 
@@ -86,18 +136,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        if (empty($roles)) {
-            $roles[] = 'ROLE_USER';
-        }
+        $roles[] = 'ROLE_USER';
         return array_unique($roles);
     }
 
     public function setRoles(array $roles): self
     {
-        if (!in_array('ROLE_USER', $roles)) {
-            $roles[] = 'ROLE_USER';
-        }
-        $this->roles = array_unique($roles);
+        $this->roles = $roles;
         return $this;
     }
 
@@ -141,9 +186,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setCin(?string $cin): self
     {
-        if ($cin !== null) {
-            $cin = trim($cin);
-        }
         $this->cin = $cin;
         return $this;
     }
@@ -164,13 +206,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->profilePictureFile;
     }
 
-    public function setProfilePictureFile(?File $profilePictureFile = null): self
+    public function setProfilePictureFile(?File $profilePictureFile = null): void
     {
         $this->profilePictureFile = $profilePictureFile;
-        if ($profilePictureFile) {
-            $this->updatedAt = new \DateTime('now');
+        if (null !== $profilePictureFile) {
+            $this->updatedAt = new \DateTimeImmutable();
         }
-        return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeInterface
@@ -191,6 +232,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
-        // $this->password = null;
+        // Intentionally left empty
+    }
+
+    public function getResetCode(): ?string
+    {
+        return $this->resetCode;
+    }
+
+    public function setResetCode(?string $resetCode): self
+    {
+        $this->resetCode = $resetCode;
+        return $this;
+    }
+
+    public function getResetCodeExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->resetCodeExpiresAt;
+    }
+
+    public function setResetCodeExpiresAt(?\DateTimeInterface $resetCodeExpiresAt): self
+    {
+        $this->resetCodeExpiresAt = $resetCodeExpiresAt;
+        return $this;
     }
 }

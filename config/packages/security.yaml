@@ -1,5 +1,8 @@
 security:
     password_hashers:
+        App\Entity\User:
+            algorithm: bcrypt
+            cost: 12
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
     providers:
@@ -22,12 +25,20 @@ security:
                 enable_csrf: true
                 username_parameter: username
                 password_parameter: password
-                default_target_path: page_index
+                default_target_path: app_login
                 always_use_default_target_path: false
             logout:
                 path: app_logout
                 target: app_login
 
+# config/packages/security.yaml
     access_control:
-        - { path: ^/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/, roles: [ROLE_USER, ROLE_AGRICULTURE] }
+# routing.yaml
+    - { path: ^/login$, roles: PUBLIC_ACCESS }
+    - { path: ^/register$, roles: PUBLIC_ACCESS }
+    - { path: ^/password-reset, roles: PUBLIC_ACCESS }
+    - { path: ^/profile, roles: ROLE_USER }
+    - { path: ^/settings, roles: ROLE_USER }
+    - { path: ^/terrain$, roles: ROLE_AGRICULTURE }  # Terrain route accessible only by users with ROLE_AGRICULTURE
+    - { path: ^/terms, roles: PUBLIC_ACCESS }
+    - { path: ^/, roles: ROLE_USER }

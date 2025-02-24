@@ -1,7 +1,6 @@
 <?php
 namespace App\Controller;
 
-(??)
 use App\Entity\User;
 use App\Form\RegisterFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -73,7 +72,6 @@ class RegisterController extends AbstractController
                 )
             );
 
-(??)
             $selectedRole = $form->get('role')->getData();
             $user->setRoles([$selectedRole, 'ROLE_USER']);
 
@@ -90,8 +88,6 @@ class RegisterController extends AbstractController
 
             $entityManager->persist($user);
             $entityManager->flush();
-
-(??)
             return $this->redirectToRoute('app_login');
         }
 
