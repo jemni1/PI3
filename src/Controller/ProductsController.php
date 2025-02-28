@@ -20,7 +20,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 final class ProductsController extends AbstractController
 {
     #[Route('/products', name: 'add_products')]
@@ -69,45 +68,90 @@ final class ProductsController extends AbstractController
     }
 
     #[Route('/all', name: 'app_all_products')]
-public function allProducts(RequestStack $requestStack,EntityManagerInterface $entityManager, Request $request,TerrainsRepository $terrainsRepository): Response
-{
-    $session = $requestStack->getSession();
-    $terrainId = $session->get('terrain_id', null);
-    $terrain = $terrainsRepository->find($terrainId);
+    public function allProducts(
+        RequestStack $requestStack,
+        EntityManagerInterface $entityManager,
+        Request $request,
+        TerrainsRepository $terrainsRepository,
+        PaginatorInterface $paginator
+    ): Response {
+        $session = $requestStack->getSession();
+        $terrainId = $session->get('terrain_id', null);
+        $terrain = $terrainsRepository->find($terrainId);
+    
         if (!$terrain) {
             return $this->json(['error' => 'Terrain non trouvé'], Response::HTTP_NOT_FOUND);
         }
+        // Get the filter parameters (name and price)
+        $productName = $request->query->get('product_name', null);
+        $minPrice = $request->query->get('min_price', null);
+        $maxPrice = $request->query->get('max_price', null);
 
         $page = $request->query->getInt('page', 1);
-        $limit = 8;
-        $offset = ($page - 1) * $limit;
-
+        $limit = 6; // Unifier la limite avec la pagination
+    
         $produitsRepository = $entityManager->getRepository(Produits::class);
+    
+    $produitsQuery = $produitsRepository->createQueryBuilder('p')
+        ->where('p.id_terrain = :terrainId')
+        ->setParameter('terrainId', $terrain);
 
-        $produitsQuery = $produitsRepository->createQueryBuilder('p')
-            ->where('p.id_terrain = :terrainId')
-            ->setParameter('terrainId', $terrain)
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery();
-
-        $produits = $produitsQuery->getResult();
-
-        $totalProduits = $produitsRepository->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.id_terrain = :terrainId')
-            ->setParameter('terrainId', $terrain)
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        $totalPages = ceil($totalProduits / $limit);
-
+    // Apply filters
+    if ($productName) {
+        $produitsQuery->andWhere('p.nom LIKE :productName')
+            ->setParameter('productName', '%' . $productName . '%');
+    }
+    if ($minPrice) {
+        $produitsQuery->andWhere('p.prix >= :minPrice')
+            ->setParameter('minPrice', $minPrice);
+    }
+    if ($maxPrice) {
+        $produitsQuery->andWhere('p.prix <= :maxPrice')
+            ->setParameter('maxPrice', $maxPrice);
+    }
+        $pagination = $paginator->paginate(
+            $produitsQuery, // Passer la requête et non un tableau
+            $page, 
+            $limit
+        );
+    
         return $this->render('products/list.html.twig', [
-            'produits' => $produits,
-            'current_page' => $page,
-            'total_pages' => $totalPages,
+            'produits' => $pagination,
+            'product_name' => $productName,
+            'min_price' => $minPrice,
+            'max_price' => $maxPrice,
         ]);
     }
+    
+    #[Route('/ajax/product_search', name: 'ajax_product_search')]
+public function ajaxProductSearch(Request $request, EntityManagerInterface $entityManager): JsonResponse
+{
+    $query = $request->query->get('query');
+    
+    if (!$query) {
+        return new JsonResponse(['suggestions' => []]);
+    }
+
+    // Get products matching the query (filter by name)
+    $produitsRepository = $entityManager->getRepository(Produits::class);
+    $produits = $produitsRepository->createQueryBuilder('p')
+        ->where('p.nom LIKE :query')
+        ->setParameter('query', '%' . $query . '%')
+        ->setMaxResults(5) // Limit results to 5 suggestions
+        ->getQuery()
+        ->getResult();
+
+    $suggestions = [];
+
+    foreach ($produits as $produit) {
+        $suggestions[] = [
+            'id' => $produit->getId(),
+            'nom' => $produit->getNom(),
+        ];
+    }
+
+    return new JsonResponse(['suggestions' => $suggestions]);
+}
 #[Route('/view/{id}', name: 'produit_view')]
 public function view(int $id, ProduitsRepository $produitsRepository): Response
 {
@@ -170,46 +214,96 @@ public function delete(int $id, ProduitsRepository $produitsRepository, EntityMa
 
 
 #[Route('/liste', name: 'listprod')]
-public function list(ProduitsRepository $productRepository, SessionInterface $session, PaginatorInterface $paginator, Request $request): Response
-{
-    $query = $productRepository->findAvailableProducts();
+public function list(
+    ProduitsRepository $productRepository,
+    SessionInterface $session,
+    PaginatorInterface $paginator,
+    Request $request
+): Response {
+    // Get the filter parameters (name and price)
+    $productName = $request->query->get('product_name', null);
+    $minPrice = $request->query->get('min_price', null);
+    $maxPrice = $request->query->get('max_price', null);
 
+    $page = $request->query->getInt('page', 1);
+    $limit = 6; // Pagination limit
+
+    // Get the query builder
+    $query = $productRepository->createQueryBuilder('p');
+
+    // Apply filters if any
+    if ($productName) {
+        $query->andWhere('p.nom LIKE :productName')
+            ->setParameter('productName', '%' . $productName . '%');
+    }
+    if ($minPrice) {
+        $query->andWhere('p.prix >= :minPrice')
+            ->setParameter('minPrice', $minPrice);
+    }
+    if ($maxPrice) {
+        $query->andWhere('p.prix <= :maxPrice')
+            ->setParameter('maxPrice', $maxPrice);
+    }
+
+    // Paginate the filtered products
     $pagination = $paginator->paginate(
-        $query, 
-        $request->query->getInt('page', 1), 
-        6
+        $query, // Pass the query builder for pagination
+        $page, 
+        $limit
     );
 
+    // Render the view with filtered products
     return $this->render('products/listuser.html.twig', [
         'pagination' => $pagination,
+        'product_name' => $productName,
+        'min_price' => $minPrice,
+        'max_price' => $maxPrice,
     ]);
 }
+
 
 
 #[Route('/rechercher', name: 'search_products')]
+public function searchProducts(
+    Request $request,
+    ProduitsRepository $produitsRepository,
+    PaginatorInterface $paginator
+): Response {
+    $productName = $request->query->get('q');  // Paramètre de recherche
+    $minPrice = $request->query->get('min_price');
+    $maxPrice = $request->query->get('max_price');
 
-public function search(ProduitsRepository $productRepository, Request $request, PaginatorInterface $paginator): Response
-{
-    $searchTerm = $request->query->get('q'); // Récupère le terme de recherche
+    $produitsQuery = $produitsRepository->createQueryBuilder('p')
+        ->where('p.nom LIKE :productName')
+        ->setParameter('productName', '%' . $productName . '%');
 
-    // Si le terme de recherche est vide, on retourne à la liste complète des produits
-    if (!$searchTerm) {
-        return $this->redirectToRoute('listprod');
+    if ($minPrice) {
+        $produitsQuery->andWhere('p.prix >= :minPrice')
+            ->setParameter('minPrice', $minPrice);
     }
 
-    // Filtrer les produits selon le terme de recherche
-    $query = $productRepository->findAvailableProductsss($searchTerm);
+    if ($maxPrice) {
+        $produitsQuery->andWhere('p.prix <= :maxPrice')
+            ->setParameter('maxPrice', $maxPrice);
+    }
 
+    $produitsQuery = $produitsQuery->getQuery();
+    $page = $request->query->getInt('page', 1);
+    $limit = 6;
     $pagination = $paginator->paginate(
-        $query,
-        $request->query->getInt('page', 1),
-        12
+        $produitsQuery,
+        $page,
+        $limit
     );
 
     return $this->render('products/listuser.html.twig', [
         'pagination' => $pagination,
+        'product_name' => $productName,
+        'min_price' => $minPrice,
+        'max_price' => $maxPrice,
     ]);
 }
+
 
 
 
