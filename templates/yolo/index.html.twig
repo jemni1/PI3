@@ -1,0 +1,20 @@
+{% extends 'baseFront.html.twig' %}
+
+{% block title %}Détection YOLOv8{% endblock %}
+
+{% block body %}
+    <h1>Analyse d'image avec YOLOv8</h1>
+
+    <!-- Formulaire d'upload de l'image -->
+    <form action="{{ path('detection') }}" method="post" enctype="multipart/form-data">
+        <label for="image">Choisissez une image à analyser :</label>
+        <input type="file" id="image" name="image" required>
+        <button type="submit">Analyser</button>
+    </form>
+
+    <!-- Affichage des résultats s'ils existent -->
+    {% if output is defined and output %}
+        <h2>Résultat de la détection</h2>
+        <pre>{{ output }}</pre>
+    {% endif %}
+{% endblock %}

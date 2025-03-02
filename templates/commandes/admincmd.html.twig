@@ -159,7 +159,10 @@
                 <span class="detail-value price-value">{{ commande.prix }} €</span>
             </li>
         </ul>
-
+<div class="qr-code text-center mt-4">
+                <h2>QR Code de la facture</h2>
+                <img src="{{ qrCode }}" alt="QR Code de la facture" class="img-fluid" />
+            </div>
         <div class="actions">
             <a href="{{ path('generate_invoice_pdf_admin', { 'commandeId': commande.id }) }}" class="btn btn-download">
                 <i class="fas fa-download"></i>

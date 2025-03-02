@@ -302,7 +302,7 @@ public function indexuser( CommandesRepository $commandesRepository, ProduitsRep
 // }
 
 #[Route('/factureadmin/{id}', name:"facture_admin")]
-public function indexcommm(int $id, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
+public function indexcommm(int $id, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository, BuilderInterface $qrCodeBuilder): Response
 {
     $commande = $commandesRepository->find($id);
     
@@ -315,10 +315,31 @@ public function indexcommm(int $id, CommandesRepository $commandesRepository, Pr
     $idTerrain = $produit->getIdTerrain()->getId();
 
     // $produits = $produitsRepository->findByCommande($commande);
+    $qrData = json_encode([
+        'id' => $commande->getId(),
+        'reference' => $commande->getId(), // Supposons que vous avez une méthode getReference()
+        'date' => $commande->getDate()->format('Y-m-d H:i:s'), // Supposons que vous avez une méthode getCreatedAt()
+        'total' => $commande->getPrix(), // Supposons que vous avez une méthode getTotal()
+        // Ajoutez d'autres détails selon vos besoins
+    ]);
+
+    // Ou simplement un lien vers la facture
+    $url = $this->generateUrl('facture_admin', ['id' => $commande->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+    
+    // Générer le QR code
+    $qrCode = $qrCodeBuilder
+        ->data($qrData) // ou $url si vous préférez encoder l'URL
+        ->size(300)
+        ->margin(10)
+        ->build();
+    
+    // Génère le data URI pour l'image du QR code
+    $qrCodeDataUri = $qrCode->getDataUri();
 
     return $this->render('commandes/admincmd.html.twig', [
         'commande' => $commande, 
         'idTerrain' => $idTerrain,
+        'qrCode' => $qrCodeDataUri,
     ]);
 }
 
