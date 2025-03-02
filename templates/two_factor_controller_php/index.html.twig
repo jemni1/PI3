@@ -1,0 +1,39 @@
+
+{% block body %}
+    <div class="container">
+        <h1>Set Up Two-Factor Authentication</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <p>Scan the QR code with your authenticator app:</p>
+                <p><img src="data:image/png;base64,{{ qr_code|raw }}" alt="QR Code"></p>
+
+                <form method="post" action="{{ path('app_2fa_setup') }}">
+                    <div class="form-group">
+                        <label for="code">Enter the verification code from your app:</label>
+                        <input type="text" id="code" name="code" class="form-control" required autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Verify & Enable 2FA</button>
+                </form>
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger mt-3">{{ message }}</div>
+                {% endfor %}
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success mt-3">{{ message }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-6">
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Download an authenticator app like Google Authenticator or Authy.</li>
+                    <li>Scan the QR code with the app.</跑到
+                    <li>Enter the verification code shown in your app.</li>
+                    <li>Click "Verify & Enable 2FA" to complete the setup.</li>
+                </ol>
+                <p>After enabling 2FA, you'll need to enter a verification code each time you log in.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

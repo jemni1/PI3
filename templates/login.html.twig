@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login - Skydash Admin</title>
-    <!-- Corrected asset paths -->
     <link rel="stylesheet" href="{{ asset('Back/vendors/feather/feather.css') }}">
     <link rel="stylesheet" href="{{ asset('Back/vendors/ti-icons/css/themify-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('Back/vendors/css/vendor.bundle.base.css') }}">
@@ -63,11 +62,12 @@
                                     </div>
                                     <a href="{{ path('app_request_password_reset') }}" class="auth-link text-black">Forgot password?</a>
                                 </div>
-                                <div class="mb-2">
-                                    <button type="button" class="btn btn-block btn-facebook auth-form-btn">
-                                        <i class="ti-facebook mr-2"></i>Connect using Facebook
-                                    </button>
-                                </div>
+                   <!-- Update the button -->
+                <div class="mb-2">
+                <a href="{{ path('connect_google') }}" class="btn btn-block btn-danger auth-form-btn">
+                 <i class="ti-google mr-2"></i>Connect using Gmail
+                </a>
+                </div>
                                 <div class="text-center mt-4 font-weight-light">
                                     Don't have an account? 
                                     <a href="{{ path('register') }}" class="text-primary">Create</a>

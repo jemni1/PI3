@@ -21,7 +21,7 @@
                 {{ form_label(form.verification_code) }}
                 {{ form_widget(form.verification_code, {'attr': {'class': 'form-control'}}) }}
             </div>
-            <a href="{{ path('app_reset_password') }}" class="auth-link text-black">Verify code</a>
+            <a href="{{ path('app_reset_password') }}" class="auth-link text-black"></a>
         {{ form_end(form) }}
 {% endblock %}
 <!-- Include Bootstrap JS for interactive components (optional) -->

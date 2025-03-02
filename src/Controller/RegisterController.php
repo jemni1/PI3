@@ -3,95 +3,50 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegisterFormType;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\Security\Core\Encoder\UserPasswordHasherInterface;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 
 class RegisterController extends AbstractController
 {
-    #[Route('/register', name: 'register')]
-    public function register(
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
-    ): Response {
+    #[Route('/register', name: 'app_register')]
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
+    {
+        // Create a new user instance
         $user = new User();
+
+        // Create the form for registration
         $form = $this->createForm(RegisterFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Additional CIN validation
-            $cin = $user->getCin();
-            if (!preg_match('/^[0-9]{8}$/', $cin)) {
-                $form->get('cin')->addError(new FormError('CIN must be exactly 8 digits'));
-                return $this->render('register.html.twig', [
-                    'form' => $form->createView(),
-                ]);
+            // Get the raw password from the form
+            $plainPassword = $user->getPassword();
+
+            // Debugging: Check if password is set correctly
+            if (empty($plainPassword)) {
+                throw new \Exception('Password is empty!');
             }
 
-            // Check for existing username
-            $existingUser = $entityManager->getRepository(User::class)->findOneBy([
-                'username' => $user->getUsername()
-            ]);
-            if ($existingUser) {
-                $form->get('username')->addError(new FormError('This username is already taken.'));
-            }
+            // Hash the password before saving
+            $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
 
-            // Check for existing email
-            $existingEmail = $entityManager->getRepository(User::class)->findOneBy([
-                'email' => $user->getEmail()
-            ]);
-            if ($existingEmail) {
-                $form->get('email')->addError(new FormError('This email is already registered.'));
-            }
+            // Set the hashed password to the user object
+            $user->setPassword($hashedPassword);
 
-            // Check for existing CIN
-            $existingCin = $entityManager->getRepository(User::class)->findOneBy([
-                'cin' => $user->getCin()
-            ]);
-            if ($existingCin) {
-                $form->get('cin')->addError(new FormError('This CIN is already registered.'));
-            }
+            // Persist the user entity
+            $userRepository->save($user, true);
 
-            // If any validation errors, stop registration
-            if (!$form->isValid()) {
-                return $this->render('register.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-
-            // Hash password
-            $user->setPassword(
-                $passwordHasher->hashPassword(
-                    $user,
-                    $form->get('password')->getData()
-                )
-            );
-
-            $selectedRole = $form->get('role')->getData();
-            $user->setRoles([$selectedRole, 'ROLE_USER']);
-
-            $file = $form->get('profilePictureFile')->getData();
-            if ($file) {
-                $newFilename = uniqid() . '.' . $file->guessExtension();
-                try {
-                    $file->move($this->getParameter('profile_pictures_directory'), $newFilename);
-                    $user->setProfilePicture($newFilename);
-                } catch (FileException $e) {
-                    // Handle file upload error
-                }
-            }
-
-            $entityManager->persist($user);
-            $entityManager->flush();
-            return $this->redirectToRoute('app_login');
+            // Redirect or show a success message
+            return $this->redirectToRoute('app_login'); // Adjust this route as needed
         }
 
-        return $this->render('register.html.twig', [
+        return $this->render('auth/register.html.twig', [
             'form' => $form->createView(),
         ]);
     }

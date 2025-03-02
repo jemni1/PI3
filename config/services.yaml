@@ -1,22 +1,24 @@
+# config/services.yaml
+
 parameters:
     profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
     imagess_directory: '%kernel.project_dir%/public/uploads/produits'
-    imgs_directory: '%kernel.project_dir%/public/uploads/collecte' 
-    image_directory: '%kernel.project_dir%/public/uploads/recyclage_img'
-    images_directory: '%kernel.project_dir%/public/uploads/terrains'
-    upload_directory: '%kernel.project_dir%/public/uploads'
+    # ... other parameters remain unchanged
 
 services:
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # Register all controllers automatically
+    # Add this service definition FIRST
+    Endroid\QrCode\Builder\BuilderInterface:
+        class: Endroid\QrCode\Builder\Builder
+
+    # Then the rest of your services
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    # Register all services, excluding specific directories
     App\:
         resource: '../src/'
         exclude:
@@ -24,11 +26,22 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # Explicitly register MailerService to ensure it's available
+    # Other service definitions remain unchanged...
     App\Service\MailerService:
         autowire: true
-        autoconfigure: true
 
-    # Explicitly register CartSubscriber
     App\EventSubscriber\CartSubscriber:
         tags: ['kernel.event_subscriber']
+
+    App\Security\GoogleAuthenticator:
+        arguments:
+            $clientRegistry: '@knpu.oauth2.registry'
+            $entityManager: '@doctrine.orm.entity_manager'
+            $router: '@router'
+            $userRepository: '@App\Repository\UserRepository'
+            $logger: '@logger'
+        tags: ['security.authenticator']
+
+    App\Security\TotpAuthenticatorInterface:
+        class: App\Security\TotpAuthenticator
+        autowire: true

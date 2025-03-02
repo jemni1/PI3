@@ -15,11 +15,33 @@ generate_invoice_pdf_admin:
 request_password_reset:
   path: /password-reset
   controller: App\Controller\PasswordResetController::requestPasswordReset
+  methods: [POST]
 
 verify_reset_code:
   path: /password-reset/verify
   controller: App\Controller\PasswordResetController::verifyResetCode
+  methods: [POST]
 
 reset_password:
   path: /password-reset/reset
   controller: App\Controller\PasswordResetController::resetPassword
+  methods: [POST]
+  
+login:
+  path: /login
+  controller: App\Controller\AuthController::login
+  methods: [POST]
+
+register:
+  path: /register
+  controller: App\Controller\RegisterController::register  # Update to correct namespace
+  methods: [GET, POST]
+  # config/routes.yaml
+# config/routes.yaml
+2fa_login:
+    path: /2fa
+    defaults:
+        _controller: "scheb_two_factor.form_controller::form"
+
+2fa_login_check:
+    path: /2fa_check
