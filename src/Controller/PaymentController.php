@@ -58,7 +58,11 @@ class PaymentController extends AbstractController
             
             if ($paymentIntent->status === 'succeeded') {
                 $entityManager->beginTransaction();
-                
+                $userId = $session->get('user_id', null);
+            
+            if (!$userId) {
+                return new JsonResponse(['status' => 'error', 'message' => 'Utilisateur non authentifié'], 400);
+            }
                 foreach ($cart as $id => $item) {
                     $produit = $entityManager->getRepository(Produits::class)->find($item['id_produit']);
                     
@@ -69,7 +73,7 @@ class PaymentController extends AbstractController
                     $commande->setPrix($item['quantite'] * $produit->getPrix());
                     $commande->setStatut('Payée');
                     $commande->setDate(new \DateTime());
-                    $commande->setId_client(1);
+                    $commande->setId_client($userId);
                     
                     $produit->setQuantite($produit->getQuantite() - $item['quantite']);
                     $entityManager->persist($commande);

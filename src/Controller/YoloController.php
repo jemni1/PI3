@@ -18,7 +18,7 @@ class YoloController extends AbstractController
     {
         $output = null;
         // Chemin vers le modèle YOLOv8
-        $modelPath = "C:\\Users\\anisj\\Downloads\\best.pt";
+        $modelPath = "../scripts/best.pt";
         // Chemin complet vers le script Python
         $scriptPath = $this->getParameter('kernel.project_dir') 
         . DIRECTORY_SEPARATOR . "scripts" 
