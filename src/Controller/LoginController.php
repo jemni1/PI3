@@ -11,34 +11,25 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class LoginController extends AbstractController
 {
     #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
-    public function login(AuthenticationUtils $authenticationUtils, Request $request): Response
+    public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
-        $user = $this->getUser();
-
-        // Handle successful authentication
-        if ($user) {
-            // Check MFA status
-            if ($user->isMfaEnabled()) {
-                // If MFA is enabled but not completed, redirect to 2FA page
-                if (!$request->getSession()->get('2fa_complete', false)) {
-                    return $this->redirectToRoute('2fa_login');
-                }
-                // Reset the 2fa_complete flag after successful login
-                $request->getSession()->set('2fa_complete', false);
-            }
-            // If no MFA or MFA completed, go to home page
+        // If already fully authenticated, redirect to home
+        if ($this->getUser() && 
+            (!method_exists($this->getUser(), 'isMfaEnabled') || 
+             !$this->getUser()->isMfaEnabled() || 
+             $request->getSession()->get('2fa_complete'))) {
             return $this->redirectToRoute('app_home');
         }
+        
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
 
-        // If not authenticated, show login form
         return $this->render('login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
         ]);
     }
-
+    
     #[Route('/2fa', name: '2fa_login', methods: ['GET', 'POST'])]
     public function twoFactorLogin(Request $request): Response
     {
@@ -52,22 +43,34 @@ class LoginController extends AbstractController
         if (!$user->isMfaEnabled()) {
             return $this->redirectToRoute('app_home');
         }
+        
+        // If 2FA is already completed, go to home
+        if ($request->getSession()->get('2fa_complete', false)) {
+            return $this->redirectToRoute('app_home');
+        }
 
         if ($request->isMethod('POST')) {
             // Here you would validate the 2FA code
-            // This is a placeholder - implement your actual 2FA verification logic
-            $isValid2fa = true; // Replace with actual verification
+            $code = $request->request->get('code');
+            $isValid2fa = $this->verify2faCode($user, $code);
             
             if ($isValid2fa) {
                 $request->getSession()->set('2fa_complete', true);
                 return $this->redirectToRoute('app_home');
             }
             
-            // If 2FA fails, you might want to add error handling
+            // If 2FA fails, add error handling
             $this->addFlash('error', 'Invalid 2FA code');
         }
 
         return $this->render('2fa_login.html.twig');
+    }
+    
+    // Example method for 2FA verification - implement your actual validation logic
+    private function verify2faCode($user, $code): bool
+    {
+        // Replace with your actual 2FA verification
+        return true; // This is just a placeholder
     }
 
     #[Route('/logout', name: 'app_logout', methods: ['GET'])]

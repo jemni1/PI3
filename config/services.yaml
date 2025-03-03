@@ -46,3 +46,4 @@ services:
             $userRepository: '@App\Repository\UserRepository'
             $logger: '@logger'
         tags: ['security.authenticator']
+
