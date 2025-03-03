@@ -21,25 +21,6 @@ class MailerService
         $this->twig = $twig; // Twig Environment for rendering templates
     }
 
-<<<<<<< HEAD
-    public function sendEmail(Email $email, string $subject, string $content, bool $isHtml = false): bool
-    {
-        try {
-            $this->logger->info('MailerService: Starting email send process', [
-                'to' => $email->getTo()[0]->getAddress(), // Log the recipient
-                'subject' => $subject
-            ]);
-
-            // Set subject and content on the provided Email object
-            $email->subject($subject);
-            if ($isHtml) {
-                $email->html($content);
-            } else {
-                $email->text($content);
-            }
-
-            $this->logger->info('MailerService: Email object prepared successfully');
-=======
     public function sendEmail(Email $email, string $subject, string $template, array $context = []): bool
     {
         try {
@@ -55,7 +36,6 @@ class MailerService
             // Render the Twig template (e.g., verification_code.html.twig) with the context
             $htmlContent = $this->twig->render($template, $context);
             $email->html($htmlContent);
->>>>>>> fe5f6d7e8505788e3c9fd9aa4e7599065b72ffc2
 
             $this->logger->info('MailerService: Email object prepared successfully');
 
@@ -74,8 +54,6 @@ class MailerService
                 'error' => $e->getMessage(),
                 'code' => $e->getCode(),
                 'to' => $email->getTo()[0]->getAddress(),
-<<<<<<< HEAD
-=======
                 'trace' => $e->getTraceAsString()
             ]);
             return false;
@@ -83,7 +61,6 @@ class MailerService
             $this->logger->error('MailerService: Twig template error', [
                 'error' => $e->getMessage(),
                 'template' => $template,
->>>>>>> fe5f6d7e8505788e3c9fd9aa4e7599065b72ffc2
                 'trace' => $e->getTraceAsString()
             ]);
             return false;
