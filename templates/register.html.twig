@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <link rel="stylesheet" href="{{ asset('Back/css/vertical-layout-light/style.css') }}">
+
+    <!-- Load reCAPTCHA script -->
+    <script src="https://www.google.com/recaptcha/api.js?render={{ recaptchaSiteKey }}"></script>
+
+    <style>
+        .brand-logo img {
+            display: block;
+            margin: 0 auto;
+            width: 80px; /* Centered logo with small size */
+        }
+        .btn-primary {
+            background-color: #66bb6a; /* Light green button color */
+            border-color: #66bb6a;
+        }
+        .btn-primary:hover {
+            background-color: #81c784;
+            border-color: #81c784;
+        }
+        .auth-form-light {
+            background-color: white;
+            padding-top: 5px;
+        }
+        .form-check {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="container-scroller">
@@ -14,40 +40,99 @@
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo">
-                                <img src="{{ asset('images/logo.svg') }}" alt="logo">
+                                <img src="{{ asset('Back/images/favicon11.png') }}" alt="logo">
                             </div>
                             <h4>New here?</h4>
                             <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
 
-                            {# Ensure multipart/form-data for file uploads #}
-                            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                            {% for flash_message in app.flashes('success') %}
+                                <div class="alert alert-success">{{ flash_message }}</div>
+                            {% endfor %}
+                            {% for flash_message in app.flashes('error') %}
+                                <div class="alert alert-danger">{{ flash_message }}</div>
+                            {% endfor %}
+
+                            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'id': 'registration-form'}}) }}
+                                <!-- Username Field -->
                                 <div class="form-group">
-                                    {{ form_row(form.username, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_row(form.username) }}
+                                    <small class="form-text text-muted">
+                                        Must contain at least 3 characters, including one number
+                                    </small>
                                 </div>
+
+                                <!-- Name Field -->
                                 <div class="form-group">
-                                    {{ form_row(form.email, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_row(form.name) }}
+                                    <small class="form-text text-muted">Minimum 2 characters</small>
                                 </div>
+
+                                <!-- Surname Field -->
                                 <div class="form-group">
-                                    {{ form_row(form.role, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_row(form.surname) }}
+                                    <small class="form-text text-muted">Minimum 2 characters</small>
                                 </div>
+
+                                <!-- CIN Field -->
                                 <div class="form-group">
-                                    {{ form_row(form.profilePictureFile, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_row(form.cin) }}
+                                    <small class="form-text text-muted">Exactly 8 digits</small>
                                 </div>
+
+                                <!-- Email Field -->
                                 <div class="form-group">
-                                    {{ form_row(form.password.first, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_row(form.email) }}
                                 </div>
+
+                                <!-- Roles Field -->
                                 <div class="form-group">
-                                    {{ form_row(form.password.second, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_row(form.roles) }}
                                 </div>
+
+                                <!-- Profile Picture Field -->
+                                <div class="form-group">
+                                    {{ form_row(form.profilePictureFile) }}
+                                    <small class="form-text text-muted">JPEG/PNG (Max 2MB)</small>
+                                </div>
+
+                                <!-- Password Fields -->
+                                <div class="form-group">
+                                    {{ form_row(form.password.first) }}
+                                    <small class="form-text text-muted">
+                                        8+ characters with at least one uppercase, lowercase, number, and special symbol
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form_row(form.password.second) }}
+                                </div>
+
+                                <!-- Terms Agreement Field -->
                                 <div class="form-check form-check-flat form-check-primary">
                                     {{ form_widget(form.agreeTerms) }}
-                                    <label>
+                                    <label class="form-check-label">
                                         I agree to the <a href="{{ path('app_terms') }}" target="_blank">terms and conditions</a>.
                                     </label>
+                                    {{ form_errors(form.agreeTerms) }}
                                 </div>
+
+                                <!-- Two-Factor Authentication Checkbox -->
+                                <div class="form-check form-check-flat form-check-primary">
+                                    {{ form_widget(form.isMfaEnabled) }}
+                                    <label class="form-check-label">
+                                        Enable Two-Factor Authentication (MFA)
+                                    </label>
+                                    {{ form_errors(form.isMfaEnabled) }}
+                                </div>
+
+                                <!-- Hidden reCAPTCHA token -->
+                                <input type="hidden" id="recaptcha_token" name="recaptcha_token">
+
+                                <!-- Submit Button -->
                                 <div class="mt-3">
-                                    {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+                                    {{ form_row(form.submit, {'attr': {'class': 'btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn'}}) }}
                                 </div>
+
                             {{ form_end(form) }}
 
                             <div class="text-center mt-4 font-weight-light">
@@ -61,11 +146,24 @@
         </div>
     </div>
 
-    <script src="{{ asset('js/vendor.bundle.base.js') }}"></script>
-    <script src="{{ asset('js/off-canvas.js') }}"></script>
-    <script src="{{ asset('js/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('js/template.js') }}"></script>
-    <script src="{{ asset('js/settings.js') }}"></script>
-    <script src="{{ asset('js/todolist.js') }}"></script>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Execute reCAPTCHA on form submission
+        document.getElementById('registration-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission until reCAPTCHA is ready
+            grecaptcha.ready(function() {
+                grecaptcha.execute('{{ recaptchaSiteKey }}', { action: 'register' })
+                    .then(function(token) {
+                        // Assign the token to the hidden input field
+                        document.getElementById('recaptcha_token').value = token;
+                        // Submit the form programmatically
+                        event.target.submit();
+                    });
+            });
+        });
+    </script>
 </body>
 </html>

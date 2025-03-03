@@ -1,20 +1,104 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="{{ asset('Back/css/vertical-layout-light/style.css') }}">
+</head>
+<body>
+    <div class="container-scroller">
+        <div class="container-fluid page-body-wrapper full-page-wrapper">
+            <div class="content-wrapper d-flex align-items-center auth px-0">
+                <div class="row w-100 mx-0">
+                    <div class="col-lg-4 mx-auto">
+                        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
+                            <div class="brand-logo">
+                                <img src="{{ asset('images/logo.svg') }}" alt="logo">
+                            </div>
+                            <h4>New here?</h4>
+                            <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
 
-<title>Hello UserController!</title>
+                            <!-- Flash Messages (Errors from Controller) -->
+                            {% for message in app.flashes('danger') %}
+                                <div class="alert alert-danger">{{ message }}</div>
+                            {% endfor %}
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+                            <!-- Global Form Errors -->
+                            {% if form.vars.errors|length > 0 %}
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        {% for error in form.vars.errors %}
+                                            <li>{{ error.message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'pt-3', 'id': 'registration-form'}}) }}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/monta/PI3-main/src/Controller/UserController.php</code></li>
-        <li>Your template at <code>C:/Users/monta/PI3-main/templates/user/index.html.twig</code></li>
-    </ul>
-</div>
-{% endblock %}
+                                <!-- CIN Field -->
+                                <div class="form-group">
+                                    {{ form_row(form.cin, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'placeholder': 'CIN',
+                                            'pattern': '\\d{8}',
+                                            'minlength': 8,
+                                            'maxlength': 8,
+                                            'required': 'required',
+                                            'title': '8 digits required'
+                                        }
+                                    }) }}
+                                    <small class="form-text text-muted">Exactly 8 digits</small>
+
+                                    <!-- CIN Field Errors -->
+                                    {% if form.cin.vars.errors|length > 0 %}
+                                        <div class="alert alert-danger mt-2">
+                                            {{ form_errors(form.cin) }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Role Field -->
+                                <div class="form-group">
+                                    {{ form_row(form.roles, {
+                                        'attr': {
+                                            'class': 'form-control form-control-lg',
+                                            'required': 'required'
+                                        }
+                                    }) }}
+
+                                    <!-- Role Field Errors -->
+                                    {% if form.roles.vars.errors|length > 0 %}
+                                        <div class="alert alert-danger mt-2">
+                                            {{ form_errors(form.roles) }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mt-3">
+                                    {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+                                </div>
+
+                            {{ form_end(form) }}
+
+                            <div class="text-center mt-4 font-weight-light">
+                                Already have an account?
+                                <a href="{{ path('app_login') }}" class="text-primary">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ asset('js/vendor.bundle.base.js') }}"></script>
+    <script src="{{ asset('js/off-canvas.js') }}"></script>
+    <script src="{{ asset('js/hoverable-collapse.js') }}"></script>
+    <script src="{{ asset('js/template.js') }}"></script>
+    <script src="{{ asset('js/settings.js') }}"></script>
+</body>
+</html>

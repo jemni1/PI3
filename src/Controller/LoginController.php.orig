@@ -1,0 +1,56 @@
+<<<<<<< HEAD
+<?php 
+=======
+<?php
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+
+class LoginController extends AbstractController
+{
+<<<<<<< HEAD
+    #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
+    public function index(AuthenticationUtils $authenticationUtils): Response
+    {
+        // Get login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+
+        // Last username entered
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        // Render the login template with error and last username if needed
+=======
+ #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])] // Add methods restriction
+    public function index(AuthenticationUtils $authenticationUtils): Response
+    {
+        // Get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+
+        // Last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f
+        return $this->render('login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error,
+        ]);
+    }
+
+    #[Route('/logout', name: 'app_logout')]
+    public function logout(): void
+    {
+<<<<<<< HEAD
+        // Empty method - intercepted by the logout firewall configuration
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+}
+=======
+        // Controller can be blank - it will be intercepted by the logout key on your firewall
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+}
+>>>>>>> 0a0964d0920bf108a84785271142e4ab8cd51e0f

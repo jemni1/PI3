@@ -3,7 +3,7 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
-# config/routes.yaml
+
 generate_invoice_pdf:
   path: /commande/{commandeId}/facture
   controller: App\Controller\CommandesController::generateInvoicePdf
@@ -15,3 +15,30 @@ generate_invoice_pdf_admin:
 chatbot:
     path: /chatbot
     controller: App\Controller\PageController::chatbot
+
+request_password_reset:
+  path: /password-reset
+  controller: App\Controller\PasswordResetController::requestPasswordReset
+  methods: [POST]
+
+verify_reset_code:
+  path: /password-reset/verify
+  controller: App\Controller\PasswordResetController::verifyResetCode
+  methods: [POST]
+
+reset_password:
+  path: /password-reset/reset
+  controller: App\Controller\PasswordResetController::resetPassword
+  methods: [POST]
+  
+login:
+  path: /login
+  controller: App\Controller\AuthController::login
+  methods: [POST]
+
+register:
+  path: /register
+  controller: App\Controller\RegisterController::register  # Update to correct namespace
+  methods: [GET, POST]
+  # config/routes.yaml
+# config/routes.yaml
