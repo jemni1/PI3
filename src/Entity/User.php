@@ -115,11 +115,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $googleId = null;
-
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isMfaEnabled = false;
+    
+    public function isMfaEnabled(): bool { return $this->isMfaEnabled; }
+    public function setIsMfaEnabled(bool $isMfaEnabled): self { $this->isMfaEnabled = $isMfaEnabled; return $this; }
     public function __construct()
     {
         $this->roles = ['ROLE_USER'];
     }
+    
 
     // Getters and Setters
     public function getId(): ?int { return $this->id; }

@@ -1,8 +1,0 @@
-scheb_two_factor:
-    totp:
-        enabled: true
-        server_name: "YourAppName"
-        issuer: "YourAppName"
-        window: 1
-    security_tokens:
-        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken

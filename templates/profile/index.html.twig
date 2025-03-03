@@ -9,22 +9,17 @@
                     <div class="card-body p-4">
                         <h4 class="card-title mb-4">User Profile</h4>
 
-                        {% for message in app.flashes('success') %}
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-
-                        {% for message in app.flashes('error') %}
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
+                        {% for label, messages in app.flashes %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
                         {% endfor %}
 
                         <!-- Form -->
-                        <form class="forms-sample" method="POST" action="{{ path('app_profile_update') }}" enctype="multipart/form-data">
+                        <form class="forms-sample" method="POST" action="{{ path('app_profile_update') }}" enctype="multipart/form-data" novalidate>
                             <div class="row">
                                 <!-- Profile Picture Section -->
                                 <div class="col-md-4 text-center mb-4 mb-md-0">
@@ -61,6 +56,7 @@
                                                    value="{{ user.cin }}"
                                                    pattern="[0-9]{8}" 
                                                    title="CIN must be 8 digits">
+                                            <div class="form-text">CIN must be exactly 8 digits</div>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
@@ -108,6 +104,7 @@
                                             <input type="password" class="form-control" 
                                                    id="current_password" name="current_password"
                                                    placeholder="Enter current password to make changes">
+                                            <div class="form-text">Required only if you want to change your password</div>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
@@ -115,6 +112,7 @@
                                             <input type="password" class="form-control" 
                                                    id="new_password" name="new_password"
                                                    placeholder="Leave blank to keep current password">
+                                            <div class="form-text">Password must be at least 8 characters with uppercase, lowercase and numbers</div>
                                         </div>
 
                                         <input type="hidden" name="_token" value="{{ csrf_token('update_profile') }}">
@@ -124,20 +122,19 @@
                                                 <button type="submit" class="btn btn-primary px-4">
                                                     Update Profile
                                                 </button>
-<button type="reset" class="btn btn-outline-secondary px-4" onclick="
-    {% if is_granted('ROLE_ADMIN') %}
-        window.location.href = '{{ path('app_terrain') }}';  
-    {% elseif is_granted('ROLE_AGRICULTURE') %}
-        window.location.href = '{{ path('app_terrain') }}';
-    {% elseif is_granted('ROLE_CLIENT') %}
-        window.location.href = '{{ path('listprod') }}'; 
-    {% elseif is_granted('ROLE_WORKER') %}
-        window.location.href = '{{ path('admin_recyclage_list') }}';  
-    {% else %}
-        window.location.href = '{{ path('default_page') }}'; 
-    {% endif %}
-">Cancel</button>
-
+                                                <button type="reset" class="btn btn-outline-secondary px-4" onclick="
+                                                    {% if is_granted('ROLE_ADMIN') %}
+                                                        window.location.href = '{{ path('app_terrain') }}';  
+                                                    {% elseif is_granted('ROLE_AGRICULTURE') %}
+                                                        window.location.href = '{{ path('app_terrain') }}';
+                                                    {% elseif is_granted('ROLE_CLIENT') %}
+                                                        window.location.href = '{{ path('listprod') }}'; 
+                                                    {% elseif is_granted('ROLE_WORKER') %}
+                                                        window.location.href = '{{ path('admin_recyclage_list') }}';  
+                                                    {% else %}
+                                                        window.location.href = '{{ path('default_page') }}'; 
+                                                    {% endif %}
+                                                ">Cancel</button>
                                             </div>
                                         </div>
                                     </div>
@@ -151,12 +148,31 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{{ asset('Back/vendors/js/vendor.bundle.base.js') }}"></script>
-    <script src="{{ asset('Back/js/off-canvas.js') }}"></script>
-    <script src="{{ asset('Back/js/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('Back/js/template.js') }}"></script>
-    <script src="{{ asset('Back/js/settings.js') }}"></script>
-    
+<!-- jQuery (Only add if using Bootstrap 4, otherwise remove) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Main Vendor Scripts -->
+<script src="{{ asset('Back/vendors/js/vendor.bundle.base.js') }}"></script>
+
+<!-- Bootstrap 5 (Remove if vendor.bundle.base.js already includes Bootstrap) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom Scripts -->
+<script src="{{ asset('Back/js/off-canvas.js') }}"></script>
+<script src="{{ asset('Back/js/hoverable-collapse.js') }}"></script>
+<script src="{{ asset('Back/js/template.js') }}"></script>
+<script src="{{ asset('Back/js/settings.js') }}"></script>
+
+<!-- Initialize Bootstrap Dropdowns (Fix for navbar dropdown issues) -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var dropdowns = document.querySelectorAll('.dropdown-toggle');
+    dropdowns.forEach(function (dropdown) {
+      new bootstrap.Dropdown(dropdown);
+    });
+  });
+</script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
@@ -172,6 +188,8 @@
         .upload-overlay:hover { background: rgba(0, 0, 0, 0.7); }
         .upload-overlay i { color: white; font-size: 1.2rem; }
         .cursor-pointer { cursor: pointer; }
+        .is-invalid { border-color: #dc3545 !important; }
+        .invalid-feedback { color: #dc3545; margin-top: 0.25rem; font-size: 80%; }
         @media (max-width: 768px) {
             .container-fluid { padding: 1rem; }
             .form-control { font-size: 1rem; padding: 0.75rem; }
@@ -196,6 +214,15 @@
                         this.value = '';
                         return;
                     }
+                    
+                    // Check file type
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                    if (!allowedTypes.includes(this.files[0].type)) {
+                        alert('Only JPG, PNG and GIF images are allowed.');
+                        this.value = '';
+                        return;
+                    }
+                    
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         img.src = e.target.result; // Preview only, not saved yet
@@ -203,6 +230,9 @@
                     reader.readAsDataURL(this.files[0]);
                 }
             });
+            
+            // Include the client-side validation script here
+            // ... (from the client-side-validation artifact)
         });
     </script>
 </body>

@@ -1,38 +1,43 @@
-# config/services.yaml
-
 parameters:
     profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
     imagess_directory: '%kernel.project_dir%/public/uploads/produits'
-    # ... other parameters remain unchanged
+    imgs_directory: '%kernel.project_dir%/public/uploads/collecte'
+    image_directory: '%kernel.project_dir%/public/uploads/recyclage_img'
+    images_directory: '%kernel.project_dir%/public/uploads/terrains'
+    upload_directory: '%kernel.project_dir%/public/uploads'
+    google_recaptcha_site_key: '%env(GOOGLE_RECAPTCHA_SITE_KEY)%'
+    google_recaptcha_secret_key: '%env(GOOGLE_RECAPTCHA_SECRET_KEY)%'
+    Endroid\QrCode\Builder\BuilderInterface: ~
 
 services:
+    # Default configuration for services in this file
     _defaults:
-        autowire: true
-        autoconfigure: true
+        autowire: true  # Automatically injects dependencies in your services
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-    # Add this service definition FIRST
-    Endroid\QrCode\Builder\BuilderInterface:
-        class: Endroid\QrCode\Builder\Builder
-
-    # Then the rest of your services
+    # Register all controllers automatically
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
-
+    
+    # Register all services, excluding specific directories
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
-    # Other service definitions remain unchanged...
+    
+    # Explicitly register MailerService to ensure it's available
     App\Service\MailerService:
         autowire: true
-
+        autoconfigure: true
+    
+    # Explicitly register CartSubscriber
     App\EventSubscriber\CartSubscriber:
         tags: ['kernel.event_subscriber']
 
+    # Register GoogleAuthenticator service
     App\Security\GoogleAuthenticator:
         arguments:
             $clientRegistry: '@knpu.oauth2.registry'
@@ -41,7 +46,3 @@ services:
             $userRepository: '@App\Repository\UserRepository'
             $logger: '@logger'
         tags: ['security.authenticator']
-
-    App\Security\TotpAuthenticatorInterface:
-        class: App\Security\TotpAuthenticator
-        autowire: true

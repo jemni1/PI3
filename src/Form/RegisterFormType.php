@@ -116,6 +116,13 @@ class RegisterFormType extends AbstractType
                 ],
                 'invalid_message' => 'The password fields must match.',
             ])
+            ->add('isMfaEnabled', CheckboxType::class, [
+                'label' => 'Enable Two-Factor Authentication (MFA)',
+                'required' => false, // Not mandatory
+                'attr' => [
+                    'class' => 'form-check-input'
+                ]
+            ])
 
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'I agree to the terms and conditions',
