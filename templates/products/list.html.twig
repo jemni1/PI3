@@ -91,32 +91,7 @@
         background-color: #c82333;
     }
 
-    /* Styles pour la pagination */
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    .pagination a {
-        padding: 8px 12px;
-        margin: 0 5px;
-        background-color: #f1f1f1;
-        color: #333;
-        border-radius: 5px;
-        text-decoration: none;
-        font-size: 16px;
-    }
-
-    .pagination a:hover {
-        background-color: #007bff;
-        color: white;
-    }
-
-    .pagination .active {
-        background-color: #007bff;
-        color: white;
-    }
+   
 
 </style>
 {% endblock %}
@@ -126,13 +101,30 @@
 
 <div class="container">
     <h2>Liste des Produits</h2>
-
+     <!-- Filter Form -->
+    <form method="get" action="{{ path('app_all_products') }}" class="mb-4">
+        <div class="row">
+            <div class="col">
+<input type="text" id="productSearch" name="product_name" value="{{ product_name }}" class="form-control" placeholder="Nom du produit" autocomplete="off">
+                <div id="searchSuggestions" class="list-group" style="display: none;"></div>            </div>
+            <div class="col">
+                <input type="number" name="min_price" value="{{ min_price }}" class="form-control" placeholder="Prix minimum">
+            </div>
+            <div class="col">
+                <input type="number" name="max_price" value="{{ max_price }}" class="form-control" placeholder="Prix maximum">
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Filtrer</button>
+            </div>
+        </div>
+    </form>
     <div class="text-center mb-4">
         <a href="{{ path('add_products') }}" class="btn btn-success">Ajouter un produit</a>
     </div>
 
     <div class="products-container">
         {% for produit in produits %}
+                    <a href="{{ path('produit_view', { id: produit.id }) }}" class="product-card-link">
             <div class="product-card">
                 {% if produit.image %}
                     <img src="{{ asset('uploads/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
@@ -156,23 +148,56 @@
                     </div>
                 </div>
             </div>
+            </a>
         {% endfor %}
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination">
-        {% if current_page > 1 %}
-            <a href="{{ path('app_all_products', { 'page': current_page - 1 }) }}">&laquo; Précédent</a>
-        {% endif %}
-
-        {% for i in 1..total_pages %}
-            <a href="{{ path('app_all_products', { 'page': i }) }}" class="{{ i == current_page ? 'active' : '' }}">{{ i }}</a>
-        {% endfor %}
-
-        {% if current_page < total_pages %}
-            <a href="{{ path('app_all_products', { 'page': current_page + 1 }) }}">Suivant &raquo;</a>
-        {% endif %}
-    </div>
+   <div class="container mt-4 d-flex justify-content-center">
+    {{ knp_pagination_render(produits) }}
+</div> 
 </div>
 
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Trigger Ajax request for product name search
+        $('#productSearch').on('input', function() {
+            var query = $(this).val();
+
+            if (query.length > 0) {
+                $.ajax({
+                    url: '{{ path('ajax_product_search') }}',
+                    method: 'GET',
+                    data: {
+                        query: query
+                    },
+                    success: function(response) {
+                        var suggestions = response.suggestions;
+                        var suggestionsList = $('#searchSuggestions');
+                        suggestionsList.empty();
+
+                        if (suggestions.length > 0) {
+                            suggestions.forEach(function(suggestion) {
+                                suggestionsList.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + suggestion.id + '">' + suggestion.nom + '</a>');
+                            });
+                            suggestionsList.show();
+                        } else {
+                            suggestionsList.hide();
+                        }
+                    }
+                });
+            } else {
+                $('#searchSuggestions').hide();
+            }
+        });
+
+        // Handle click on suggestion
+        $(document).on('click', '.list-group-item', function() {
+            var productId = $(this).data('id');
+            $('#productSearch').val($(this).text());  // Set the product name in the input
+            $('#searchSuggestions').hide();
+        });
+    });
+</script>
 {% endblock %}

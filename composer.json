@@ -7,17 +7,16 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "bacon/bacon-qr-code": "^2.0",
-        "doctrine/dbal": "*",
-        "doctrine/doctrine-bundle": "*",
+        "bacon/bacon-qr-code": "*",
+        "doctrine/dbal": "^3",
+        "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.3",
         "dompdf/dompdf": "^3.1",
-        "endroid/qr-code": "4.0",
-        "karser/karser-recaptcha3-bundle": "^0.2.0",
+        "endroid/qr-code-bundle": "^5.0",
+        "guzzlehttp/guzzle": "^7.9",
         "knplabs/knp-paginator-bundle": "^6.6",
-        "knpuniversity/oauth2-client-bundle": "^2.18",
-        "league/oauth2-google": "^4.0",
+        "knplabs/knp-snappy-bundle": "^1.10",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.0",
         "scheb/2fa": "*",
@@ -57,10 +56,12 @@
         "symfony/web-link": "6.4.*",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "vich/uploader-bundle": "^2.5"
     },
     "config": {
         "allow-plugins": {
+            "endroid/installer": true,
             "php-http/discovery": true,
             "symfony/flex": true,
             "symfony/runtime": true

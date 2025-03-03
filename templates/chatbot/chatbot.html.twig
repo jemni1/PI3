@@ -1,0 +1,30 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block title %} Chatbot Agricole {% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-lg p-4" style="background-color: #f5fff0; border-left: 5px solid #4CAF50;">
+        <h1 class="text-center text-success">🌱 Chatbot Agricole 🌿</h1>
+        <p class="text-center text-muted">Posez une question sur l'agriculture et obtenez une réponse instantanée.</p>
+
+        <div class="p-3">
+            {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_row(form.question, {'attr': {'class': 'form-control', 'placeholder': 'Tapez votre question ici...'}}) }}
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success px-4 py-2">🚜 Envoyer</button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+
+        {% if response %}
+            <div class="mt-4 p-3 bg-light border rounded">
+                <h2 class="text-success">🌾 Réponse du chatbot :</h2>
+                <p class="lead text-dark">{{ response }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends 'baseBack.html.twig' %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4 text-primary">Tableau de bord des ventes</h1>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Carte pour l'histogramme -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm rounded-lg">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">Produits les plus vendus</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="topProductsChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Carte pour le graphique circulaire -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm rounded-lg">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">Répartition des ventes</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="pieChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s ease-in-out;
+        border: none;
+        background: white;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-header {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        color: #344767;
+        font-weight: 600;
+    }
+    
+    .shadow-sm {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
+    }
+    
+    h1 {
+        font-weight: 700;
+        background: linear-gradient(45deg, #344767, #667eea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuration des couleurs
+    const colors = [
+        'rgba(255, 99, 132, 0.8)',
+        'rgba(54, 162, 235, 0.8)',
+        'rgba(255, 206, 86, 0.8)',
+        'rgba(75, 192, 192, 0.8)',
+        'rgba(153, 102, 255, 0.8)',
+    ];
+    
+    // Histogramme
+    const ctx1 = document.getElementById('topProductsChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: {{ labelsProducts|json_encode()|raw }},
+            datasets: [{
+                label: 'Quantité vendue',
+                data: {{ dataProducts|json_encode()|raw }},
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.8', '1')),
+                borderWidth: 1,
+                borderRadius: 5,
+                maxBarThickness: 50
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 13
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        display: true,
+                        drawOnChartArea: true,
+                        drawTicks: false,
+                        borderDash: [5, 5]
+                    },
+                    ticks: {
+                        padding: 10,
+                        font: {
+                            size: 11,
+                            family: 'Open Sans',
+                            style: 'normal',
+                            lineHeight: 2
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        drawBorder: false,
+                        display: false,
+                        drawOnChartArea: false,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        padding: 10,
+                        font: {
+                            size: 11,
+                            family: 'Open Sans',
+                            style: 'normal',
+                            lineHeight: 2
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Graphique circulaire
+    const ctx2 = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: {{ labelsProducts|json_encode()|raw }},
+            datasets: [{
+                data: {{ dataProducts|json_encode()|raw }},
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.8', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 11,
+                            family: 'Open Sans'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.raw / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.raw} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+});
+</script>
+{% endblock %}

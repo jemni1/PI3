@@ -36,7 +36,9 @@ services:
     # Explicitly register CartSubscriber
     App\EventSubscriber\CartSubscriber:
         tags: ['kernel.event_subscriber']
-
+    App\Service\OpenAIService:
+        arguments:
+            $apiKey: '%env(OPENAI_API_KEY)%'
     # Register GoogleAuthenticator service
     App\Security\GoogleAuthenticator:
         arguments:

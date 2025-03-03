@@ -12,6 +12,10 @@ generate_invoice_pdf_admin:
   path: /commandeAdmin/{commandeId}/facture
   controller: App\Controller\CommandesController::generateInvoicePdfAdmin
 
+chatbot:
+    path: /chatbot
+    controller: App\Controller\PageController::chatbot
+
 request_password_reset:
   path: /password-reset
   controller: App\Controller\PasswordResetController::requestPasswordReset

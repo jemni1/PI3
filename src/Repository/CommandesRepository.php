@@ -106,4 +106,25 @@ class CommandesRepository extends ServiceEntityRepository
 
         return $result->fetchAllAssociative();
     }
+    public function getSalesByMonth()
+    {
+        return $this->createQueryBuilder('c')
+            ->select("DATE_FORMAT(c.date, '%m') as mois", "SUM(c.quantite) as total_commandes")
+            ->groupBy('mois')
+            ->orderBy('mois', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+    
+
+    // 🔹 Produits les plus vendus
+    public function getTopSellingProducts()
+    {
+        return $this->createQueryBuilder('c')
+            ->select("c.nom, SUM(c.quantite) as total_vendus")
+            ->groupBy('c.nom')
+            ->orderBy('total_vendus', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

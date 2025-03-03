@@ -1,0 +1,21 @@
+knp_snappy:
+    pdf:
+        enabled: true
+        binary: '"C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"'
+        options: []
+    image:
+        enabled: true
+        binary: '"C:/Program Files/wkhtmltopdf/bin/wkhtmltoimage.exe"'
+        options: []
+knp_paginator:
+    page_range: 5
+    default_options:
+        page_name: page
+        sort_field_name: sort
+        sort_direction_name: direction
+        filter_field_name: filter
+        distinct: true
+    template:
+        pagination: '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig'
+        sortable: '@KnpPaginator/Pagination/sortable_link.html.twig'
+        filtration: '@KnpPaginator/Pagination/filter.html.twig'
