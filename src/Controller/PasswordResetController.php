@@ -13,9 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
 use App\Service\MailerService;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
+use Symfony\Component\Mime\Email;
 
 class PasswordResetController extends AbstractController
 {
@@ -60,7 +58,22 @@ class PasswordResetController extends AbstractController
                 $this->entityManager->flush();
 
                 $session->set('reset_email', $email);
-                $mailerService->sendEmail($email, 'Password Reset Verification Code', "Your verification code is: $resetCode");
+
+                // Create the Email object here
+                $emailObject = (new Email())
+                    ->from('monta.bellakhal10@gmail.com') // Adjust as needed
+                    ->to($user->getEmail());
+
+                // Use MailerService with HTML rendering
+                $mailerService->sendEmail(
+                    $emailObject,
+                    'Password Reset Verification Code',
+                    '', // Empty content since we're using HTML
+                    true, // isHtml flag
+                    $user,
+                    (int) $resetCode // Cast to int for consistency with Twig template
+                );
+
                 return $this->redirectToRoute('app_verify_reset_code');
             }
             $this->addFlash('danger', 'Email not found.');
@@ -71,7 +84,7 @@ class PasswordResetController extends AbstractController
         ]);
     }
 
-    #[Route('/password-reset/verify', name: 'app_verify_reset_code')]
+    #[Route('/password-reset/update', name: 'app_verify_reset_code')]
     public function verifyResetCode(Request $request, SessionInterface $session): Response
     {
         $email = $session->get('reset_email');
@@ -129,10 +142,19 @@ class PasswordResetController extends AbstractController
         ]);
     }
 
-    #[Route('/password-reset/reset', name: 'app_reset_password')]
+    #[Route('/password-reset/reset', name: 'app_reset_password', methods: ['GET', 'POST'])]
     public function showResetForm(Request $request, SessionInterface $session): Response
     {
         if (!$session->get('code_verified')) {
+            return $this->redirectToRoute('app_request_password_reset');
+        }
+
+        $email = $session->get('reset_email');
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+
+        if (!$user) {
+            $session->clear();
+            $this->addFlash('error', 'User not found.');
             return $this->redirectToRoute('app_request_password_reset');
         }
 
@@ -158,41 +180,27 @@ class PasswordResetController extends AbstractController
             ])
             ->getForm();
 
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            if ($data['password'] !== $data['confirm_password']) {
+                $this->addFlash('error', 'Passwords do not match.');
+                return $this->render('password_reset/reset.html.twig', ['form' => $form->createView()]);
+            }
+
+            $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
+            $user->setResetCode(null);
+            $user->setResetCodeExpiresAt(null);
+            $this->entityManager->flush();
+
+            $session->clear();
+            $this->addFlash('success', 'Password reset successfully. Please log in.');
+            return $this->redirectToRoute('app_login');
+        }
+
         return $this->render('password_reset/reset.html.twig', [
             'form' => $form->createView()
         ]);
-    }
-
-    #[Route('/password-reset/update', name: 'app_update_password', methods: ['POST'])]
-    public function resetPassword(Request $request, SessionInterface $session): Response
-    {
-        if (!$session->get('code_verified')) {
-            return $this->redirectToRoute('app_request_password_reset');
-        }
-
-        $email = $session->get('reset_email');
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-
-        if (!$user) {
-            $this->addFlash('error', 'User not found.');
-            return $this->redirectToRoute('app_request_password_reset');
-        }
-
-        $newPassword = $request->request->get('password');
-        $confirmPassword = $request->request->get('confirm_password');
-
-        if ($newPassword !== $confirmPassword) {
-            $this->addFlash('error', 'Passwords do not match.');
-            return $this->redirectToRoute('app_reset_password');
-        }
-
-        $user->setPassword($this->passwordHasher->hashPassword($user, $newPassword));
-        $user->setResetCode(null);
-        $user->setResetCodeExpiresAt(null);
-        $this->entityManager->flush();
-
-        $session->clear();
-        $this->addFlash('success', 'Password reset successfully. Please log in.');
-        return $this->redirectToRoute('app_login');
     }
 }

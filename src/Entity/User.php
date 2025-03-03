@@ -12,9 +12,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[Vich\Uploadable]
-#[UniqueEntity(fields: ['email'], message: 'This email is already used')]
-#[UniqueEntity(fields: ['username'], message: 'This username is already taken')]
-#[UniqueEntity(fields: ['cin'], message: 'This CIN is already used')]
+#[UniqueEntity(fields: ['email'], message: 'This email is already used', groups: ['registration'])]
+#[UniqueEntity(fields: ['username'], message: 'This username is already taken', groups: ['registration'])]
+#[UniqueEntity(fields: ['cin'], message: 'This CIN is already used', groups: ['registration'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]

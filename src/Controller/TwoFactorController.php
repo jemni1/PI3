@@ -1,10 +1,10 @@
 <?php
 namespace App\Controller;
 
+use App\Service\MailerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -14,71 +14,112 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class TwoFactorController extends AbstractController
 {
     private const MAX_ATTEMPTS = 3;
+    private $mailerService;
 
-    #[Route('/2fa', name: '2fa_login')]
-    public function display2faForm(Request $request, MailerInterface $mailer): Response
+    public function __construct(MailerService $mailerService)
+    {
+        $this->mailerService = $mailerService;
+    }
+
+    #[Route('/2fa/verify', name: '2fa_verification')]
+    public function display2faForm(Request $request): Response
     {
         $user = $this->getUser();
-        if (!$user instanceof UserInterface || !$user->isMfaEnabled()) {
+        $session = $request->getSession();
+
+        // Redirect fully authenticated users to home
+        if ($session->get('2fa_complete', false)) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        // Check if user is authenticated and MFA is pending
+        if (!$user instanceof UserInterface || !$session->get('mfa_pending') || !$user->isMfaEnabled()) {
             $this->addFlash('error', 'User not authenticated or MFA not enabled');
             return $this->redirectToRoute('app_login');
         }
 
-        $session = $request->getSession();
         $otp = random_int(100000, 999999);
         $hashedOtp = password_hash((string)$otp, PASSWORD_BCRYPT);
 
         $session->set('2fa', [
             'code' => $hashedOtp,
             'attempts' => 0,
-            'user_id' => $user->getId()
+            'user_id' => $user->getId(),
+            'created_at' => time(),
         ]);
 
-        $this->addFlash('info', 'Attempting to send OTP email to ' . $user->getEmail());
-        $this->sendOtpEmail($user, $otp, $mailer);
+        $this->sendOtpEmail($user, $otp);
+        $this->addFlash('info', 'OTP sent to ' . $user->getEmail());
 
-        return $this->render('two_factor_controller_php/index.html.twig');
+        // Retrieve reCAPTCHA site key from environment
+        $recaptchaSiteKey = $_ENV['RECAPTCHA_SITE_KEY'] ?? '';
+
+        $response = $this->render('two_factor_controller_php/index.html.twig', [
+            'recaptchaSiteKey' => $recaptchaSiteKey
+        ]);
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        return $response;
     }
 
     #[Route('/2fa/resend', name: '2fa_resend')]
-    public function resendOtp(Request $request, MailerInterface $mailer): Response
+    public function resendOtp(Request $request): Response
     {
         $user = $this->getUser();
-        if (!$user instanceof UserInterface || !$user->isMfaEnabled()) {
+        $session = $request->getSession();
+
+        // Redirect fully authenticated users to home
+        if ($session->get('2fa_complete', false)) {
+            return $this->redirectToRoute('app_home');
+        }
+
+        // Check if user is authenticated and MFA is pending
+        if (!$user instanceof UserInterface || !$session->get('mfa_pending') || !$user->isMfaEnabled()) {
+            $this->addFlash('error', 'User not authenticated or MFA not enabled');
             return $this->redirectToRoute('app_login');
         }
 
-        $session = $request->getSession();
         $otp = random_int(100000, 999999);
         $hashedOtp = password_hash((string)$otp, PASSWORD_BCRYPT);
 
         $session->set('2fa', [
             'code' => $hashedOtp,
             'attempts' => 0,
-            'user_id' => $user->getId()
+            'user_id' => $user->getId(),
+            'created_at' => time(),
         ]);
 
-        $this->sendOtpEmail($user, $otp, $mailer);
+        $this->sendOtpEmail($user, $otp);
         $this->addFlash('success', 'A new verification code has been sent to your email.');
-        return $this->redirectToRoute('2fa_login');
+
+        $response = $this->redirectToRoute('2fa_verification');
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        return $response;
     }
 
-    #[Route('/verify-2fa', name: '2fa_check', methods: ['POST'])]
+    #[Route('/2fa/check', name: '2fa_check', methods: ['POST'])]
     public function verify2fa(Request $request, TokenStorageInterface $tokenStorage): Response
     {
         $session = $request->getSession();
         $user = $this->getUser();
         $otpData = $session->get('2fa', []);
 
-        if (!$user || !$this->isValidOtpSession($otpData, $user)) {
+        if (!$user || !$this->isValidOtpSession($otpData, $user) || !$session->get('mfa_pending')) {
             $session->remove('2fa');
+            $session->remove('mfa_pending');
             return $this->redirectToRoute('app_login');
         }
 
+        // Verify OTP
         $userOtp = $request->request->get('_auth_code', '');
         if ($this->isValidOtp($userOtp, $otpData)) {
-            $this->authenticateUser($user, $tokenStorage);
+            // Mark 2FA as complete
+            $session->set('2fa_complete', true);
+            $session->remove('mfa_pending');
             $session->remove('2fa');
+            
+            // Authenticate user with full privileges
+            $this->authenticateUser($user, $tokenStorage);
+            
             return $this->redirectToRoute('app_home');
         }
 
@@ -87,6 +128,9 @@ class TwoFactorController extends AbstractController
 
     private function isValidOtpSession(array $otpData, UserInterface $user): bool
     {
+        if (!isset($otpData['created_at']) || (time() - $otpData['created_at']) > 600) {
+            return false;
+        }
         return isset($otpData['code'], $otpData['user_id']) 
             && $otpData['user_id'] === $user->getId();
     }
@@ -105,6 +149,7 @@ class TwoFactorController extends AbstractController
             $user->getRoles()
         );
         $tokenStorage->setToken($token);
+        $tokenStorage->getToken()->setAuthenticated(true);
     }
 
     private function handleFailedAttempt($session, array $otpData): Response
@@ -114,64 +159,32 @@ class TwoFactorController extends AbstractController
 
         if ($otpData['attempts'] >= self::MAX_ATTEMPTS) {
             $session->remove('2fa');
+            $session->remove('mfa_pending');
             $this->addFlash('error', 'Too many failed attempts. Please login again.');
             return $this->redirectToRoute('app_login');
         }
 
         $remainingAttempts = self::MAX_ATTEMPTS - $otpData['attempts'];
         $this->addFlash('error', sprintf('Invalid code. %d attempts remaining.', $remainingAttempts));
-        return $this->redirectToRoute('2fa_login');
+        return $this->redirectToRoute('2fa_verification');
     }
 
-    private function sendOtpEmail(UserInterface $user, int $otp, MailerInterface $mailer): void
+    private function sendOtpEmail(UserInterface $user, int $otp): void
     {
-        try {
-            // Create inline HTML email template instead of using the missing Twig template
-            $htmlContent = "
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                        .header { background-color: #4a7aff; color: white; padding: 10px 20px; border-radius: 5px 5px 0 0; }
-                        .content { padding: 20px; border: 1px solid #ddd; border-radius: 0 0 5px 5px; }
-                        .code { font-size: 32px; font-weight: bold; color: #4a7aff; text-align: center; 
-                                letter-spacing: 5px; margin: 20px 0; padding: 10px; background-color: #f5f5f5; }
-                        .footer { margin-top: 20px; font-size: 12px; color: #999; text-align: center; }
-                    </style>
-                </head>
-                <body>
-                    <div class='container'>
-                        <div class='header'>
-                            <h2>Your Secure Login Code</h2>
-                        </div>
-                        <div class='content'>
-                            <p>Hello,</p>
-                            <p>You recently requested to log in to your account. Please use the following verification code:</p>
-                            <div class='code'>{$otp}</div>
-                            <p>This code will expire in 10 minutes. Do not share this code with anyone.</p>
-                            <p>If you did not request this code, please ignore this email or contact support if you have concerns.</p>
-                        </div>
-                        <div class='footer'>
-                            <p>This is an automated message, please do not reply to this email.</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            ";
+        $email = new Email();
+        $email->to($user->getEmail());
+        $email->from('no-reply@yourdomain.com'); // Replace with your domain
 
-            $email = (new Email())
-                ->from("monta.bellakhal10@gmail.com")
-                ->to($user->getEmail())
-                ->subject('Your Secure Login Code')
-                ->html($htmlContent);
-
-            $mailer->send($email);
-            $this->addFlash('success', 'Verification code sent successfully.');
-        } catch (\Exception $e) {
-            // Display the actual error message for debugging
-            $this->addFlash('error', 'Failed to send OTP: ' . $e->getMessage());
-        }
+        $subject = 'Your Verification Code';
+        
+        // Using the MailerService with your verification_code.html.twig template
+        $this->mailerService->sendEmail(
+            $email,
+            $subject,
+            "Your verification code is: $otp",
+            true, // isHtml
+            $user,
+            $otp  // resetCode - using OTP as the verification code
+        );
     }
 }
