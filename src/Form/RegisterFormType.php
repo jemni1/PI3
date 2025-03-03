@@ -26,7 +26,7 @@ class RegisterFormType extends AbstractType
                     'class' => 'form-control form-control-lg',
                     'minlength' => 2,
                     'placeholder' => 'Name',
-                    'required' => 'required'
+                    'required' => true
                 ]
             ])
             ->add('surname', TextType::class, [
@@ -35,7 +35,6 @@ class RegisterFormType extends AbstractType
                     'class' => 'form-control form-control-lg',
                     'minlength' => 2,
                     'placeholder' => 'Surname',
-                    'required' => 'required'
                 ]
             ])
             ->add('username', TextType::class, [
@@ -44,7 +43,6 @@ class RegisterFormType extends AbstractType
                     'class' => 'form-control form-control-lg',
                     'placeholder' => 'Username',
                     'minlength' => 3,
-                    'required' => 'required',
                     'pattern' => '^(?=.*\d)[a-zA-Z0-9_-]+$',
                     'title' => '3+ characters, include a number'
                 ]
@@ -57,9 +55,7 @@ class RegisterFormType extends AbstractType
                     'pattern' => '\d{8}',
                     'minlength' => 8,
                     'maxlength' => 8,
-                    'required' => 'required',
                     'title' => '8 digits required',
-                    'inputmode' => 'numeric'
                 ]
             ])
             ->add('email', EmailType::class, [
@@ -67,7 +63,7 @@ class RegisterFormType extends AbstractType
                 'attr' => [
                     'class' => 'form-control form-control-lg',
                     'placeholder' => 'Email',
-                    'required' => 'required'
+                    'required' => true
                 ]
             ])
             ->add('roles', ChoiceType::class, [
@@ -79,10 +75,8 @@ class RegisterFormType extends AbstractType
                 ],
                 'multiple' => false,
                 'expanded' => false,
-                'required' => true,
                 'attr' => [
                     'class' => 'form-control form-control-lg',
-                    'required' => 'required'
                 ],
             ])
             ->add('profilePictureFile', FileType::class, [
@@ -101,33 +95,28 @@ class RegisterFormType extends AbstractType
                         'class' => 'form-control form-control-lg',
                         'placeholder' => 'Password',
                         'minlength' => 8,
-                        'required' => 'required',
-                        'pattern' => '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$',
-                        'title' => 'Include uppercase, lowercase, number, and special character'
-                    ]
+                    ],
                 ],
                 'second_options' => [
                     'label' => 'Confirm Password',
                     'attr' => [
                         'class' => 'form-control form-control-lg',
                         'placeholder' => 'Confirm Password',
-                        'required' => 'required'
+                        'required' => true
                     ]
                 ],
                 'invalid_message' => 'The password fields must match.',
             ])
             ->add('isMfaEnabled', CheckboxType::class, [
                 'label' => 'Enable Two-Factor Authentication (MFA)',
-                'required' => false, // Not mandatory
+                'required' => false,
                 'attr' => [
                     'class' => 'form-check-input'
                 ]
             ])
-
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'I agree to the terms and conditions',
                 'mapped' => false,
-                'required' => true,
                 'attr' => [
                     'class' => 'form-check-input'
                 ]
@@ -137,6 +126,7 @@ class RegisterFormType extends AbstractType
                 'attr' => ['class' => 'btn btn-primary mt-3']
             ]);
 
+        // Transformers for CIN and roles
         $builder->get('cin')->addModelTransformer(new CallbackTransformer(
             fn ($cinFromModel) => $cinFromModel,
             fn ($cinFromView) => $cinFromView && preg_match('/^\d{8}$/', trim($cinFromView)) ? trim($cinFromView) : null

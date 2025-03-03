@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace App\Controller;
 
 use App\Entity\User;
@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 class RegisterController extends AbstractController
 {
@@ -19,7 +20,7 @@ class RegisterController extends AbstractController
         EntityManagerInterface $entityManager
     ): Response {
         // Retrieve the recaptcha site key from environment
-        $recaptchaSiteKey = $_ENV['RECAPTCHA_SITE_KEY'] ?? ''; // Ensure this is being loaded correctly
+        $recaptchaSiteKey = $_ENV['RECAPTCHA_SITE_KEY'] ?? '';
 
         $user = new User();
         $form = $this->createForm(RegisterFormType::class, $user, [
@@ -28,20 +29,30 @@ class RegisterController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // Save user to database
-            $user->setPassword(
-                $passwordHasher->hashPassword($user, $user->getPassword())
-            );
-            $entityManager->persist($user);
-            $entityManager->flush();
+            try {
+                // Hash the password
+                $user->setPassword(
+                    $passwordHasher->hashPassword($user, $user->getPassword())
+                );
+                $entityManager->persist($user);
+                $entityManager->flush();
 
-            $this->addFlash('success', 'Registration successful! Please log in.');
-            return $this->redirectToRoute('app_login');
+                $this->addFlash('success', 'Registration successful! Please log in.');
+                return $this->redirectToRoute('app_login');
+            } catch (UniqueConstraintViolationException $e) {
+                // Handle duplicate entry error (e.g., username already exists)
+                $form->get('username')->addError(
+                    new \Symfony\Component\Form\FormError('This username is already in use.')
+                );
+            } catch (\Exception $e) {
+                // Handle other unexpected errors
+                $this->addFlash('error', 'An error occurred during registration. Please try again.');
+            }
         }
 
         return $this->render('register.html.twig', [
             'form' => $form->createView(),
-            'recaptchaSiteKey' => $recaptchaSiteKey // Pass the site key to the template
+            'recaptchaSiteKey' => $recaptchaSiteKey
         ]);
     }
 }

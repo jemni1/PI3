@@ -29,8 +29,7 @@
                                 <div class="alert alert-danger">{{ flash_message }}</div>
                             {% endfor %}
 
-                            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'pt-3', 'id': 'registration-form'}}) }}
-
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
                                 <!-- Username Field -->
                                 <div class="form-group">
                                     {{ form_row(form.username) }}
