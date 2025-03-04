@@ -8,30 +8,36 @@
         <div class="row">
             {% for terrain in terrains %}
                 <div class="col-md-3 mb-4">
-                    <div class="card border-secondary">
+                    <div class="card">
                         {% if terrain.image %}
-                            <img src="{{ asset('uploads/terrains/' ~ terrain.image) }}" class="card-img-top" alt="{{ terrain.nom }}" style="object-fit: cover; height: 200px; width: 100%; border-radius: 10px;">
+                            <img src="{{ asset('uploads/terrains/' ~ terrain.image) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ terrain.nom }}">
                         {% else %}
-                            <div class="card-img-top bg-light text-center py-5" style="height: 200px; border-radius: 10px;">
-                                <i class="ti-agenda" style="font-size: 3rem;"></i>
+                            <div class="card-img-placeholder">
+                                <i class="fas fa-mountain"></i>
                             </div>
                         {% endif %}
                         <div class="card-body d-flex justify-content-between align-items-center">
-                            <span style="font-weight: bold;">{{ terrain.nom }}</span>
-                            <div>
-                                <!-- Lien vers la page de détails -->
-                                <a href="{{ path('app_terrain_edit', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-primary me-1" title="Voir les détails">
-                                    <i class="ti-eye"></i>
+                            <span class="terrain-name">{{ terrain.nom }}</span>
+                            <div class="action-buttons">
+                                <a href="{{ path('app_terrain_edit', {'id': terrain.id}) }}" 
+                                   class="btn btn-sm btn-view me-1" 
+                                   title="Voir les détails">
+                                    <i class="fas fa-eye"></i>
                                 </a>
                                 
-                                <!-- Lien vers la page d'édition -->
-                                <a href="{{ path('app_terrain_update', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-secondary me-1" title="Éditer">
-                                    <i class="ti-pencil"></i>
+                                <a href="{{ path('app_terrain_update', {'id': terrain.id}) }}" 
+                                   class="btn btn-sm btn-edit me-1" 
+                                   title="Éditer">
+                                    <i class="fas fa-edit"></i>
                                 </a>
                                 
-                                <!-- Lien vers la suppression -->
-                                <a href="{{ path('app_terrain_delete', {'id': terrain.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce terrain ?');" title="Supprimer">
-                                    <i class="ti-trash"></i>
+                                <a href="{{ path('app_terrain_delete', {'id': terrain.id}) }}" 
+                                   class="btn btn-sm btn-delete" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce terrain ?');" 
+                                   title="Supprimer">
+                                    <i class="fas fa-trash-alt"></i>
                                 </a>
                             </div>
                         </div>
@@ -41,37 +47,149 @@
 
             <!-- Bouton pour ajouter un terrain -->
             <div class="col-md-3 mb-4">
-                <a href="{{ path('terrain_new') }}" class="card bg-light text-dark d-flex justify-content-center align-items-center" style="height: 300px; border-radius: 10px; transition: transform 0.3s;">
-                    <i class="ti-plus" style="font-size: 3rem;"></i>
+                <a href="{{ path('terrain_new') }}" class="add-card">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Ajouter un terrain</span>
                 </a>
             </div>
         </div>
     </div>
 </div>
 
-    <style>
-        .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        }
+<style>
+    :root {
+        --primary-color: #16a34a;
+        --primary-hover: #15803d;
+        --secondary-color: #86efac;
+        --border-color: #dcfce7;
+        --bg-color: #f0fdf4;
+        --danger-color: #dc2626;
+        --warning-color: #eab308;
+    }
 
-        .btn-outline-primary:hover {
-            background-color: #007bff;
-            color: white;
-        }
+    .card {
+        border: none;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
 
-        .btn-outline-secondary:hover {
-            background-color: #6c757d;
-            color: white;
-        }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
 
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: white;
-        }
+    .card-img-top {
+        object-fit: cover;
+        height: 200px;
+        width: 100%;
+    }
 
-        .card-body {
-            padding: 1.25rem;
+    .card-img-placeholder {
+        height: 200px;
+        background-color: var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-img-placeholder i {
+        font-size: 3rem;
+        color: var(--primary-color);
+    }
+
+    .card-body {
+        padding: 1rem;
+        background-color: white;
+    }
+
+    .terrain-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-right: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .btn {
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        border: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view {
+        color: var(--primary-color);
+        background-color: var(--border-color);
+    }
+
+    .btn-view:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .btn-edit {
+        color: var(--warning-color);
+        background-color: #fef9c3;
+    }
+
+    .btn-edit:hover {
+        background-color: var(--warning-color);
+        color: white;
+    }
+
+    .btn-delete {
+        color: var(--danger-color);
+        background-color: #fee2e2;
+    }
+
+    .btn-delete:hover {
+        background-color: var(--danger-color);
+        color: white;
+    }
+
+    .add-card {
+        height: 300px;
+        background-color: var(--bg-color);
+        border: 2px dashed var(--border-color);
+        border-radius: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .add-card:hover {
+        background-color: var(--border-color);
+        border-color: var(--primary-color);
+        transform: translateY(-5px);
+    }
+
+    .add-card i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .add-card span {
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .col-md-3 {
+            width: 100%;
         }
-    </style>
+    }
+</style>
+
+<!-- Ajout de Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
+
+

@@ -22,6 +22,36 @@ class ProduitsRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    public function findAvailableProductsss(?string $searchTerm = null)
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->where('p.quantite > 0'); // Produits en stock
+
+        if ($searchTerm) {
+            $qb->andWhere('p.nom LIKE :searchTerm')
+               ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+    public function findByName(string $searchTerm)
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.nom LIKE :searchTerm')
+            ->setParameter('searchTerm', $searchTerm . '%') // Recherche par préfixe
+            ->getQuery()
+            ->getResult();
+    }
+    public function findByPriceRange($min, $max)
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.prix BETWEEN :min AND :max')
+            ->setParameter('min', $min)
+            ->setParameter('max', $max)
+            ->getQuery()
+            ->getResult();
+    }
+    
 
 
     //    /**

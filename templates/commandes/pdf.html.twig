@@ -5,89 +5,195 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facture</title>
     <style>
+     .logo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .background-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            width: 60%;
+            height: auto;
+            z-index: 0;
+            pointer-events: none;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f9f0;
             margin: 0;
-            padding: 0;
-            color: #333;
+            padding: 20px;
+            color: #1a472a;
         }
 
         .container {
-            width: 80%;
+            width: 90%;
+            max-width: 800px;
             margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            background-color: #ffffff;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.1);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .background-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.05;
+            width: 60%;
+            height: auto;
+            z-index: 0;
+        }
+
+        .invoice-header {
+            position: relative;
+            z-index: 1;
+            border-bottom: 2px solid #c8e6c9;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         h1 {
             text-align: center;
-            color: #4CAF50;
+            color: #2e7d32;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .invoice-header, .invoice-details {
-            margin-bottom: 20px;
+        .invoice-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .invoice-header p {
+        .info-group {
+            background-color: #f5f9f5;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .info-group p {
+            margin: 8px 0;
             font-size: 16px;
-            margin: 5px 0;
         }
 
-        .invoice-header strong {
-            color: #555;
+        .info-group strong {
+            color: #2e7d32;
+            font-weight: 600;
         }
 
         .total {
             text-align: right;
-            font-size: 18px;
-            margin-top: 20px;
+            font-size: 24px;
+            color: #2e7d32;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f5f9f5;
+            border-radius: 10px;
         }
 
         .date {
             font-size: 14px;
-            color: #777;
+            color: #666;
             text-align: right;
+            margin-top: 20px;
         }
 
         .footer {
             text-align: center;
-            font-size: 14px;
-            color: #888;
             margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #c8e6c9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer p {
+            color: #2e7d32;
+            font-size: 16px;
+            margin: 10px 0;
         }
 
         .footer a {
+            color: #2e7d32;
             text-decoration: none;
-            color: #4CAF50;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .footer a:hover {
+            color: #1b5e20;
             text-decoration: underline;
+        }
+
+        .invoice-number {
+            font-size: 14px;
+            color: #666;
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        
+       <div class="logo-header">
+            <div class="invoice-number">Facture #{{ commande.id }}</div>
+        </div>
         <div class="invoice-header">
-            <h1>Facture - Commande #{{ commande.id }}</h1>
-            <p><strong>Produit:</strong> {{ commande.nom }}</p>
-            <p><strong>Quantité:</strong> {{ commande.quantite }}</p>
-            <p><strong>Prix unitaire:</strong> {{ commande.prix / commande.quantite }} €</p>
-            <div class="total">
-                <strong>Total:</strong> {{ commande.prix }} €
+            <h1>Facture</h1>
+            <div class="invoice-info">
+                <div class="info-group">
+                    <p><strong>Produit:</strong> {{ commande.nom }}</p>
+                    <p><strong>Quantité:</strong> {{ commande.quantite }}</p>
+                </div>
+                <div class="info-group">
+                    <p><strong>Prix unitaire:</strong> {{ commande.prix / commande.quantite }} €</p>
+                    <p><strong>Date:</strong> {{ commande.date|date('d-m-Y H:i') }}</p>
+                </div>
             </div>
         </div>
 
-        <div class="invoice-details">
-            <p><strong>Date de commande:</strong> {{ commande.date|date('d-m-Y H:i') }}</p>
+        <div class="total">
+            <strong>Total:</strong> {{ commande.prix }} €
         </div>
 
         <div class="footer">
-            <p>Merci de votre achat !</p>
-            <p><a href="https://www.votre-site.com">Visitez notre site pour plus de produits.</a></p>
+            <p>🌿 Merci de votre confiance ! 🌿</p>
+            <p>DataFarm - Votre partenaire de confiance</p>
+            <p><a href="https://www.votre-site.com">www.datafarm.com</a></p>
         </div>
     </div>
 </body>
