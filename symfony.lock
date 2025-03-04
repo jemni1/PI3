@@ -26,6 +26,18 @@
             "./migrations/.gitignore"
         ]
     },
+    "easycorp/easyadmin-bundle": {
+        "version": "4.24",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.14",
+            "ref": "13b3e524d1038a6861ad6c7fc64e31b644ba0c54"
+        },
+        "files": [
+            "./config/routes/easyadmin.yaml"
+        ]
+    },
     "endroid/qr-code-bundle": {
         "version": "5.0.2"
     },
@@ -59,6 +71,15 @@
     "knplabs/knp-paginator-bundle": {
         "version": "v6.6.1"
     },
+    "knplabs/knp-snappy-bundle": {
+        "version": "1.10",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.5",
+            "ref": "c81bdcf4a9d4e7b1959071457f9608631865d381"
+        }
+    },
     "knpuniversity/oauth2-client-bundle": {
         "version": "2.18",
         "recipe": {
@@ -66,15 +87,6 @@
             "branch": "main",
             "version": "1.20",
             "ref": "1ff300d8c030f55c99219cc55050b97a695af3f6"
-        }
-    },
-     "knplabs/knp-snappy-bundle": {
-        "version": "1.10",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "1.5",
-            "ref": "c81bdcf4a9d4e7b1959071457f9608631865d381"
         }
     },
     "phpunit/phpunit": {

@@ -1,9 +1,9 @@
 parameters:
     profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
-    profile_pictures_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
+   
     imagess_directory: '%kernel.project_dir%/public/uploads/produits'
     imgs_directory: '%kernel.project_dir%/public/uploads/collecte'
-    imgs_directory: '%kernel.project_dir%/public/uploads/collecte'
+    
     image_directory: '%kernel.project_dir%/public/uploads/recyclage_img'
     images_directory: '%kernel.project_dir%/public/uploads/terrains'
     upload_directory: '%kernel.project_dir%/public/uploads'
@@ -18,7 +18,7 @@ services:
     # Default configuration for services in this file
     _defaults:
         autowire: true  # Automatically injects dependencies in your services
-        autowire: true  # Automatically injects dependencies in your services
+       
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
     # Register all controllers automatically
@@ -49,13 +49,9 @@ services:
     # Explicitly register CartSubscriber
     
     # Explicitly register MailerService to ensure it's available
-    App\Service\MailerService:
-        autowire: true
-        autoconfigure: true
+    
         
-    App\Service\CropPredictionService:
-        arguments:
-            $projectDir: '%kernel.project_dir%'
+   
     # Explicitly register CartSubscriber
     App\EventSubscriber\CartSubscriber:
         tags: ['kernel.event_subscriber']

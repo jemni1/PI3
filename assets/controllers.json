@@ -15,8 +15,7 @@
                 "enabled": false,
                 "fetch": "eager"
             }
-        },
-        "statistiques": "./assets/controllers/statistiques_controller.js" 
+        }
     },
     "entrypoints": [
         "app"
