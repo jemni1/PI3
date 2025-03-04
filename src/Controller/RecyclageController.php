@@ -13,6 +13,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 
 class RecyclageController extends AbstractController
 {
@@ -23,18 +25,74 @@ class RecyclageController extends AbstractController
     {
         $this->unsplashService = $unsplashService;
     }
-
     #[Route('/admin/recyclage', name: 'admin_recyclage_list')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $recyclages = $entityManager->getRepository(RecyclageDechet::class)->findAll();
+        $quantiteFilter = $request->query->get('quantite');
+        $energieFilter = $request->query->get('energie');
+        $dateFilter = $request->query->get('date');
+        $typeFilter = $request->query->get('type');
+        $collecteDateFilter = $request->query->get('collecteDate');
+        $sort = $request->query->get('sort', 'dateDebut');
+        $order = $request->query->get('order', 'desc');
+    
+        // Requête pour récupérer les recyclages avec leurs collectes
+        $qb = $entityManager->getRepository(RecyclageDechet::class)->createQueryBuilder('r')
+            ->leftJoin('r.collectes', 'c')
+            ->addSelect('c');
+    
+        if ($quantiteFilter === "highQuantity") {
+            $qb->andWhere('r.quantiteRecyclee >= :qMin')->setParameter('qMin', 50);
+        } elseif ($quantiteFilter === "lowQuantity") {
+            $qb->andWhere('r.quantiteRecyclee < :qMax')->setParameter('qMax', 50);
+        }
+    
+        if ($energieFilter === "highEnergy") {
+            $qb->andWhere('r.energieProduite >= :eMin')->setParameter('eMin', 100);
+        } elseif ($energieFilter === "lowEnergy") {
+            $qb->andWhere('r.energieProduite < :eMax')->setParameter('eMax', 100);
+        }
+    
+        if ($dateFilter) {
+            $qb->andWhere('r.dateDebut = :date')->setParameter('date', $dateFilter);
+        }
+    
+        if ($typeFilter) {
+            $qb->andWhere('c.typeDechet = :type')->setParameter('type', $typeFilter);
+        }
+    
+        if ($collecteDateFilter) {
+            $qb->andWhere('c.dateDebut = :collecteDate')->setParameter('collecteDate', $collecteDateFilter);
+        }
+    
+        // Gestion du tri
+        if (in_array($sort, ['quantiteRecyclee', 'energieProduite', 'dateDebut'])) {
+            $qb->orderBy('r.' . $sort, $order);
+        }
+    
+        $recyclages = $qb->getQuery()->getResult();
+    
+        // Récupération séparée des collectes
         $collectes = $entityManager->getRepository(CollecteDechet::class)->findAll();
-
+    
+        // Calcul des totaux
+        $totalRecyclage = array_sum(array_map(fn($r) => $r->getQuantiteRecyclee(), $recyclages));
+        $totalEnergie = array_sum(array_map(fn($r) => $r->getEnergieProduite(), $recyclages));
+        $totalCollecte = array_sum(array_map(fn($c) => $c->getQuantite(), $collectes));
+    
         return $this->render('recyclage/index.html.twig', [
             'recyclages' => $recyclages,
-            'collectes' => $collectes,
+            'collectes' => $collectes, // 🔥 Ajout des collectes ici
+            'totalRecyclage' => $totalRecyclage,
+            'totalEnergie' => $totalEnergie,
+           'totalQuantite' => $totalRecyclage, // ou $totalCollecte selon ce que tu veux afficher
+
         ]);
     }
+    
+    
+    
+    
 
     #[Route('/admin/recyclage/new', name: 'admin_recyclage_new')]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -63,9 +121,9 @@ class RecyclageController extends AbstractController
 
                 $recyclageDechet->setImageUrl($newFilename);
             } else {
-                // Si aucune image n'est fournie, générer une image aléatoire via Unsplash
+               
                 $randomImage = $this->unsplashService->getRandomImage('recyclage');
-                $recyclageDechet->setImageUrl($randomImage);  // Assurez-vous que $randomImage contient une URL complète
+                $recyclageDechet->setImageUrl($randomImage);  
 
             }
 
@@ -164,4 +222,9 @@ class RecyclageController extends AbstractController
             'recyclage' => $recyclageDechet,
         ]);
     }
+   
+
+    
+
+
 }

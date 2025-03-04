@@ -15,6 +15,14 @@ class RecyclageDechetRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, RecyclageDechet::class);
     }
+    public function getEnergyUsageStats(): array
+{
+    return $this->createQueryBuilder('r')
+        ->select('r.usageEnergie AS usage_energie, SUM(r.energieProduite) AS total_energie')
+        ->groupBy('r.usageEnergie')
+        ->getQuery()
+        ->getResult();
+}
 
     //    /**
     //     * @return RecyclageDechet[] Returns an array of RecyclageDechet objects
@@ -40,4 +48,26 @@ class RecyclageDechetRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function filterRecyclages(?string $criteria, ?string $dateFilter): array
+{
+    $qb = $this->createQueryBuilder('r');
+
+    if ($criteria === 'highQuantity') {
+        $qb->andWhere('r.quantiteRecyclee >= 50');
+    } elseif ($criteria === 'lowQuantity') {
+        $qb->andWhere('r.quantiteRecyclee < 50');
+    } elseif ($criteria === 'highEnergy') {
+        $qb->andWhere('r.energieProduite >= 100');
+    } elseif ($criteria === 'lowEnergy') {
+        $qb->andWhere('r.energieProduite < 100');
+    }
+
+    if ($dateFilter) {
+        $qb->andWhere('r.dateRecyclage = :dateFilter')
+           ->setParameter('dateFilter', $dateFilter);
+    }
+
+    return $qb->getQuery()->getResult();
+}
+
 }

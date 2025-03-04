@@ -24,6 +24,6 @@ class UnsplashService
         ]);
 
         $data = $response->toArray();
-        return $data['urls']['regular'] ?? 'https://via.placeholder.com/300'; // Image par défaut si l'API échoue
+        return $data['urls']['regular'] ?? 'https://via.placeholder.com/300';
     }
 }

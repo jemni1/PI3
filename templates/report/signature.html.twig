@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            text-align: center; /* Centrer le texte */
+        }
+.watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.2; /* Augmenter la visibilité */
+    z-index: 0; /* Remonter le watermark pour qu'il soit visible */
+    pointer-events: none; /* Éviter toute interaction */
+}
+        .header {
+            background-color: #28a745;
+            color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .content {
+            width: 60%;
+            margin: auto; /* Centrer le contenu */
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .signature {
+            margin-top: 20px;
+        }
+        canvas {
+            border: 2px solid #000;
+            display: block;
+            margin: 10px auto; /* Centrer le canvas */
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .btn-container {
+            margin-top: 20px;
+        }
+        .btn-secondary {
+            background-color: #dc3545;
+        }
+        .btn-secondary:hover {
+            background-color: #c82333;
+        }
+        @media print {
+    .btn-container {
+        display: none !important;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Signature du Rapport de Recyclage</h1>
+    </div>
+
+    <div class="watermark">
+        <img src="{{ absolute_url(asset('Back/images/logofarm.png')) }}" alt="Watermark" width="500">
+    </div>
+
+    <div class="content">
+        <h2>Détails du recyclage</h2>
+        <p><strong>Date :</strong> {{ recyclage.dateDebut|date('d/m/Y') }} - {{ recyclage.dateFin|date('d/m/Y') }}</p>
+        <p><strong>Quantité recyclée :</strong> {{ recyclage.quantiteRecyclee }} kg</p>
+        <p><strong>Énergie produite :</strong> {{ recyclage.energieProduite }} kWh</p>
+        <p><strong>Utilisation :</strong> {{ recyclage.utilisation }}</p>
+
+        <h2>Collectes associées</h2>
+        <ul style="list-style: none; padding: 0;">
+            {% for collecte in recyclage.collectes %}
+                <li>{{ collecte.typeDechet }} - {{ collecte.quantite }} kg</li>
+            {% else %}
+                <li>Aucune collecte associée</li>
+            {% endfor %}
+        </ul>
+
+{% if signature %}
+    <img src="{{ signature }}" alt="Signature" style="width: 200px; height: auto;">
+{% else %}
+    <div class="signature">
+        <canvas id="signature-pad" width="400" height="150" style="border: 2px solid black;"></canvas>
+        <br>
+        <button id="clear-signature">Effacer</button>
+        <button id="save-signature">Valider</button>
+    </div>
+{% endif %}
+
+        <!-- Champ caché pour stocker la signature Base64 -->
+        <input type="hidden" name="signature" id="signature-input">
+
+{% if not (pdf_mode is defined and pdf_mode) %}
+    <div class="btn-container">
+        <button id="download-pdf">Télécharger PDF</button>
+        <button class="btn-secondary" onclick="history.back();">Retour</button>
+    </div>
+{% endif %}
+
+
+    </div>
+
+    <script>
+        let canvas = document.getElementById('signature-pad');
+        let ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        // Commencer le dessin
+        canvas.addEventListener('mousedown', function(event) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(event.offsetX, event.offsetY);
+        });
+
+        // Dessiner
+        canvas.addEventListener('mousemove', function(event) {
+            if (drawing) {
+                ctx.lineTo(event.offsetX, event.offsetY);
+                ctx.stroke();
+            }
+        });
+
+        // Arrêter le dessin
+        canvas.addEventListener('mouseup', function() {
+            drawing = false;
+        });
+
+        // Effacer la signature
+        document.getElementById('clear-signature').addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Sauvegarder la signature en Base64
+        document.getElementById('save-signature').addEventListener('click', function() {
+            let signatureData = canvas.toDataURL('image/png');
+            document.getElementById('signature-input').value = signatureData;
+           
+        });
+
+        // Télécharger le PDF
+        document.getElementById('download-pdf').addEventListener('click', function() {
+            let signature = document.getElementById('signature-input').value;
+
+            if (!signature) {
+                alert('Veuillez valider la signature avant de télécharger le PDF.');
+                return;
+            }
+
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ path("generate_report", {"id": recyclage.id}) }}'; // Route Symfony
+
+            let input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'signature';
+            input.value = signature;
+
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    </script>
+</body>
+</html>

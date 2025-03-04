@@ -17,7 +17,7 @@
                         <img src="{{ recyclage.imageUrl }}" 
                              alt="Image de recyclage" 
                              class="img-fluid" 
-                             style="max-width: 50%; height: auto;"> <!-- Ajustez max-width ici -->
+                             style="max-width: 50%; height: auto;">
                     {% else %}
                         <img src="{{ asset('uploads/recyclage_img/' ~ recyclage.imageUrl) }}" 
                              alt="Image de recyclage" 
@@ -63,11 +63,16 @@
                 <p class="text-muted">Aucune collecte associée.</p>
             {% endif %}
 
-            <div class="text-center mt-4">
-                <a href="{{ path('admin_recyclage_list') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Retour à la liste
-                </a>
-            </div>
+            <!-- Bouton pour générer le rapport PDF avec signature -->
+          <div class="d-flex justify-content-center mt-4">
+    <a href="{{ path('signature_form', {id: recyclage.id}) }}" class="btn btn-primary me-2">
+         Rapport
+    </a>
+    <a href="{{ path('admin_recyclage_list') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+</div>
+
         </div>
     </div>
 </div>
