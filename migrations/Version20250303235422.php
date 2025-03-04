@@ -30,18 +30,25 @@ final class Version20250303235422 extends AbstractMigration
         $this->addSql('CREATE TABLE equipement (id INT AUTO_INCREMENT NOT NULL, nom VARCHAR(255) NOT NULL, type VARCHAR(255) NOT NULL, date_achat DATETIME NOT NULL, etat VARCHAR(255) NOT NULL, date_dernier_entretien DATETIME DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE maintenance (id INT AUTO_INCREMENT NOT NULL, equipement_id INT DEFAULT NULL, type_intervention VARCHAR(255) NOT NULL, date_intervention DATETIME NOT NULL, description LONGTEXT NOT NULL, cout NUMERIC(10, 0) NOT NULL, INDEX IDX_2F84F8E9806F0F5C (equipement_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
 <<<<<<<< HEAD:migrations/Version20250301121653.php
+<<<<<<< HEAD
         $this->addSql('CREATE TABLE notification (id INT AUTO_INCREMENT NOT NULL, message LONGTEXT NOT NULL, is_read TINYINT(1) NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
 ========
 >>>>>>>> 7c81b84118d28c73e13f2be72f73b8fb3101cb1e:migrations/Version20250303235422.php
+=======
+========
+>>>>>>> 7c81b84118d28c73e13f2be72f73b8fb3101cb1e
         $this->addSql('CREATE TABLE produits (id INT AUTO_INCREMENT NOT NULL, id_terrain_id INT DEFAULT NULL, quantite INT NOT NULL, nom VARCHAR(90) NOT NULL, prix INT NOT NULL, image VARCHAR(255) NOT NULL, INDEX IDX_BE2DDF8C2FA70B96 (id_terrain_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE reclamation (id INT AUTO_INCREMENT NOT NULL, sujet VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, status VARCHAR(255) NOT NULL, daterec DATE NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE recyclage_dechet (id INT AUTO_INCREMENT NOT NULL, date_debut DATETIME NOT NULL, date_fin DATETIME NOT NULL, quantite_recyclee DOUBLE PRECISION NOT NULL, energie_produite DOUBLE PRECISION NOT NULL, utilisation VARCHAR(255) NOT NULL, image_url VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE reponse (id_reponse INT AUTO_INCREMENT NOT NULL, idreclamation_id INT DEFAULT NULL, message VARCHAR(255) NOT NULL, daterep DATE NOT NULL, UNIQUE INDEX UNIQ_5FB6DEC73C133392 (idreclamation_id), PRIMARY KEY(id_reponse)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+<<<<<<< HEAD
 <<<<<<<< HEAD:migrations/Version20250301121653.php
         $this->addSql('CREATE TABLE terrains (id INT AUTO_INCREMENT NOT NULL, nom VARCHAR(255) NOT NULL, adresse VARCHAR(255) NOT NULL, superficie INT NOT NULL, image VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE terrain_culture (terrain_id INT NOT NULL, culture_id INT NOT NULL, INDEX IDX_CE9E15438A2D8B41 (terrain_id), INDEX IDX_CE9E1543B108249D (culture_id), PRIMARY KEY(terrain_id, culture_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, username VARCHAR(255) NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL COMMENT \'(DC2Type:json)\', password VARCHAR(255) NOT NULL, profile_picture VARCHAR(255) DEFAULT NULL, updated_at DATETIME DEFAULT NULL, UNIQUE INDEX UNIQ_8D93D649F85E0677 (username), UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
 ========
+=======
+>>>>>>> 7c81b84118d28c73e13f2be72f73b8fb3101cb1e
         $this->addSql('CREATE TABLE terrains (id INT AUTO_INCREMENT NOT NULL, nom VARCHAR(255) NOT NULL, adresse VARCHAR(255) NOT NULL, superficie INT NOT NULL, latitude DOUBLE PRECISION NOT NULL, longitude DOUBLE PRECISION NOT NULL, image VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE terrain_culture (terrain_id INT NOT NULL, culture_id INT NOT NULL, INDEX IDX_CE9E15438A2D8B41 (terrain_id), INDEX IDX_CE9E1543B108249D (culture_id), PRIMARY KEY(terrain_id, culture_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, username VARCHAR(255) NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL COMMENT \'(DC2Type:json)\', password VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, surname VARCHAR(255) NOT NULL, cin VARCHAR(8) NOT NULL, profile_picture VARCHAR(255) DEFAULT NULL, updated_at DATETIME DEFAULT NULL, reset_code VARCHAR(255) DEFAULT NULL, reset_code_expires_at DATETIME DEFAULT NULL, is_profile_updated TINYINT(1) NOT NULL, google_id VARCHAR(255) DEFAULT NULL, is_mfa_enabled TINYINT(1) DEFAULT 0 NOT NULL, UNIQUE INDEX UNIQ_8D93D649F85E0677 (username), UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), UNIQUE INDEX UNIQ_8D93D649ABE530DA (cin), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
@@ -70,11 +77,19 @@ final class Version20250303235422 extends AbstractMigration
         $this->addSql('DROP TABLE equipement');
         $this->addSql('DROP TABLE maintenance');
 <<<<<<<< HEAD:migrations/Version20250301121653.php
+<<<<<<< HEAD
         $this->addSql('DROP TABLE notification');
 ========
 >>>>>>>> 7c81b84118d28c73e13f2be72f73b8fb3101cb1e:migrations/Version20250303235422.php
         $this->addSql('DROP TABLE produits');
         $this->addSql('DROP TABLE reclamation');
+=======
+       $this->addSql('DROP TABLE reclamation');
+========
+        $this->addSql('DROP TABLE produits');
+        $this->addSql('DROP TABLE reclamation');
+>>>>>>>> 7c81b84118d28c73e13f2be72f73b8fb3101cb1e:migrations/Version20250303235422.php
+>>>>>>> 7c81b84118d28c73e13f2be72f73b8fb3101cb1e
         $this->addSql('DROP TABLE recyclage_dechet');
         $this->addSql('DROP TABLE reponse');
         $this->addSql('DROP TABLE terrains');

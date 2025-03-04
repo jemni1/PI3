@@ -1,6 +1,9 @@
 knp_snappy:
     pdf:
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7c81b84118d28c73e13f2be72f73b8fb3101cb1e
         enabled: true
         binary: '"C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"'
         options: []
