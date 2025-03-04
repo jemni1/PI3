@@ -65,5 +65,25 @@ final class CultureController extends AbstractController
         $this->addFlash('success', 'Culture supprimée avec succès');
         return $this->redirectToRoute('app_culture');
     }
+    #[Route('/api/cultures/search', name: 'api_cultures_search')]
+    public function searchCultures(Request $request, CultureRepository $cultureRepository): JsonResponse
+    {
+        $term = $request->query->get('term');
+        $cultures = $cultureRepository->createQueryBuilder('c')
+            ->where('c.nom LIKE :term')
+            ->setParameter('term', '%' . $term . '%')
+            ->getQuery()
+            ->getResult();
+    
+        $results = [];
+        foreach ($cultures as $culture) {
+            $results[] = [
+                'id' => $culture->getId(),
+                'text' => $culture->getNom()
+            ];
+        }
+    
+        return new JsonResponse(['results' => $results]);
+    }
 
 }

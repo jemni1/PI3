@@ -5,18 +5,20 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class RedirectController extends AbstractController
 {
     #[Route('/home', name: 'app_home')]
-    public function redirectAfterLogin(): Response
+    public function redirectAfterLogin(RequestStack $requestStack): Response
     {
         $user = $this->getUser();
 
         if (!$user) {
             return $this->redirectToRoute('app_login');
         }
-
+        $session = $requestStack->getSession();
+        $session->set('user_id', $user->getId());
         $roles = $user->getRoles();
         $cin = $user->getCin();
         $isProfileUpdated = $user->getIsProfileUpdated();

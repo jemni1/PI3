@@ -1,0 +1,40 @@
+{% block title %}Carte des terrains{% endblock %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% block body %}
+    <div class="container">
+        <h1>Carte des terrains</h1>
+        <div id="map" style="height: 500px;"></div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation de la carte Leaflet
+            var map = L.map('map').setView([46.227638, 2.213749], 5); // Centre sur la France
+            
+            // Ajout d'une couche de tuiles (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Récupération des données des terrains depuis l'API
+            fetch('{{ path('api_terrains') }}')
+                .then(response => response.json())
+                .then(terrains => {
+                    terrains.forEach(terrain => {
+                        if (terrain.lat && terrain.lng) {
+                            var marker = L.marker([terrain.lat, terrain.lng]).addTo(map);
+                            marker.bindPopup(`
+                                <strong>${terrain.nom}</strong><br>
+                                Adresse: ${terrain.adresse}<br>
+                                Superficie: ${terrain.superficie} m²
+                            `);
+                        }
+                    });
+                });
+        });
+    </script>
+{% endblock %}

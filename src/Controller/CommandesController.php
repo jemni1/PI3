@@ -279,11 +279,13 @@ public function index(TerrainsRepository $terrainsRepository, RequestStack $requ
     ]);
 }
 #[Route('/user/commandes', name: 'user_commandes_by_terrain')]
-public function indexuser( CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
-{
- 
+public function indexuser( CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository,SessionInterface $session): Response
+{        $cart = $session->get('cart', []);
+
+    $userId = $session->get('user_id', null);
+
     // $commandes = $commandesRepository->findBy(['id_client' => $userId]);
-    $commandes = $commandesRepository->findAll();
+    $commandes = $commandesRepository->findBy(['id_client' => $userId]);
 
     return $this->render('commandes/user.html.twig', [
         'commandes' => $commandes,
@@ -438,8 +440,11 @@ public function indexdelete(int $id, CommandesRepository $commandesRepository,En
     /**
      * @Route("/commandeAdmin/{commandeId}/facture", name="generate_invoice_pdf")
      */
-    public function generateInvoicePdfAdmin($commandeId, EntityManagerInterface $entityManager, Pdf $pdf): Response
-    {
+    public function generateInvoicePdfAdmin($commandeId, EntityManagerInterface $entityManager,SessionInterface $session, Pdf $pdf): Response
+    {   $cart = $session->get('cart', []);
+        $userId = $session->get('user_id', null);
+        $user = $this->getUser(); // Récupère l'utilisateur connecté
+
         $commande = $entityManager->getRepository(Commandes::class)->find($commandeId);
 
         if (!$commande) {
@@ -447,7 +452,9 @@ public function indexdelete(int $id, CommandesRepository $commandesRepository,En
         }
 
         $html = $this->renderView('commandes/pdfadmin.html.twig', [
-            'commande' => $commande
+            'commande' => $commande,
+            'user' => $user,
+
         ]);
 
         $pdfContent = $pdf->getOutputFromHtml($html);

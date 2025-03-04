@@ -34,7 +34,10 @@ services:
     App\Service\MailerService:
         autowire: true
         autoconfigure: true
-    
+        
+    App\Service\CropPredictionService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
     # Explicitly register CartSubscriber
     App\EventSubscriber\CartSubscriber:
         tags: ['kernel.event_subscriber']

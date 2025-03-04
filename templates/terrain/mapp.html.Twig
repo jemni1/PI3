@@ -1,0 +1,251 @@
+{% block title %}Tous mes terrains{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary-color: #16a34a;      /* Vert principal */
+            --primary-hover: #15803d;      /* Vert foncé pour hover */
+            --secondary-color: #86efac;    /* Vert clair pour accents */
+            --border-color: #dcfce7;       /* Vert très clair pour bordures */
+            --error-color: #ef4444;        /* Rouge pour les erreurs */
+            --text-color: #1e293b;         /* Texte foncé */
+            --bg-color: #f0fdf4;           /* Fond légèrement teinté de vert */
+            --success-color: #22c55e;      /* Vert vif pour succès */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        
+        .map-container {
+            max-width: 100%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.1);
+        }
+        
+        .map-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.875rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        #map-all-terrains {
+            height: 70vh;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .terrain-info {
+            padding: 0.5rem;
+        }
+        
+        .terrain-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+        
+        .terrain-info p {
+            margin: 0.25rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .terrain-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .terrain-actions a {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            color: white;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .btn-view {
+            background-color: var(--primary-color);
+        }
+        
+        .btn-edit {
+            background-color: #3b82f6; /* Bleu */
+        }
+        
+        .map-legend {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--bg-color);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container map-container">
+        <h1 class="map-header">
+            <i class="fas fa-map-marked-alt"></i>
+            Carte de tous mes terrains
+        </h1>
+        
+        <div id="map-all-terrains"></div>
+        
+        <div class="map-legend">
+            <h3>Légende</h3>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #16a34a;"></div>
+                <span>Terrain en culture active</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f59e0b;"></div>
+                <span>Terrain en préparation</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #64748b;"></div>
+                <span>Terrain au repos</span>
+            </div>
+        </div>
+        
+        <div class="buttons-container">
+           
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialisation de la carte
+            var map = L.map('map-all-terrains').setView([46.603354, 1.888334], 5); // Vue centrée sur la France
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Les données des terrains (à remplacer par les vraies données)
+            var terrains = {{ terrains|json_encode|raw }};
+            
+            // Créer des marqueurs pour chaque terrain
+            var markers = [];
+            terrains.forEach(function(terrain) {
+                // Déterminer la couleur du marqueur en fonction du statut
+                var markerColor = '#16a34a'; // Vert par défaut
+                
+                // Si vous avez un statut dans vos données
+                if(terrain.status) {
+                    if(terrain.status === 'preparation') {
+                        markerColor = '#f59e0b'; // Orange
+                    } else if(terrain.status === 'repos') {
+                        markerColor = '#64748b'; // Gris
+                    }
+                }
+                
+                // Créer une icône personnalisée
+                var customIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background-color: ${markerColor}; width: 25px; height: 25px; border-radius: 50%; border: 2px solid white;"></div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 12]
+                });
+                
+                // Créer le marqueur avec l'icône personnalisée
+                var marker = L.marker([terrain.latitude, terrain.longitude], {
+                    icon: customIcon
+                }).addTo(map);
+                
+                // Ajouter un popup avec les informations du terrain
+                var popupContent = `
+                    <div class="terrain-info">
+                        <h3>${terrain.nom}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> ${terrain.adresse}</p>
+                        <p><i class="fas fa-ruler-combined"></i> ${terrain.superficie} m²</p>
+                        <p><i class="fas fa-seedling"></i> Cultures: ${terrain.cultures.join(', ')}</p>
+                       
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
+                markers.push(marker);
+            });
+            
+            // Si nous avons des marqueurs, ajustons la vue pour qu'ils soient tous visibles
+            if(markers.length > 0) {
+                var group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        });
+    </script>
+{% endblock %}

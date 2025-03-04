@@ -12,7 +12,9 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class TerrainsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -45,10 +47,24 @@ class TerrainsType extends AbstractType
             'choice_label' => 'nom',
             'multiple' => true,
             'required' => false,
-            'expanded' => false,
             'attr' => [
-                'class' => 'select2-cultures'
+                'class' => 'select2-cultures',
+                'data-placeholder' => 'Rechercher des cultures...'
             ]
+        ])
+        ->add('latitude',  NumberType::class, [
+            'attr' => [
+                'class' => 'map-latitude',
+                'data-field' => 'latitude'
+            ],
+            'required' => true
+        ])
+        ->add('longitude',  NumberType::class, [
+            'attr' => [
+                'class' => 'map-longitude',
+                'data-field' => 'longitude'
+            ],
+            'required' => true
         ]);
     }
 
