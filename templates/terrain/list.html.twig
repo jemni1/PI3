@@ -1,0 +1,157 @@
+{% block title %}Découvrez nos Terrains{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #16a34a;
+            --secondary-color: #86efac;
+            --text-color: #1e293b;
+            --bg-color: #f0fdf4;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 2rem;
+        }
+
+        .terrains-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .terrain-card {
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .terrain-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .terrain-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .terrain-content {
+            padding: 1.5rem;
+        }
+
+        .terrain-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .terrain-address {
+            font-size: 1rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .terrain-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .terrain-details p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .terrain-cultures {
+            margin-top: 1rem;
+        }
+
+        .terrain-cultures h4 {
+            font-size: 1rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .terrain-cultures ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .terrain-cultures li {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .weather-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #e0f2fe;
+            border-radius: 0.5rem;
+        }
+
+        .weather-info h4 {
+            font-size: 1rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .weather-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Découvrez nos Terrains</h1>
+    <div class="terrains-container">
+        {% for terrain in terrains %}
+            <div class="terrain-card">
+                {% if terrain.image %}
+                            <img src="{{ asset('uploads/terrains/' ~ terrain.image) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ terrain.nom }}">
+                        {% else %}
+                        <div class="card-img-placeholder">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                    {% endif %}
+                <div class="terrain-content">
+                    <h2 class="terrain-title">{{ terrain.nom }}</h2>
+                    <p class="terrain-address">{{ terrain.adresse }}</p>
+                    <div class="terrain-details">
+                        <p><strong>Superficie:</strong> {{ terrain.superficie }} m²</p>
+                        <p><strong>Coordonnées:</strong> {{ terrain.latitude }}, {{ terrain.longitude }}</p>
+                    </div>
+                    <div class="terrain-cultures">
+                        <h4>Culture(s) associée(s):</h4>
+                        <ul>
+                            {% for culture in terrain.cultures %}
+                                <li>{{ culture.nom }}</li>
+                            {% else %}
+                                <li>Aucune culture associée</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+        {% else %}
+            <p>Aucun terrain disponible pour le moment.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

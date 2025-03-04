@@ -1,7 +1,33 @@
 {% block stylesheets %}
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .button-container .btn {
+            margin: 0;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+            transform: translateY(-1px);
+        }
+
+        /* Pour que le lien se comporte comme un bouton */
+        .btn-primary {
+            text-decoration: none;
+            text-align: center;
+        }
         :root {
             --primary-color: #16a34a;      /* Vert principal */
             --primary-hover: #15803d;      /* Vert foncé pour hover */
@@ -147,6 +173,30 @@
             align-items: center;
             gap: 0.5rem;
         }
+
+        /* Styles pour la carte */
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .coord-display {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            background-color: var(--bg-color);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .coord-item {
+            flex: 1;
+        }
     </style>
 {% endblock %}
 
@@ -193,7 +243,23 @@
                 }) }}
                 {{ form_errors(forme.superficie, {'attr': {'class': 'form-error'}}) }}
             </div>
-
+            <!-- Carte pour sélectionner l'emplacement -->
+            <div class="form-group">
+                <label for="map" class="form-label">Sélectionnez l'emplacement sur la carte</label>
+                <div id="map"></div>
+                <div class="coord-display">
+                    <div class="coord-item">
+                        <label for="form_latitude" class="form-label">Latitude</label>
+                        {{ form_widget(forme.latitude, {'attr': {'class': 'form-control map-latitude', 'readonly': 'readonly'}}) }}
+                    </div>
+                    <div class="coord-item">
+                        <label for="form_longitude" class="form-label">Longitude</label>
+                        {{ form_widget(forme.longitude, {'attr': {'class': 'form-control map-longitude', 'readonly': 'readonly'}}) }}
+                    </div>
+                </div>
+                {{ form_errors(forme.latitude, {'attr': {'class': 'form-error'}}) }}
+                {{ form_errors(forme.longitude, {'attr': {'class': 'form-error'}}) }}
+            </div>
             <!-- Image du Terrain -->
             <div class="form-group">
                 {{ form_label(forme.image, "Image du Terrain", {'label_attr': {'class': 'form-label'}}) }}
@@ -218,11 +284,18 @@
             </div>
 
             <!-- Bouton de Soumission -->
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-leaf"></i>
-                Enregistrer le Terrain
-            </button>
-
+            <div class="button-container">
+                <a href="{{ path('predict_crop') }}" class="btn btn-primary" style="width: 30%; background-color: var(--secondary-color); color: var(--text-color);">
+                    <i class="fas fa-magic"></i>
+                    Prédire Culture
+                </a>
+                
+                <!-- Bouton de Soumission -->
+                <button type="submit" class="btn btn-primary" style="width: 70%;">
+                    <i class="fas fa-leaf"></i>
+                    Enregistrer le Terrain
+                </button>
+            </div>
         {{ form_end(forme) }}
     </div>
 {% endblock %}
@@ -230,6 +303,7 @@
 {% block javascripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         $(document).ready(function() {
             // Initialisation de Select2
@@ -257,9 +331,46 @@
                 const fileName = $(this).val().split('\\').pop();
                 if (fileName) {
                     $(this).closest('.image-upload-container').find('p')
-                        .html(<i class="fas fa-check-circle text-success"></i> ${fileName} sélectionné);
+                        .html(`<i class="fas fa-check-circle text-success"></i> ${fileName} sélectionné`);
                 }
             });
         });
+        // Initialisation de la carte Leaflet
+            var map = L.map('map').setView([35.131856, 9.634782], 5); // Vue centrée sur la France
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            var marker = null;
+            
+            // Récupérer les valeurs initiales des champs latitude et longitude
+            var initialLat = $('.map-latitude').val();
+            var initialLng = $('.map-longitude').val();
+            
+            // Si des coordonnées existent déjà, placer un marqueur
+            if (initialLat && initialLng) {
+                marker = L.marker([initialLat, initialLng]).addTo(map);
+                map.setView([initialLat, initialLng], 13);
+            }
+            
+            // Gestion du clic sur la carte
+            map.on('click', function(e) {
+                var lat = e.latlng.lat;
+                var lng = e.latlng.lng;
+                
+                // Mise à jour des champs latitude et longitude
+                $('.map-latitude').val(lat.toFixed(6));
+                $('.map-longitude').val(lng.toFixed(6));
+                
+                // Suppression de l'ancien marqueur s'il existe
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                
+                // Ajout d'un nouveau marqueur
+                marker = L.marker([lat, lng]).addTo(map);
+            });
+        
     </script>
 {% endblock %}
