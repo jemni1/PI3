@@ -1,5 +1,11 @@
 {
     "controllers": {
+        "@symfony/ux-chartjs": {
+            "chart": {
+                "enabled": true,
+                "fetch": "eager"
+            }
+        },
         "@symfony/ux-turbo": {
             "turbo-core": {
                 "enabled": true,
@@ -9,7 +15,10 @@
                 "enabled": false,
                 "fetch": "eager"
             }
-        }
+        },
+        "statistiques": "./assets/controllers/statistiques_controller.js" 
     },
-    "entrypoints": []
+    "entrypoints": [
+        "app"
+    ]
 }

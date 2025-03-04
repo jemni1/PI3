@@ -6,48 +6,13 @@
 {% set activeTab = app.request.query.get('tab', 'recyclage') %}
 {{ parent() }}
 
-<style>
-    .table-responsive {
-        overflow-x: hidden;
-    }
-
-    .table {
-        table-layout: auto;
-        width: 100%;
-    }
-
-    .table th, .table td {
-        white-space: nowrap;
-        vertical-align: middle;
-        padding: 10px;
-    }
-
-    .btn-sm {
-        font-size: 0.875rem;
-        padding: 5px 10px;
-    }
-
-    @media (max-width: 992px) {
-        .table th, .table td {
-            font-size: 0.9rem;
-        }
-        
-        .btn-sm {
-            display: block;
-            width: 100%;
-            margin-bottom: 5px;
-        }
-    }
-</style>
-
 <div class="container mt-4">
-    <!-- Onglets de navigation -->
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link {% if activeTab == 'recyclage' %}active{% endif %}" href="?tab=recyclage">♻️ Recyclage</a>
+            <a class="nav-link {% if activeTab == 'recyclage' %}active{% endif %}" href="{{ path('admin_recyclage_list', {'tab': 'recyclage'}) }}">♻️ Recyclage</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if activeTab == 'collecte' %}active{% endif %}" href="?tab=collecte">🗑 Collecte</a>
+            <a class="nav-link {% if activeTab == 'collecte' %}active{% endif %}" href="{{ path('admin_recyclage_list', {'tab': 'collecte'}) }}">🗑 Collecte</a>
         </li>
     </ul>
 
@@ -57,49 +22,71 @@
             <div class="card shadow-lg border-0 mt-3">
                 <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #388e3c;">
                     <h2 class="mb-0">♻️ Opérations de recyclage</h2>
-                    <a href="{{ path('admin_recyclage_new') }}" class="btn btn-light text-success fw-bold">
-                        <i class="fas fa-plus-circle"></i> Ajouter
-                    </a>
+                    <div>
+                        <a href="{{ path('admin_recyclage_new') }}" class="btn btn-light btn-sm">Ajouter Recyclage</a>
+                        <a href="{{ path('admin_recyclage_list', {'sort': 'quantiteRecyclee', 'tab': 'recyclage'}) }}" class="btn btn-light btn-sm">Trier par Quantité</a>
+                        <a href="{{ path('statistiques_index') }}" class="btn btn-white btn-sm">📊 </a>
+                    </div>
                 </div>
                 <div class="card-body bg-white table-responsive">
+                    <div class="filter-buttons">
+                        <a href="{{ path('admin_recyclage_list', {'quantite': 'highQuantity', 'tab': 'recyclage'}) }}" class="btn btn-outline-success btn-sm">Quantité élevée</a>
+                        <a href="{{ path('admin_recyclage_list', {'quantite': 'lowQuantity', 'tab': 'recyclage'}) }}" class="btn btn-outline-danger btn-sm">Quantité faible</a>
+                        <a href="{{ path('admin_recyclage_list', {'energie': 'highEnergy', 'tab': 'recyclage'}) }}" class="btn btn-outline-primary btn-sm">Énergie élevée</a>
+                        <a href="{{ path('admin_recyclage_list', {'energie': 'lowEnergy', 'tab': 'recyclage'}) }}" class="btn btn-outline-secondary btn-sm">Énergie faible</a>
+
+                        <form method="get" class="d-inline">
+                            <input type="hidden" name="tab" value="recyclage">
+                            <input type="date" name="date" value="{{ app.request.query.get('date', '') }}" class="btn btn-outline-dark btn-sm">
+                            <button type="submit" class="btn btn-outline-dark btn-sm">Filtrer par date</button>
+                        </form>
+
+                        <a href="{{ path('admin_recyclage_list', {'tab': 'recyclage'}) }}" class="btn btn-outline-dark btn-sm">Réinitialiser</a>
+                    </div>
+                    
                     <table class="table table-hover text-center bg-white">
                         <thead style="background-color: #66bb6a; color: white;">
                             <tr>
                                 <th>ID</th>
-                                <th>Dates</th>
+                                <th>Date de début</th>
                                 <th>Quantité (kg)</th>
                                 <th>Énergie (kWh)</th>
                                 <th>Utilisation</th>
-                                
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% set totalQuantite = 0 %}
+                            {% set totalEnergie = 0 %}
                             {% for recyclage in recyclages %}
+                                {% set totalQuantite = totalQuantite + recyclage.quantiteRecyclee %}
+                                {% set totalEnergie = totalEnergie + recyclage.energieProduite %}
                                 <tr class="align-middle">
                                     <td>{{ recyclage.id }}</td>
                                     <td>Du {{ recyclage.dateDebut|date('d/m/Y') }} au {{ recyclage.dateFin|date('d/m/Y') }}</td>
                                     <td class="fw-bold text-success">{{ recyclage.quantiteRecyclee }}</td>
                                     <td class="fw-bold text-primary">{{ recyclage.energieProduite }}</td>
                                     <td>{{ recyclage.utilisation }}</td>
-                                    
                                     <td>
-                                      <a href="{{ path('admin_recyclage_show', {'id': recyclage.id}) }}" class="btn btn-outline-info btn-sm">
-                                                        <i class="fas fa-eye"></i> Détails
-                                                    </a>
-                                        <a href="{{ path('admin_recyclage_edit', {'id': recyclage.id}) }}" class="btn btn-outline-warning btn-sm">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <a href="{{ path('admin_recyclage_delete', {'id': recyclage.id}) }}" class="btn btn-outline-danger btn-sm">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                        <a href="{{ path('admin_recyclage_show', {'id': recyclage.id}) }}" class="btn btn-outline-info btn-sm"><i class="fas fa-eye"></i></a>
+                                        <a href="{{ path('admin_recyclage_edit', {'id': recyclage.id}) }}" class="btn btn-outline-warning btn-sm"><i class="fas fa-pen"></i></a>
+                                        <form action="{{ path('admin_recyclage_delete', {'id': recyclage.id}) }}" method="post" style="display:inline;" >
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ recyclage.id) }}">
+                                            <button class="btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-trash"></i></button>
+                                        </form>
                                     </td>
                                 </tr>
                             {% else %}
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted">Aucune opération de recyclage trouvée.</td>
+                                    <td colspan="6" class="text-center text-muted">Aucune opération de recyclage trouvée.</td>
                                 </tr>
                             {% endfor %}
+                            <tr class="fw-bold bg-light">
+                                <td colspan="2">Total</td>
+                                <td class="text-success">{{ totalQuantite }}</td>
+                                <td class="text-primary">{{ totalEnergie }}</td>
+                                <td colspan="2"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -111,39 +98,36 @@
             <div class="card shadow-lg border-0 mt-3">
                 <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color: #558b2f;">
                     <h2 class="mb-0">🗑 Collectes de déchets</h2>
-                  
                 </div>
-                <div class="card-body bg-white table-responsive">
-                    <table class="table table-hover text-center bg-white">
-                        <thead style="background-color: #81c784; color: white;">
+                <table class="table table-hover text-center bg-white">
+                    <thead style="background-color: #81c784; color: white;">
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Quantité (kg)</th>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set totalQuantiteCollecte = 0 %}
+                        {% for collecte in collectes %}
+                            {% set totalQuantiteCollecte = totalQuantiteCollecte + collecte.quantite %}
                             <tr>
-                                <th>ID</th>
-                                <th>Type</th>
-                                <th>Quantité (kg)</th>
-                                <th>Date de début</th>
-                                <th>Date de fin</th>
+                                <td>{{ collecte.id }}</td>
+                                <td>{{ collecte.typeDechet }}</td>
+                                <td>{{ collecte.quantite }}</td>
+                                <td>{{ collecte.dateDebut|date('Y-m-d') }}</td>
+                                <td>{{ collecte.dateFin|date('Y-m-d') }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for collecte in collectes %}
-                                <tr class="align-middle">
-                                    <td>{{ collecte.id }}</td>
-                                    <td class="fw-bold text-success">{{ collecte.typeDechet }}</td>
-                                    <td class="fw-bold text-primary">{{ collecte.quantite }}</td>
-                                    <td>{{ collecte.dateDebut|date('d/m/Y') }}</td>
-                                    <td>{{ collecte.dateFin|date('d/m/Y') }}</td>
-                                </tr>
-                            {% else %}
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">Aucune collecte de déchets trouvée.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                        {% else %}
+                            <tr><td colspan="5" class="text-center text-muted">Aucune collecte trouvée.</td></tr>
+                        {% endfor %}
+                        <tr class="fw-bold bg-light"><td colspan="2">Total</td><td>{{ totalQuantiteCollecte }}</td><td colspan="2"></td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
