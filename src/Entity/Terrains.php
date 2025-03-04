@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[ORM\Entity(repositoryClass: TerrainsRepository::class)]
 class Terrains
@@ -46,7 +47,17 @@ class Terrains
     )]
     private ?int $superficie = null;
 
-   
+    #[ORM\Column(type: "float")]
+    #[Assert\NotBlank(message: "La latitude est obligatoire.")]
+    #[Assert\Type(type: 'float', message: 'La latitude doit être un nombre décimal.')]
+    private ?float $latitude = null;
+    
+    #[ORM\Column(type: "float")]
+    #[Assert\NotBlank(message: "La longitude est obligatoire.")]
+    #[Assert\Type(type: 'float', message: 'La longitude doit être un nombre décimal.')]
+    private ?float $longitude = null;
+
+
     #[ORM\Column(length: 255)]
     #[Assert\Image(
         maxSize: "2M",
@@ -129,7 +140,29 @@ private Collection $cultures;
     }
 
    
+    public function getLatitude(): ?float
+    {
+        return $this->latitude;
+    }
 
+    public function setLatitude(float $latitude): static
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+    
+    public function getLongitude(): ?float
+    {
+        return $this->longitude;
+    }
+
+    public function setLongitude(float $longitude): static
+    {
+        $this->longitude = $longitude;
+
+        return $this;
+    }
    
     public function getImage(): ?string
     {
@@ -198,7 +231,27 @@ private Collection $cultures;
         return $this;
     }
 
-   
+    public function getWeatherData(HttpClientInterface $httpClient, string $apiKey = 'd572ac8061554b38bdf134529250203'): array
+    {
+        if (!$this->latitude || !$this->longitude) {
+            throw new \LogicException('Les coordonnées sont nécessaires pour récupérer les données météo');
+        }
+        
+        $url = sprintf(
+            'http://api.weatherapi.com/v1/current.json?key=%s&q=%s,%s',
+            $apiKey,
+            $this->latitude,
+            $this->longitude
+        );
+        
+        try {
+            $response = $httpClient->request('GET', $url);
+            return $response->toArray();
+        } catch (\Exception $e) {
+            // Journalisez l'erreur ou gérez-la selon vos besoins
+            return ['error' => $e->getMessage()];
+        }
+    }
    
 
    

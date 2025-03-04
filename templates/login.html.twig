@@ -3,13 +3,67 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Login - Skydash Admin</title>
-    <!-- Corrected asset paths -->
+    <title>Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('Back/vendors/feather/feather.css') }}">
     <link rel="stylesheet" href="{{ asset('Back/vendors/ti-icons/css/themify-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('Back/vendors/css/vendor.bundle.base.css') }}">
-    <link rel="stylesheet" href="{{ asset('Back/css/vertical-layout-light/style.css') }}">
-    <link rel="shortcut icon" href="{{ asset('Back/images/favicon.png') }}" />
+    <link rel="shortcut icon" href="{{ asset('Back/images/favicon11.png') }}" />
+        <style>
+        body { 
+            background-color: #e7f9e7; 
+        }
+        .container-scroller {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .brand-logo img {
+            display: block;
+            margin: 0 auto 20px;
+            width: 80px;
+        }
+        .auth-form-light {
+            background-color: #ffffff;
+            padding: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .btn-primary {
+            background-color: #66bb6a;
+            border-color: #66bb6a;
+        }
+        .btn-primary:hover {
+            background-color: #81c784;
+            border-color: #81c784;
+        }
+        .btn-danger {
+            background-color: #ef5350;
+            border-color: #ef5350;
+        }
+        .btn-danger:hover {
+            background-color: #e57373;
+            border-color: #e57373;
+        }
+        .text-green { 
+            color: #66bb6a; 
+        }
+        .text-primary {
+            color: #66bb6a !important;
+        }
+        .form-control-lg {
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.3rem;
+        }
+        .auth-form-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0.3rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container-scroller">
@@ -19,10 +73,10 @@
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo">
-                                <img src="{{ asset('images/logo.svg') }}" alt="logo">
+                                <img src="{{ asset('Back/images/favicon11.png') }}" alt="logo">
                             </div>
-                            <h4>Hello! Let's get started</h4>
-                            <h6 class="font-weight-light">Sign in to continue.</h6>
+                            <h4 class="text-green">Hello! Let's get started</h4>
+                            <h6 class="font-weight-light mb-4">Sign in to continue.</h6>
 
                             {% if error %}
                                 <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -61,12 +115,12 @@
                                             Keep me signed in
                                         </label>
                                     </div>
-                                    <a href="{{ path('app_reset') }}" class="auth-link text-black">Forgot password?</a>
+                                    <a href="{{ path('app_request_password_reset') }}" class="auth-link text-black">Forgot password?</a>
                                 </div>
                                 <div class="mb-2">
-                                    <button type="button" class="btn btn-block btn-facebook auth-form-btn">
-                                        <i class="ti-facebook mr-2"></i>Connect using Facebook
-                                    </button>
+                                    <a href="{{ path('connect_google') }}" class="btn btn-block btn-danger auth-form-btn">
+                                        <i class="ti-google mr-2"></i>Connect using Gmail
+                                    </a>
                                 </div>
                                 <div class="text-center mt-4 font-weight-light">
                                     Don't have an account? 
@@ -79,13 +133,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Scripts -->
-    <script src="{{ asset('vendors/js/vendor.bundle.base.js') }}"></script>
-    <script src="{{ asset('js/off-canvas.js') }}"></script>
-    <script src="{{ asset('js/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('js/template.js') }}"></script>
-    <script src="{{ asset('js/settings.js') }}"></script>
-    <script src="{{ asset('js/todolist.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> update the the user.entity
+</html>

@@ -6,7 +6,6 @@
   {# Vos autres feuilles de style #}
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   
-  
 {% endblock %}
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -63,7 +62,7 @@
           </li>
         </ul>
         <ul class="navbar-nav navbar-nav-right">
-<li class="nav-item dropdown">
+        <li class="nav-item dropdown">
     <a class="nav-link count-indicator dropdown-toggle" id="notificationDropdown" href="#" data-toggle="dropdown">
         <i class="icon-bell mx-0"></i>
         <span class="count badge badge-danger" style="display: none;"></span>
@@ -75,26 +74,25 @@
         </div>
     </div>
 </li>
-          <li class="nav-item nav-profile dropdown">
-            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-              <img src="{{asset('Back/images/faces/face28.jpg')}}" alt="profile"/>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-              <a class="dropdown-item">
-                <i class="ti-settings text-primary"></i>
-                Settings
-              </a>
-              <a class="dropdown-item">
-                <i class="ti-power-off text-primary"></i>
-                Logout
-              </a>
-            </div>
-          </li>
-          <li class="nav-item nav-settings d-none d-lg-flex">
-            <a class="nav-link" href="#">
-              <i class="icon-ellipsis"></i>
-            </a>
-          </li>
+        <li class="nav-item nav-profile dropdown">
+  <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+    <img src="{% if app.user and app.user.profilePicture %}{{ asset(app.user.profilePicture) }}{% else %}{{ asset('Back/images/faces/face28.jpg') }}{% endif %}" alt="profile"/>
+  </a>
+  <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+    <a class="dropdown-item" href="{{ path('app_profile') }}">
+      <i class="ti-settings text-primary"></i> Settings
+    </a>
+    <a class="dropdown-item" href="{{ path('app_logout') }}">
+      <i class="ti-power-off text-primary"></i> Logout
+    </a>
+  </div>
+</li>
+<li class="nav-item nav-settings d-none d-lg-flex">
+  <a class="nav-link" href="#">
+    <i class="icon-ellipsis"></i>
+  </a>
+</li>
+
         </ul>
         <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-toggle="offcanvas">
           <span class="icon-menu"></span>
@@ -300,6 +298,16 @@
     </form>
           </li>
           <li class="nav-item">
+           
+            <form action="{{ path('app_stats') }}" method="get">
+        <button type="submit" class="btn btn-link nav-link">
+            <i class="icon-grid-2 menu-icon"></i>
+            <span class="menu-title">stats</span>
+            <i class="menu-arrow"></i>
+        </button>
+    </form>
+          </li>
+          <li class="nav-item">
           
               <form action="{{ path('admin_commandes_by_terrain') }}" method="get">
         <button type="submit" class="btn btn-link nav-link">
@@ -380,89 +388,6 @@
   
   {% endblock %}
 </body>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    let previousNotificationCount = 0; // Sauvegarde du nombre précédent de notifications
-    let audioEnabled = false; // Vérifie si l'utilisateur a interagi avec la page
-
-    // Autoriser l'audio après une interaction
-    document.addEventListener("click", () => {
-        audioEnabled = true;
-    });
-
-    function fetchNotifications() {
-        fetch('/admin/notifications')
-            .then(response => response.json())
-            .then(data => {
-                const countElement = document.querySelector('.count');
-                const notificationList = document.getElementById('notifications-list');
-
-                if (data.length > 0) {
-                    countElement.textContent = data.length;
-                    countElement.style.display = 'inline-block';
-                    
-                    notificationList.innerHTML = "";
-
-                    data.forEach(notification => {
-                        const notifItem = document.createElement("a");
-                        notifItem.href = "#";
-                        notifItem.classList.add("dropdown-item", "preview-item");
-                        notifItem.dataset.id = notification.id; // Stocker l'ID pour le marquer comme lu
-                        notifItem.innerHTML = `
-                            <div class="preview-thumbnail">
-                                <div class="preview-icon bg-info">
-                                    <i class="ti-bell mx-0"></i>
-                                </div>
-                            </div>
-                            <div class="preview-item-content">
-                                <h6 class="preview-subject font-weight-normal">${notification.message}</h6>
-                                <p class="font-weight-light small-text mb-0 text-muted">${notification.createdAt}</p>
-                            </div>
-                        `;
-                        notificationList.appendChild(notifItem);
-                    });
-
-                    // Jouer le son seulement s'il y a une nouvelle notification et que l'audio est activé
-                    if (data.length > previousNotificationCount && audioEnabled) {
-                        let audio = new Audio("/back/sounds/notification.mp3");
-                        audio.play().catch(error => console.error("Erreur lecture audio :", error));
-                    }
-                    previousNotificationCount = data.length;
-
-                } else {
-                    countElement.style.display = 'none';
-                    notificationList.innerHTML = `<p class="font-weight-light small-text mb-0 text-muted text-center">Aucune notification</p>`;
-                }
-
-                // Ajouter les événements de clic pour marquer comme lu
-                markNotificationsAsRead();
-            })
-            .catch(error => console.error("Erreur lors du chargement des notifications", error));
-    }
-
-    function markNotificationsAsRead() {
-        document.querySelectorAll("#notifications-list a").forEach(item => {
-            item.addEventListener("click", function () {
-                const notificationId = this.dataset.id;
-
-                fetch(`/admin/notifications/mark-as-read/${notificationId}`, {
-                    method: "POST"
-                }).then(() => {
-                    fetchNotifications(); // Mettre à jour les notifications après avoir marqué comme lu
-                });
-            });
-        });
-    }
-
-    // Rafraîchir les notifications toutes les 10 secondes
-    setInterval(fetchNotifications, 10000);
-    fetchNotifications();
-});
-
-</script>
-
-
-
 
 </html>
 

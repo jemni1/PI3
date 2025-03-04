@@ -1,0 +1,399 @@
+{% extends 'baseFront.html.twig' %}
+
+{% block title %}Détection YOLOv8{% endblock %}
+
+{% block body %}
+<style>
+    /* Styles pour le contenu uniquement, sans affecter le header */
+    .yolo-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+    
+    .yolo-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        background: linear-gradient(90deg, #3b82f6, #2563eb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .upload-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-section:hover {
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+    
+    .dropzone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #d1d5db;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .dropzone:hover {
+        border-color: #3b82f6;
+    }
+    
+    .dropzone label {
+        display: block;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+    
+    .dropzone input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .camera-icon {
+        font-size: 2.5rem;
+        color: #3b82f6;
+        margin-bottom: 1rem;
+    }
+    
+    .file-details {
+        display: none;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #4b5563;
+    }
+    
+    .analyze-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: center;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background-color: #2563eb;
+        color: white;
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        width: 200px;
+        margin-top: 1.5rem;
+    }
+    
+    .analyze-btn:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+    }
+    
+    .analyze-btn:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .preview-area {
+        margin-top: 2rem;
+        text-align: center;
+    }
+    
+    .preview-area h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: #374151;
+    }
+    
+    .image-display {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .loading-spinner {
+        display: none;
+        width: 48px;
+        height: 48px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3b82f6;
+        border-radius: 50%;
+        margin: 2rem auto;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .results-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .quality-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .quality-good {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .quality-medium {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .quality-bad {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stat-box {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2563eb;
+    }
+    
+    .stat-text {
+        font-size: 0.875rem;
+        color: #4b5563;
+        margin-top: 0.5rem;
+    }
+    
+    .output-details {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        overflow: auto;
+        max-height: 300px;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('image');
+        const fileDetails = document.querySelector('.file-details');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const previewArea = document.getElementById('preview-area');
+        const imageDisplay = document.getElementById('image-display');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const uploadForm = document.getElementById('upload-form');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Afficher les informations du fichier
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileDetails.style.display = 'block';
+                
+                // Afficher l'aperçu de l'image
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imageDisplay.src = event.target.result;
+                    previewArea.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+                
+                // Activer le bouton d'analyse
+                analyzeBtn.disabled = false;
+            } else {
+                fileDetails.style.display = 'none';
+                previewArea.style.display = 'none';
+                analyzeBtn.disabled = true;
+            }
+        });
+        
+        uploadForm.addEventListener('submit', function() {
+            loadingSpinner.style.display = 'block';
+            analyzeBtn.disabled = true;
+        });
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) {
+                return bytes + ' octets';
+            } else if (bytes < 1048576) {
+                return (bytes / 1024).toFixed(2) + ' Ko';
+            } else {
+                return (bytes / 1048576).toFixed(2) + ' Mo';
+            }
+        }
+    });
+</script>
+
+<div class="yolo-container">
+    <h1 class="yolo-title">Analyse d'image avec YOLOv8</h1>
+    
+    <div class="upload-section">
+        <form id="upload-form" action="{{ path('detection') }}" method="post" enctype="multipart/form-data">
+            <div class="dropzone">
+                <div class="camera-icon">📷</div>
+                <label for="image">Déposez votre image ou cliquez pour la sélectionner</label>
+                <p>Formats acceptés: JPG, PNG, JPEG (max: 10 Mo)</p>
+                <input type="file" id="image" name="image" accept="image/*" required>
+                <div class="file-details">
+                    <p>Fichier sélectionné: <span id="file-name"></span> (<span id="file-size"></span>)</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button id="analyze-btn" type="submit" class="analyze-btn" disabled>
+                    Analyser l'image
+                </button>
+            </div>
+        </form>
+        
+        <div id="preview-area" class="preview-area" style="display: none;">
+            <h3>Aperçu de l'image</h3>
+            <img id="image-display" class="image-display" src="" alt="Aperçu de l'image">
+        </div>
+    </div>
+    
+    <div id="loading-spinner" class="loading-spinner"></div>
+    
+    {% if output is defined and output %}
+        <div class="results-section">
+            <div class="results-header">
+                <h2>Résultat de la détection</h2>
+                
+                {% set quality = 'Mauvaise' %}
+                {% if 'Mauvaise' in output %}
+                    {% set quality = 'Mauvaise' %}
+                    {% set qualityClass = 'quality-bad' %}
+                {% elseif 'Moyenne' in output %}
+                    {% set quality = 'Moyenne' %}
+                    {% set qualityClass = 'quality-medium' %}
+                {% else %}
+                    {% set quality = 'Bonne' %}
+                    {% set qualityClass = 'quality-good' %}
+                {% endif %}
+                
+                <div class="quality-badge {{ qualityClass }}">
+                    Qualité: {{ quality }}
+                </div>
+            </div>
+            
+            {% set stats = output|split(':') %}
+            {% set dimensions = '' %}
+            {% set crops = 0 %}
+            {% set weeds = 0 %}
+            {% set inference_time = '' %}
+            
+            {% for part in stats %}
+                {% if 'x' in part and '(' not in part %}
+                    {% set dimensions = part|trim|split(' ')[0] %}
+                {% endif %}
+                
+                {% if 'crops' in part %}
+                    {% set crops = part|trim|split(' ')[0] %}
+                {% endif %}
+                
+                {% if 'weeds' in part %}
+                    {% set weeds = part|trim|split(' ')[0] %}
+                {% endif %}
+                
+                {% if 'ms' in part and 'inference' in part %}
+                    {% set inference_time = part|trim|split(' ')[0] %}
+                {% endif %}
+            {% endfor %}
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-number">{{ dimensions }}</div>
+                    <div class="stat-text">Dimensions</div>
+                </div>
+                
+                <div class="stat-box">
+                    <div class="stat-number">{{ crops }}</div>
+                    <div class="stat-text">Cultures détectées</div>
+                </div>
+                
+                <div class="stat-box">
+                    <div class="stat-number">{{ weeds }}</div>
+                    <div class="stat-text">Mauvaises herbes</div>
+                </div>
+                
+                <div class="stat-box">
+                    <div class="stat-number">{{ inference_time }}</div>
+                    <div class="stat-text">Temps d'inférence (ms)</div>
+                </div>
+            </div>
+            
+            <div class="output-details">
+                <pre>{{ output }}</pre>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

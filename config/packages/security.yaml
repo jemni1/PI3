@@ -1,32 +1,58 @@
 security:
     password_hashers:
+        App\Entity\User:
+            algorithm: bcrypt
+            cost: 12
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-
+    
     providers:
         app_user_provider:
             entity:
                 class: App\Entity\User
                 property: email
-
+    
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
+        
         main:
             lazy: true
             provider: app_user_provider
+            custom_authenticators:
+                - App\Security\GoogleAuthenticator
+            entry_point: App\Security\GoogleAuthenticator
             form_login:
                 login_path: app_login
                 check_path: app_login
-                enable_csrf: true
+                success_handler: App\Security\SuccesHandler
                 username_parameter: username
                 password_parameter: password
-                default_target_path: page_index
-                always_use_default_target_path: false
+                enable_csrf: true
+                default_target_path: app_home  # Fallback if controller redirect fails
             logout:
                 path: app_logout
                 target: app_login
-
+                invalidate_session: true
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 1800
+                path: /
+                secure: true
+                httponly: true
+                samesite: lax
     access_control:
-    - { path: ^/, roles: PUBLIC_ACCESS }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/register$, roles: PUBLIC_ACCESS }
+        - { path: ^/password-reset, roles: PUBLIC_ACCESS }
+        - { path: ^/2fa, roles: IS_AUTHENTICATED_REMEMBERED }
+        - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        - { path: ^/connect/google/check, roles: PUBLIC_ACCESS }
+        - { path: ^/profile, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/settings, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/home, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/update-profile, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/terrain$, roles: [ROLE_AGRICULTURE, ROLE_ADMIN] }
+        - { path: ^/listprod, roles: ROLE_CLIENT }
+        - { path: ^/admin_recyclage_list, roles: ROLE_WORKER }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }

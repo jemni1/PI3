@@ -1,222 +1,321 @@
-{% extends 'baseBack.html.twig' %}
+{% block title %}Nouveau Terrain{% endblock %}
 
-{% block title %}Créer un terrain{% endblock %}
-
-{% block nav %}
-    {{ parent() }}
-{% endblock %}
-
-{% block side %}
-    {{ parent() }}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
-
-    <div class="container mt-4">
-        <br>
-        <h1 class="mb-5">Ajouter un nouveau terrain</h1>
-
-        <div class="card p-4 shadow-sm">
-            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-
-                <div class="mb-3">
-                    {{ form_label(form.nom, 'Nom du terrain', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom'}}) }}
-                    {{ form_errors(form.nom) }}
-                </div>
-
-                <div class="mb-3">
-                    {{ form_label(form.adresse, 'Adresse', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.adresse, {'attr': {'class': 'form-control', 'placeholder': 'Adresse'}}) }}
-                    {{ form_errors(form.adresse) }}
-                </div>
-
-                <div class="mb-3">
-                    {{ form_label(form.superficie, 'Superficie (m²)', {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(form.superficie, {'attr': {'class': 'form-control', 'placeholder': 'Superficie'}}) }}
-                    {{ form_errors(form.superficie) }}
-                </div>
-
-                <div class="mb-3">
-                    {{ form_label(form.image, 'Image du terrain', {'label_attr': {'class': 'form-label'}}) }}
-                    <div class="custom-file-upload">
-                        <div class="preview-zone hidden">
-                            <div class="box box-solid">
-                                <div class="box-header">
-                                    <div class="box-tools pull-right">
-                                        <button type="button" class="btn btn-danger btn-sm remove-preview">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="box-body">
-                                    <img id="preview-image" src="" alt="" class="img-fluid" style="max-height: 200px;">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dropzone-wrapper">
-                            <div class="dropzone-desc">
-                                <i class="fas fa-upload"></i>
-                                <p>Déposez votre image ici ou cliquez pour sélectionner</p>
-                            </div>
-                            {{ form_widget(form.image, {
-                                'attr': {
-                                    'class': 'dropzone',
-                                    'style': 'display: none;'
-                                }
-                            }) }}
-                        </div>
-                    </div>
-                    <small class="form-text text-muted">Formats acceptés : JPG, PNG. Taille maximale : 5 Mo</small>
-                    {{ form_errors(form.image) }}
-                </div>
-                
-                <div class="mb-3">
-                    {{ form_label(form.cultures, 'Cultures associées') }}
-                    {{ form_widget(form.cultures, {
-                        'attr': {
-                            'class': 'select2-cultures form-control',
-                            'data-placeholder': 'Rechercher des cultures...'
-                        }
-                    }) }}
-                    {{ form_errors(form.cultures) }}
-                </div>
-                <div class="mb-3">
-                <button class="btn btn-primary w-100">Enregistrer</button>
-                </div>
-
-            {{ form_end(form) }}
-        </div>
-    </div>
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        .custom-file-upload {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            transition: all 0.3s ease;
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
         }
-        
-        .custom-file-upload:hover {
-            border-color: #2196f3;
-            background-color: #f8f9fa;
+
+        .button-container .btn {
+            margin: 0;
         }
-        
-        .dropzone-wrapper {
-            border: 2px dashed #91b0b3;
-            border-radius: 4px;
-            color: #92b0b3;
-            position: relative;
-            height: 150px;
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+            transform: translateY(-1px);
+        }
+
+        /* Pour que le lien se comporte comme un bouton */
+        .btn-primary {
+            text-decoration: none;
+            text-align: center;
+        }
+        :root {
+            --primary-color: #16a34a;      /* Vert principal */
+            --primary-hover: #15803d;      /* Vert foncé pour hover */
+            --secondary-color: #86efac;    /* Vert clair pour accents */
+            --border-color: #dcfce7;       /* Vert très clair pour bordures */
+            --error-color: #ef4444;        /* Rouge pour les erreurs */
+            --text-color: #1e293b;         /* Texte foncé */
+            --bg-color: #f0fdf4;           /* Fond légèrement teinté de vert */
+            --success-color: #22c55e;      /* Vert vif pour succès */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.1);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.875rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .form-error {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Select2 personnalisé */
+        .select2-container--classic .select2-selection--multiple {
+            border: 1px solid var(--border-color) !important;
+            border-radius: 0.5rem !important;
+            padding: 0.25rem !important;
+        }
+
+        .select2-container--classic .select2-selection--multiple:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1) !important;
+        }
+
+        .select2-container--classic .select2-selection__choice {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 0.25rem !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+
+        .select2-container--classic .select2-selection__choice__remove {
+            color: white !important;
+            margin-right: 5px !important;
+        }
+
+        /* Bouton personnalisé */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: 500;
+            font-size: 1rem;
             cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            gap: 0.5rem;
         }
-        
-        .dropzone-desc {
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* Style pour l'upload d'image */
+        .image-upload-container {
+            border: 2px dashed var(--border-color);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: var(--bg-color);
         }
-        
-        .dropzone-desc i {
-            font-size: 2em;
-            margin-bottom: 10px;
+
+        .image-upload-container:hover {
+            border-color: var(--primary-color);
+            background-color: var(--border-color);
         }
-        
-        .preview-zone {
-            text-align: center;
-            margin-bottom: 15px;
+
+        .image-upload-container i {
+            color: var(--primary-color);
         }
-        
-        .preview-zone.hidden {
-            display: none;
+
+        /* Ajout d'indicateurs de succès */
+        .form-success {
+            color: var(--success-color);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .box {
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            padding: 10px;
+
+        /* Styles pour la carte */
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
         }
-        </style>
-        
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropzoneWrapper = document.querySelector('.dropzone-wrapper');
-            const fileInput = document.querySelector('.dropzone');
-            const previewZone = document.querySelector('.preview-zone');
-            const previewImage = document.getElementById('preview-image');
-            const removePreviewButton = document.querySelector('.remove-preview');
-        
-            dropzoneWrapper.addEventListener('click', function() {
-                fileInput.click();
-            });
-        
-            dropzoneWrapper.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                this.style.backgroundColor = '#f8f9fa';
-            });
-        
-            dropzoneWrapper.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                this.style.backgroundColor = '';
-            });
-        
-            dropzoneWrapper.addEventListener('drop', function(e) {
-                e.preventDefault();
-                fileInput.files = e.dataTransfer.files;
-                handleFileSelect();
-            });
-        
-            fileInput.addEventListener('change', handleFileSelect);
-        
-            function handleFileSelect() {
-                const file = fileInput.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImage.src = e.target.result;
-                        previewZone.classList.remove('hidden');
-                        dropzoneWrapper.style.display = 'none';
+
+        .coord-display {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            background-color: var(--bg-color);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .coord-item {
+            flex: 1;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container form-container">
+        <h1 class="form-header">
+            <i class="fas fa-leaf mr-2"></i>
+            Gestion du Terrain - DataFarm
+        </h1>
+
+        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+            <!-- Nom du Terrain -->
+            <div class="form-group">
+                {{ form_label(form.nom, "Nom du Terrain", {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.nom, {
+                    'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: Parcelle Sud'
                     }
-                    reader.readAsDataURL(file);
-                }
-            }
-        
-            removePreviewButton.addEventListener('click', function() {
-                fileInput.value = '';
-                previewZone.classList.add('hidden');
-                dropzoneWrapper.style.display = 'flex';
-                previewImage.src = '';
-            });
-        });
-        </script>
-        <style>
-            .select2-container--classic .select2-selection--multiple {
-                border: 1px solid #ced4da;
-                border-radius: 0.25rem;
-                min-height: 38px;
-            }
-            
-            .select2-container--classic .select2-selection--multiple .select2-selection__choice {
-                background-color: #e9ecef;
-                border: 1px solid #ced4da;
-                border-radius: 0.25rem;
-                padding: 2px 8px;
-                margin: 4px;
-            }
-            
-            .select2-container--classic .select2-search--inline .select2-search__field {
-                margin-top: 4px;
-            }
-        </style>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+                }) }}
+                {{ form_errors(form.nom, {'attr': {'class': 'form-error'}}) }}
+            </div>
+
+            <!-- Adresse du Terrain -->
+            <div class="form-group">
+                {{ form_label(form.adresse, "Adresse", {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.adresse, {
+                    'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 123 Route des Champs',
+                        'id': 'terrain-adresse'
+                    }
+                }) }}
+                {{ form_errors(form.adresse, {'attr': {'class': 'form-error'}}) }}
+            </div>
+
+            <!-- Superficie -->
+            <div class="form-group">
+                {{ form_label(form.superficie, "Superficie (en m²)", {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.superficie, {
+                    'attr': {
+                        'class': 'form-control',
+                        'placeholder': 'Ex: 5000'
+                    }
+                }) }}
+                {{ form_errors(form.superficie, {'attr': {'class': 'form-error'}}) }}
+            </div>
+
+            <!-- Carte pour sélectionner l'emplacement -->
+            <div class="form-group">
+                <label for="map" class="form-label">Sélectionnez l'emplacement sur la carte</label>
+                <div id="map"></div>
+                <div class="coord-display">
+                    <div class="coord-item">
+                        <label for="form_latitude" class="form-label">Latitude</label>
+                        {{ form_widget(form.latitude, {'attr': {'class': 'form-control map-latitude', 'readonly': 'readonly'}}) }}
+                    </div>
+                    <div class="coord-item">
+                        <label for="form_longitude" class="form-label">Longitude</label>
+                        {{ form_widget(form.longitude, {'attr': {'class': 'form-control map-longitude', 'readonly': 'readonly'}}) }}
+                    </div>
+                </div>
+                {{ form_errors(form.latitude, {'attr': {'class': 'form-error'}}) }}
+                {{ form_errors(form.longitude, {'attr': {'class': 'form-error'}}) }}
+            </div>
+         
+            <!-- Image du Terrain -->
+            <div class="form-group">
+                {{ form_label(form.image, "Image du Terrain", {'label_attr': {'class': 'form-label'}}) }}
+                <div class="image-upload-container">
+                    <i class="fas fa-seedling fa-2x mb-2"></i>
+                    <p>Glissez-déposez votre image ici ou cliquez pour sélectionner</p>
+                    {{ form_widget(form.image, {'attr': {'class': 'form-control d-none', 'accept': 'image/*'}}) }}
+                </div>
+                {{ form_errors(form.image, {'attr': {'class': 'form-error'}}) }}
+            </div>
+
+            <!-- Cultures -->
+            <div class="form-group">
+                {{ form_label(form.cultures, "Cultures sur le Terrain", {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.cultures, {
+                    'attr': {
+                        'class': 'form-control select2-cultures',
+                        'multiple': true
+                    }
+                }) }}
+                {{ form_errors(form.cultures, {'attr': {'class': 'form-error'}}) }}
+            </div>
+
+            <div class="button-container">
+                <a href="{{ path('predict_crop') }}" class="btn btn-primary" style="width: 30%; background-color: var(--secondary-color); color: var(--text-color);">
+                    <i class="fas fa-magic"></i>
+                    Prédire Culture
+                </a>
+                
+                <!-- Bouton de Soumission -->
+                <button type="submit" class="btn btn-primary" style="width: 70%;">
+                    <i class="fas fa-leaf"></i>
+                    Enregistrer le Terrain
+                </button>
+            </div>
+           
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         $(document).ready(function() {
+            // Initialisation de Select2
             $('.select2-cultures').select2({
                 theme: 'classic',
                 width: '100%',
-                placeholder: 'Rechercher des cultures...',
+                placeholder: 'Sélectionnez les cultures...',
                 allowClear: true,
                 language: {
                     noResults: function() {
@@ -226,6 +325,56 @@
                         return "Recherche en cours...";
                     }
                 }
+            });
+
+            // Gestion de l'upload d'image
+            $('.image-upload-container').click(function() {
+                $(this).find('input[type="file"]').click();
+            });
+
+            $('input[type="file"]').change(function() {
+                const fileName = $(this).val().split('\\').pop();
+                if (fileName) {
+                    $(this).closest('.image-upload-container').find('p')
+                        .html(`<i class="fas fa-check-circle text-success"></i> ${fileName} sélectionné`);
+                }
+            });
+            
+            // Initialisation de la carte Leaflet
+            var map = L.map('map').setView([35.131856, 9.634782], 5); // Vue centrée sur la France
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            var marker = null;
+            
+            // Récupérer les valeurs initiales des champs latitude et longitude
+            var initialLat = $('.map-latitude').val();
+            var initialLng = $('.map-longitude').val();
+            
+            // Si des coordonnées existent déjà, placer un marqueur
+            if (initialLat && initialLng) {
+                marker = L.marker([initialLat, initialLng]).addTo(map);
+                map.setView([initialLat, initialLng], 13);
+            }
+            
+            // Gestion du clic sur la carte
+            map.on('click', function(e) {
+                var lat = e.latlng.lat;
+                var lng = e.latlng.lng;
+                
+                // Mise à jour des champs latitude et longitude
+                $('.map-latitude').val(lat.toFixed(6));
+                $('.map-longitude').val(lng.toFixed(6));
+                
+                // Suppression de l'ancien marqueur s'il existe
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                
+                // Ajout d'un nouveau marqueur
+                marker = L.marker([lat, lng]).addTo(map);
             });
         });
     </script>

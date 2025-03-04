@@ -6,30 +6,52 @@
 
 {% block body %}
     <div class="container mt-5">
-        <h1 class="text-center mb-4 text-success font-weight-bold">Détails de la commande</h1>
+        <div class="card shadow-lg p-4 rounded-lg">
+            <h1 class="text-center mb-4 text-success font-weight-bold">
+                <i class="fas fa-shopping-cart"></i> Détails de la Commande
+            </h1>
 
-        <table class="table table-striped table-hover shadow-sm rounded-lg">
-            <thead class="thead-light bg-success text-white">
-                <tr>
-                    <th>Référence</th>
-                    <th>Produit</th>
-                    <th>Quantité</th>
-                    <th>Prix total</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ commande.id }}</td>
-                    <td>{{ commande.nom }}</td>
-                    <td>{{ commande.quantite }}</td>
-                    <td>{{ commande.prix }} €</td>
-                    <td>{{ commande.date|date('d-m-Y H:i') }}</td>
-                </tr>
-            </tbody>
-        </table>
-        <a href="{{ path('generate_invoice_pdf', { 'commandeId': commande.id }) }}" class="btn btn-success">Télécharger la facture</a>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover text-center rounded-lg shadow-sm">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th><i class="fas fa-barcode"></i> Référence</th>
+                            <th><i class="fas fa-box"></i> Produit</th>
+                            <th><i class="fas fa-sort-numeric-up"></i> Quantité</th>
+                            <th><i class="fas fa-euro-sign"></i> Prix total</th>
+                            <th><i class="fas fa-calendar-alt"></i> Date</th>
+                            <th><i class="fas fa-cogs"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="table-light">
+                            <td><span class="badge bg-secondary text-white">{{ commande.id }}</span></td>
+                            <td class="font-weight-bold text-primary">{{ commande.nom }}</td>
+                            <td><span class="badge bg-info text-white">{{ commande.quantite }}</span></td>
+                            <td class="font-weight-bold text-danger">{{ commande.prix }} €</td>
+                            <td class="text-muted">{{ commande.date|date('d-m-Y H:i') }}</td>
+                            <td>
+                                <a href="{{ path('generate_invoice_pdf', { 'commandeId': commande.id }) }}" 
+                                   class="btn btn-success px-3 py-2 shadow">
+                                    <i class="fas fa-file-download"></i> 
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-        <a href="{{ path('user_commandes_by_terrain', { userId: commande.id_client }) }}" class="btn btn-primary">Retour à la liste des commandes</a>
+            <div class="qr-code text-center mt-4">
+                <h2>QR Code de la facture</h2>
+                <img src="{{ qrCode }}" alt="QR Code de la facture" class="img-fluid" />
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ path('user_commandes_by_terrain', { userId: commande.id_client }) }}" 
+                   class="btn btn-primary px-4 py-2 shadow">
+                    <i class="fas fa-arrow-left"></i> 
+                </a>
+            </div>
+        </div>
     </div>
 {% endblock %}

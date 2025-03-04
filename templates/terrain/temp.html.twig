@@ -1,0 +1,100 @@
+{% block stylesheets %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #16a34a;
+            --secondary-color: #86efac;
+            --text-color: #1e293b;
+            --bg-color: #f0fdf4;
+            --weather-bg: #e0f2fe;
+            --weather-border: #bae6fd;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 1rem;
+        }
+
+        .terrain-info {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .terrain-info h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .terrain-info p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .weather-info {
+            background: var(--weather-bg);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--weather-border);
+            margin-top: 1.5rem;
+        }
+
+        .weather-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .weather-info p {
+            margin: 0.5rem 0;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .weather-info .temp {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .weather-info .condition {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .weather-info .condition i {
+            color: var(--primary-color);
+        }
+
+        .no-weather-data {
+            color: #ef4444;
+            font-style: italic;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="terrain-info">
+        <h1>{{ terrain.nom }}</h1>
+        <p><strong>Adresse:</strong> {{ terrain.adresse }}</p>
+        <p><strong>Superficie:</strong> {{ terrain.superficie }} m²</p>
+    </div>
+
+    {% if weatherData.current is defined %}
+    <div class="weather-info">
+        <h3>Conditions météorologiques</h3>
+        <p>Température actuelle: {{ weatherData.current.temp_c }}°C</p>
+        <p>Condition: {{ weatherData.current.condition.text }}</p>
+        <p>Humidité: {{ weatherData.current.humidity }}%</p>
+    </div>
+{% else %}
+    <p>Données météo non disponibles</p>
+{% endif %}
+{% endblock %}

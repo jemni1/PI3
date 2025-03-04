@@ -25,24 +25,17 @@
               <h4>Forgot Your Password?</h4>
               <h6 class="font-weight-light">Enter your details to reset your password.</h6>
               
-              <form class="pt-3" action="{{ path('send_reset_link') }}" method="POST">
-                
-                <div class="form-group">
-                  <input type="email" class="form-control form-control-lg" name="email" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                  <input type="password" class="form-control form-control-lg" name="password" placeholder="New Password" required>
-                </div>
-                <div class="form-group">
-                  <input type="password" class="form-control form-control-lg" name="confirm_password" placeholder="Confirm Password" required>
-                </div>
-                <div class="mt-3">
-                  <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Reset Password</button>
-                </div>
-                <div class="text-center mt-4 font-weight-light">
-                  Remembered your password? <a href="{{ path('app_login') }}">Sign In</a>
-                </div>
-              </form>
+<form method="post" action="{{ path('send_reset_link') }}">
+            <div class="form-group">
+                <label for="password">New Password:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block mt-3">Reset Password</button>
+        </form>
             </div>
           </div>
         </div>

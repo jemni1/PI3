@@ -7,6 +7,7 @@ use App\Repository\ProduitsRepository;
 use App\EventSubscriber\CartSubscriber;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Repository\TerrainsRepository;
+use Knp\Snappy\Pdf;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,8 +18,52 @@ use App\Entity\Produits;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\Builder\BuilderInterface;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelHigh;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Endroid\QrCode\ErrorCorrectionLevel;
+
 final class CommandesController extends AbstractController
 {
+    #[Route('/facture/{id}', name:"facture_show")]
+    public function indexcomm(int $id, CommandesRepository $commandesRepository, BuilderInterface $qrCodeBuilder): Response
+    {
+        $commande = $commandesRepository->find($id);
+        
+        if (!$commande) {
+            throw $this->createNotFoundException('La commande n\'existe pas.');
+        }
+    
+        // Créer les données pour le QR code (par exemple, un lien vers la facture ou les détails de la commande)
+        $qrData = json_encode([
+            'id' => $commande->getId(),
+            'reference' => $commande->getId(), // Supposons que vous avez une méthode getReference()
+            'date' => $commande->getDate()->format('Y-m-d H:i:s'), // Supposons que vous avez une méthode getCreatedAt()
+            'total' => $commande->getPrix(), // Supposons que vous avez une méthode getTotal()
+            // Ajoutez d'autres détails selon vos besoins
+        ]);
+    
+        // Ou simplement un lien vers la facture
+        $url = $this->generateUrl('facture_show', ['id' => $commande->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+        
+        // Générer le QR code
+        $qrCode = $qrCodeBuilder
+            ->data($qrData) // ou $url si vous préférez encoder l'URL
+            ->size(300)
+            ->margin(10)
+            ->build();
+        
+        // Génère le data URI pour l'image du QR code
+        $qrCodeDataUri = $qrCode->getDataUri();
+    
+        // Return the rendered view with the QR code image
+        return $this->render('commandes/usercmd.html.twig', [
+            'commande' => $commande,
+            'qrCode' => $qrCodeDataUri,
+        ]);
+    }
+
     #[Route('/add-to-cart/{id}', name: 'add_to_cart')]
     public function addToCart(
         int $id,
@@ -234,11 +279,13 @@ public function index(TerrainsRepository $terrainsRepository, RequestStack $requ
     ]);
 }
 #[Route('/user/commandes', name: 'user_commandes_by_terrain')]
-public function indexuser( CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
-{
- 
+public function indexuser( CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository,SessionInterface $session): Response
+{        $cart = $session->get('cart', []);
+
+    $userId = $session->get('user_id', null);
+
     // $commandes = $commandesRepository->findBy(['id_client' => $userId]);
-    $commandes = $commandesRepository->findAll();
+    $commandes = $commandesRepository->findBy(['id_client' => $userId]);
 
     return $this->render('commandes/user.html.twig', [
         'commandes' => $commandes,
@@ -257,7 +304,7 @@ public function indexuser( CommandesRepository $commandesRepository, ProduitsRep
 // }
 
 #[Route('/factureadmin/{id}', name:"facture_admin")]
-public function indexcommm(int $id, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository): Response
+public function indexcommm(int $id, CommandesRepository $commandesRepository, ProduitsRepository $produitsRepository, BuilderInterface $qrCodeBuilder): Response
 {
     $commande = $commandesRepository->find($id);
     
@@ -270,27 +317,34 @@ public function indexcommm(int $id, CommandesRepository $commandesRepository, Pr
     $idTerrain = $produit->getIdTerrain()->getId();
 
     // $produits = $produitsRepository->findByCommande($commande);
+    $qrData = json_encode([
+        'id' => $commande->getId(),
+        'reference' => $commande->getId(), // Supposons que vous avez une méthode getReference()
+        'date' => $commande->getDate()->format('Y-m-d H:i:s'), // Supposons que vous avez une méthode getCreatedAt()
+        'total' => $commande->getPrix(), // Supposons que vous avez une méthode getTotal()
+        // Ajoutez d'autres détails selon vos besoins
+    ]);
+
+    // Ou simplement un lien vers la facture
+    $url = $this->generateUrl('facture_admin', ['id' => $commande->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+    
+    // Générer le QR code
+    $qrCode = $qrCodeBuilder
+        ->data($qrData) // ou $url si vous préférez encoder l'URL
+        ->size(300)
+        ->margin(10)
+        ->build();
+    
+    // Génère le data URI pour l'image du QR code
+    $qrCodeDataUri = $qrCode->getDataUri();
 
     return $this->render('commandes/admincmd.html.twig', [
         'commande' => $commande, 
         'idTerrain' => $idTerrain,
+        'qrCode' => $qrCodeDataUri,
     ]);
 }
-#[Route('/facture/{id}', name:"facture_show")]
-public function indexcomm(int $id, CommandesRepository $commandesRepository): Response
-{
-    $commande = $commandesRepository->find($id);
-    
-    if (!$commande) {
-        throw $this->createNotFoundException('La commande n\'existe pas.');
-    }
 
-    // $produits = $produitsRepository->findByCommande($commande);
-
-    return $this->render('commandes/usercmd.html.twig', [
-        'commande' => $commande,  // Utiliser 'commande' ici au lieu de 'commandes'
-    ]);
-}
 #[Route('/facture/delete/{id}', name:"facture_delete")]
 public function indexdelete(int $id, CommandesRepository $commandesRepository,EntityManagerInterface $entityManager, Request $request): Response
 {
@@ -312,7 +366,7 @@ public function indexdelete(int $id, CommandesRepository $commandesRepository,En
   /**
      * @Route("/commande/{commandeId}/facture", name="generate_invoice_pdf")
      */
-    public function generateInvoicePdf($commandeId, EntityManagerInterface $entityManager): Response
+    public function generateInvoicePdf($commandeId, EntityManagerInterface $entityManager,Pdf $pdf): Response
     {
         $commande = $entityManager->getRepository(Commandes::class)->find($commandeId);
 
@@ -320,20 +374,27 @@ public function indexdelete(int $id, CommandesRepository $commandesRepository,En
             throw $this->createNotFoundException('Commande non trouvée');
         }
 
-        $dompdf = new Dompdf();
+        // $dompdf = new Dompdf();
 
+        // $html = $this->renderView('commandes/pdf.html.twig', [
+        //     'commande' => $commande
+        // ]);
+
+        // $dompdf->loadHtml($html);
+
+        // $dompdf->setPaper('A4', 'portrait');
+
+        // $dompdf->render();
+        
         $html = $this->renderView('commandes/pdf.html.twig', [
             'commande' => $commande
         ]);
 
-        $dompdf->loadHtml($html);
+        $pdfContent = $pdf->getOutputFromHtml($html);
 
-        $dompdf->setPaper('A4', 'portrait');
-
-        $dompdf->render();
 
         return new Response(
-            $dompdf->output(),
+            $pdfContent,
             200,
             [
                 'Content-Type' => 'application/pdf',
@@ -341,31 +402,65 @@ public function indexdelete(int $id, CommandesRepository $commandesRepository,En
             ]
         );
     }
+    // /**
+    //  * @Route("/commandeAdmin/{commandeId}/facture", name="generate_invoice_pdf")
+    //  */
+    // public function generateInvoicePdfAdmin($commandeId, EntityManagerInterface $entityManager): Response
+    // {
+    //     $commande = $entityManager->getRepository(Commandes::class)->find($commandeId);
+
+    //     if (!$commande) {
+    //         throw $this->createNotFoundException('Commande non trouvée');
+    //     }
+
+    //     $dompdf = new Dompdf();
+
+    //     $html = $this->renderView('commandes/pdfadmin.html.twig', [
+    //         'commande' => $commande
+    //     ]);
+
+    //     $dompdf->loadHtml($html);
+
+    //     $dompdf->setPaper('A4', 'portrait');
+
+    //     $dompdf->render();
+
+    //     return new Response(
+    //         $dompdf->output(),
+    //         200,
+    //         [
+    //             'Content-Type' => 'application/pdf',
+    //             'Content-Disposition' => 'attachment; filename="facture_' . $commande->getId() . '.pdf"'
+    //         ]
+    //     );
+    // }
+
+
+
     /**
      * @Route("/commandeAdmin/{commandeId}/facture", name="generate_invoice_pdf")
      */
-    public function generateInvoicePdfAdmin($commandeId, EntityManagerInterface $entityManager): Response
-    {
+    public function generateInvoicePdfAdmin($commandeId, EntityManagerInterface $entityManager,SessionInterface $session, Pdf $pdf): Response
+    {   $cart = $session->get('cart', []);
+        $userId = $session->get('user_id', null);
+        $user = $this->getUser(); // Récupère l'utilisateur connecté
+
         $commande = $entityManager->getRepository(Commandes::class)->find($commandeId);
 
         if (!$commande) {
             throw $this->createNotFoundException('Commande non trouvée');
         }
 
-        $dompdf = new Dompdf();
-
         $html = $this->renderView('commandes/pdfadmin.html.twig', [
-            'commande' => $commande
+            'commande' => $commande,
+            'user' => $user,
+
         ]);
 
-        $dompdf->loadHtml($html);
-
-        $dompdf->setPaper('A4', 'portrait');
-
-        $dompdf->render();
+        $pdfContent = $pdf->getOutputFromHtml($html);
 
         return new Response(
-            $dompdf->output(),
+            $pdfContent,
             200,
             [
                 'Content-Type' => 'application/pdf',
