@@ -1,7 +1,7 @@
 # Data Farm - Smart & Sustainable Agriculture Platform with AI & ODD
 
 <div align="center">
-  <img src="/api/placeholder/800/400" alt="Data Farm Logo" width="400"/>
+  <img src="./public/Front/images/logo11.png" alt="Data Farm Logo" width="400"/>
   <p><em>Revolutionizing agriculture with AI and sustainable practices</em></p>
 </div>
 
